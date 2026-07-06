@@ -6,11 +6,12 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
+  - `e2ce343 Add next iteration context memory`
   - `852d48e Add library user documentation`
   - `9cdebdf Add developer onboarding guides`
   - `9e71cae Implement AuthNet MVP slice one`
-- MVP slice 1 is implemented and `docs/tasks.md` is fully checked off.
-- Working tree was clean when this file was written.
+- MVP slice 1 is implemented and `docs/tasks.md` is checked off.
+- Current iteration adds resend email confirmation, verified email-change confirmation, safer external login linking, and visible branding hooks.
 
 ## Implemented Product Surface
 
@@ -25,9 +26,11 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `samples/AuthNet.SampleHost`
   - `tests/AuthNet.Tests`
 - Built-in Razor Pages account UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Account`.
+- Account UI includes login/logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
 - ASP.NET Core Identity user/context in `AuthNet.Persistence.Postgres`.
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
+- External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `UseAuthNet`.
 
 ## Current Verification
@@ -62,6 +65,7 @@ Application started.
 - PostgreSQL/EF Core is the only persistence path for now.
 - Production must use a real `IAuthNetEmailSender`; development sender is rejected in production.
 - Public registration remains disabled by default.
+- External auto-provisioning requires a verified provider email claim.
 - Keep `docs/architecture-context.md` compact and synchronized when architecture changes.
 
 ## Documentation Map
@@ -96,4 +100,3 @@ Good next iteration candidates:
 - Add documentation for consuming AuthNet from NuGet once package IDs are finalized.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.
-

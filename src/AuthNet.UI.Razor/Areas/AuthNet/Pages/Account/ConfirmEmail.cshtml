@@ -4,6 +4,8 @@
     ViewData["Title"] = "Confirm email";
 }
 
+<partial name="_AuthNetBrand" />
+
 <h1>Confirm email</h1>
 
 <div class="alert @(Model.Succeeded ? "alert-success" : "alert-danger")">@Model.Message</div>

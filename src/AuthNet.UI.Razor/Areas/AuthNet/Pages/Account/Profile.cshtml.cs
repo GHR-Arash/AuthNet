@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using AuthNet.Core.Email;
 using AuthNet.Persistence.Postgres;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +10,17 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace AuthNetRazor.Areas.AuthNet.Pages.Account;
 
 [Authorize]
-public sealed class ProfileModel(UserManager<AuthNetUser> userManager) : PageModel
+public sealed class ProfileModel(
+    UserManager<AuthNetUser> userManager,
+    SignInManager<AuthNetUser> signInManager,
+    IAuthNetEmailSender emailSender) : PageModel
 {
     [BindProperty]
     public ProfileInput Input { get; set; } = new();
 
     public string? StatusMessage { get; private set; }
+
+    public IReadOnlyList<AuthenticationScheme> ExternalSchemes { get; private set; } = [];
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -30,6 +37,7 @@ public sealed class ProfileModel(UserManager<AuthNetUser> userManager) : PageMod
             PhoneNumber = user.PhoneNumber
         };
 
+        await LoadExternalSchemesAsync();
         return Page();
     }
 
@@ -41,11 +49,15 @@ public sealed class ProfileModel(UserManager<AuthNetUser> userManager) : PageMod
             return Challenge();
         }
 
+        await LoadExternalSchemesAsync();
+
         if (!ModelState.IsValid)
         {
-            Input.Email = user.Email ?? string.Empty;
             return Page();
         }
+
+        var currentEmail = user.Email ?? string.Empty;
+        var requestedEmail = Input.Email.Trim();
 
         user.DisplayName = Input.DisplayName;
         user.PhoneNumber = Input.PhoneNumber;
@@ -58,18 +70,38 @@ public sealed class ProfileModel(UserManager<AuthNetUser> userManager) : PageMod
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            Input.Email = user.Email ?? string.Empty;
+            Input.Email = currentEmail;
+            return Page();
+        }
+
+        if (!string.Equals(requestedEmail, currentEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            var token = await userManager.GenerateChangeEmailTokenAsync(user, requestedEmail);
+            var callbackUrl = AccountEmailMessages.BuildConfirmEmailUrl(this, user.Id, token, requestedEmail);
+
+            await emailSender.SendAsync(
+                AccountEmailMessages.CreateChangeEmailMessage(requestedEmail, callbackUrl),
+                HttpContext.RequestAborted);
+
+            StatusMessage = "Profile updated. Check the new email address to confirm the change.";
+            Input.Email = currentEmail;
             return Page();
         }
 
         StatusMessage = "Profile updated.";
-        Input.Email = user.Email ?? string.Empty;
+        Input.Email = currentEmail;
         return Page();
+    }
+
+    private async Task LoadExternalSchemesAsync()
+    {
+        ExternalSchemes = [.. await signInManager.GetExternalAuthenticationSchemesAsync()];
     }
 }
 
 public sealed class ProfileInput
 {
+    [Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
 
     [MaxLength(200)]

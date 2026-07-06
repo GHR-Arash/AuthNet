@@ -1,12 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.Persistence.Postgres;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace AuthNetRazor.Areas.AuthNet.Pages.Account;
 
@@ -55,18 +53,10 @@ public sealed class RegisterModel(
         }
 
         var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        var callbackUrl = Url.Page(
-            "/Account/ConfirmEmail",
-            pageHandler: null,
-            values: new { area = "AuthNet", userId = user.Id, code = encodedCode },
-            protocol: Request.Scheme)!;
+        var callbackUrl = AccountEmailMessages.BuildConfirmEmailUrl(this, user.Id, code);
 
-        await emailSender.SendAsync(new AuthNetEmailMessage(
-            Input.Email,
-            "Confirm your email",
-            $"Confirm your account by <a href=\"{callbackUrl}\">clicking here</a>.",
-            $"Confirm your account: {callbackUrl}"),
+        await emailSender.SendAsync(
+            AccountEmailMessages.CreateConfirmEmailMessage(Input.Email, callbackUrl),
             HttpContext.RequestAborted);
 
         return RedirectToPage("./Login", new { statusMessage = "Account created. Check email to confirm your account." });

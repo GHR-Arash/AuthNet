@@ -18,6 +18,8 @@ This page describes the current AuthNet MVP configuration surface.
 "AuthNet": {
   "ApplicationName": "My App",
   "AccountRoutePrefix": "/auth",
+  "LayoutPath": "_Layout",
+  "BrandLogoUrl": "/images/logo.svg",
   "EnablePublicRegistration": false,
   "UseDevelopmentEmailSender": false,
   "RequireConfirmedEmail": true,
@@ -44,6 +46,20 @@ Default:
 ```text
 /auth
 ```
+
+### `LayoutPath`
+
+Razor layout used by the built-in account UI.
+
+Default:
+
+```text
+_Layout
+```
+
+### `BrandLogoUrl`
+
+Optional logo URL rendered by the built-in account UI.
 
 ### `EnablePublicRegistration`
 
@@ -189,4 +205,3 @@ Development can use:
 ```json
 "UseDevelopmentEmailSender": true
 ```
-

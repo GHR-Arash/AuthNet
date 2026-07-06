@@ -19,11 +19,12 @@ Build first:
 - Razor Pages account UI.
 - Cookie authentication.
 - Registration disabled by default.
-- Login, logout, email verification, forgot/reset password, profile, change password.
+- Login, logout, email verification/resend, forgot/reset password, profile, verified email change, change password.
 - Email sender contract, with production sender required and development logging/fake sender allowed.
 - Role infrastructure using ASP.NET Core Identity roles.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
+- External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
 
 Deferred:
 

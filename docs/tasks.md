@@ -52,8 +52,10 @@ Acceptance criteria:
 - [x] Users can log in and log out.
 - [x] Public registration works only when explicitly enabled.
 - [x] Users can verify email.
+- [x] Users can resend email verification.
 - [x] Users can request and complete password reset.
 - [x] Authenticated users can view/update profile information.
+- [x] Authenticated users can change email through a verification email sent to the new address.
 - [x] Authenticated users can change password.
 
 ## 5. Add Email Sender Contract and Development Sender

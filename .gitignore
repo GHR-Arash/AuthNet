@@ -1,5 +1,7 @@
 .dotnet/
 .tools/
 samples/AuthNet.SampleHost/App_Data/
+.vs/
+*.csproj.user
 bin/
 obj/

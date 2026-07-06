@@ -35,6 +35,28 @@ public sealed class ExternalLoginModel(
             return Page();
         }
 
+        var currentUser = await userManager.GetUserAsync(User);
+        if (currentUser is not null)
+        {
+            var currentLogins = await userManager.GetLoginsAsync(currentUser);
+            if (currentLogins.Any(login =>
+                login.LoginProvider == info.LoginProvider &&
+                login.ProviderKey == info.ProviderKey))
+            {
+                return LocalRedirect(returnUrl ?? "~/");
+            }
+
+            var linkResult = await userManager.AddLoginAsync(currentUser, info);
+            if (!linkResult.Succeeded)
+            {
+                ErrorMessage = string.Join(" ", linkResult.Errors.Select(error => error.Description));
+                return Page();
+            }
+
+            await signInManager.RefreshSignInAsync(currentUser);
+            return LocalRedirect(returnUrl ?? "~/");
+        }
+
         var signInResult = await signInManager.ExternalLoginSignInAsync(
             info.LoginProvider,
             info.ProviderKey,
@@ -53,23 +75,32 @@ public sealed class ExternalLoginModel(
             return Page();
         }
 
-        var user = await userManager.FindByEmailAsync(email);
-        if (user is null)
+        if (!HasVerifiedEmail(info.Principal))
         {
-            user = new AuthNetUser
-            {
-                UserName = email,
-                Email = email,
-                EmailConfirmed = true,
-                DisplayName = info.Principal.Identity?.Name
-            };
+            ErrorMessage = "The external provider did not return a verified email address.";
+            return Page();
+        }
 
-            var createResult = await userManager.CreateAsync(user);
-            if (!createResult.Succeeded)
-            {
-                ErrorMessage = string.Join(" ", createResult.Errors.Select(error => error.Description));
-                return Page();
-            }
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is not null)
+        {
+            ErrorMessage = "An account already exists for this email address. Sign in with your password before linking an external login.";
+            return Page();
+        }
+
+        user = new AuthNetUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true,
+            DisplayName = info.Principal.Identity?.Name
+        };
+
+        var createResult = await userManager.CreateAsync(user);
+        if (!createResult.Succeeded)
+        {
+            ErrorMessage = string.Join(" ", createResult.Errors.Select(error => error.Description));
+            return Page();
         }
 
         var addLoginResult = await userManager.AddLoginAsync(user, info);
@@ -81,5 +112,12 @@ public sealed class ExternalLoginModel(
 
         await signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
         return LocalRedirect(returnUrl ?? "~/");
+    }
+
+    private static bool HasVerifiedEmail(ClaimsPrincipal principal)
+    {
+        var verifiedClaim = principal.FindFirst("email_verified")?.Value;
+        return string.Equals(verifiedClaim, "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(verifiedClaim, "1", StringComparison.OrdinalIgnoreCase);
     }
 }

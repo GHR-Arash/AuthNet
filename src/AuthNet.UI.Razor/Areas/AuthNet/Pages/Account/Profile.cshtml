@@ -4,6 +4,8 @@
     ViewData["Title"] = "Profile";
 }
 
+<partial name="_AuthNetBrand" />
+
 <h1>Profile</h1>
 
 @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
@@ -15,7 +17,8 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="mb-3">
         <label asp-for="Input.Email" class="form-label"></label>
-        <input asp-for="Input.Email" class="form-control" disabled />
+        <input asp-for="Input.Email" class="form-control" autocomplete="email" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Input.DisplayName" class="form-label"></label>
@@ -31,5 +34,20 @@
 </form>
 
 <p class="mt-3"><a asp-page="./ChangePassword">Change password</a></p>
+
+@if (Model.ExternalSchemes.Count > 0)
+{
+    <hr />
+    <h2>External logins</h2>
+    <form asp-page="./ExternalLogin" method="post">
+        <input type="hidden" name="returnUrl" value="@Url.Page("./Profile")" />
+        @foreach (var scheme in Model.ExternalSchemes)
+        {
+            <button type="submit" class="btn btn-outline-secondary me-2" name="provider" value="@scheme.Name">
+                Link @scheme.DisplayName
+            </button>
+        }
+    </form>
+}
 
 <partial name="_ValidationScriptsPartial" />

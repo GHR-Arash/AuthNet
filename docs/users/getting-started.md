@@ -148,6 +148,7 @@ With `AccountRoutePrefix` set to `/auth`, AuthNet maps:
 - `/auth/forgot-password`
 - `/auth/reset-password`
 - `/auth/confirm-email`
+- `/auth/resend-confirmation`
 - `/auth/profile`
 - `/auth/change-password`
 - `/auth/access-denied`
@@ -198,6 +199,8 @@ Enable generic OpenID Connect in configuration:
 
 When enabled, the login page shows the configured external provider.
 
+For security, automatic external account provisioning requires the provider to return a verified email claim. Existing local accounts are linked from the signed-in user's profile page, not by matching an unauthenticated external email claim.
+
 ## Production Notes
 
 - Use HTTPS.
@@ -206,4 +209,3 @@ When enabled, the login page shows the configured external provider.
 - Keep `UseDevelopmentEmailSender` set to `false`.
 - Keep `EnablePublicRegistration` set to `false` unless public signup is intended.
 - Review cookie, password, lockout, and email-confirmation settings before launch.
-

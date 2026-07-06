@@ -89,6 +89,7 @@ public static class AuthNetServiceCollectionExtensions
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ForgotPassword", $"{prefix}/forgot-password");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ResetPassword", $"{prefix}/reset-password");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ConfirmEmail", $"{prefix}/confirm-email");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ResendEmailConfirmation", $"{prefix}/resend-confirmation");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/Profile", $"{prefix}/profile");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ChangePassword", $"{prefix}/change-password");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/AccessDenied", $"{prefix}/access-denied");

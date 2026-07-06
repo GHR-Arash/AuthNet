@@ -1,0 +1,15 @@
+@inject global::AuthNet.Core.AuthNetOptions AuthNetOptions
+
+@if (!string.IsNullOrWhiteSpace(AuthNetOptions.ApplicationName) || !string.IsNullOrWhiteSpace(AuthNetOptions.BrandLogoUrl))
+{
+    <div class="mb-4">
+        @if (!string.IsNullOrWhiteSpace(AuthNetOptions.BrandLogoUrl))
+        {
+            <img src="@AuthNetOptions.BrandLogoUrl" alt="@AuthNetOptions.ApplicationName" class="mb-2" style="max-height: 48px;" />
+        }
+        @if (!string.IsNullOrWhiteSpace(AuthNetOptions.ApplicationName))
+        {
+            <div class="text-muted">@AuthNetOptions.ApplicationName</div>
+        }
+    </div>
+}
