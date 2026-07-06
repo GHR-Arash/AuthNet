@@ -30,6 +30,8 @@ Apply the Identity schema to PostgreSQL by setting `AuthNet:ApplyMigrations` to 
 
 ## Docs
 
+- [Developer Quick Start](docs/developer/quick-start.md)
+- [Developer Onboarding](docs/developer/onboarding.md)
 - [Architecture Context](docs/architecture-context.md)
 - [MVP Tasks](docs/tasks.md)
 - [Product Decisions](docs/product-decisions.md)

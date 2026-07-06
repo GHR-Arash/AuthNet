@@ -8,6 +8,8 @@ API/JWT, refresh tokens, SPA flows, admin UI, custom persistence stores, and pro
 
 ## Documents
 
+Product and planning artifacts:
+
 - [Product Requirements Document](./prd.md)
 - [Functional Requirements](./functional-requirements.md)
 - [Integration Requirements](./integration-requirements.md)
@@ -15,6 +17,11 @@ API/JWT, refresh tokens, SPA flows, admin UI, custom persistence stores, and pro
 - [Product Decisions](./product-decisions.md)
 - [Architecture Context](./architecture-context.md)
 - [MVP Tasks](./tasks.md)
+
+Developer guides:
+
+- [Developer Onboarding](./developer/onboarding.md)
+- [Developer Quick Start](./developer/quick-start.md)
 
 ## Commands
 
