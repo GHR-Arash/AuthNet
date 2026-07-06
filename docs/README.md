@@ -15,3 +15,19 @@ API/JWT, refresh tokens, SPA flows, admin UI, custom persistence stores, and pro
 - [Product Decisions](./product-decisions.md)
 - [Architecture Context](./architecture-context.md)
 - [MVP Tasks](./tasks.md)
+
+## Commands
+
+Use the project-local .NET 10 SDK:
+
+```powershell
+..\.dotnet\dotnet.exe build ..\AuthNet.slnx
+```
+
+From the repository root:
+
+```powershell
+.\.dotnet\dotnet.exe restore AuthNet.slnx
+.\.dotnet\dotnet.exe build AuthNet.slnx
+.\.dotnet\dotnet.exe test AuthNet.slnx
+```

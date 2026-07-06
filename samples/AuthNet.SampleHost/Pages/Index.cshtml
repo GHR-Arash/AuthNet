@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">AuthNet Sample</h1>
+    <p>
+        <a href="/auth/login">Sign in</a>
+        <span> · </span>
+        <a href="/auth/register">Register</a>
+        <span> · </span>
+        <a href="/auth/profile">Profile</a>
+        <span> · </span>
+        <a asp-page="/Admin">Admin only</a>
+    </p>
+</div>

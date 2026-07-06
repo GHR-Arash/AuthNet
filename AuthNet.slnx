@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/AuthNet.SampleHost/AuthNet.SampleHost.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/AuthNet.AspNetCore/AuthNet.AspNetCore.csproj" />
+    <Project Path="src/AuthNet.Core/AuthNet.Core.csproj" />
+    <Project Path="src/AuthNet.ExternalProviders/AuthNet.ExternalProviders.csproj" />
+    <Project Path="src/AuthNet.Persistence.Postgres/AuthNet.Persistence.Postgres.csproj" />
+    <Project Path="src/AuthNet.UI.Razor/AuthNet.UI.Razor.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AuthNet.Tests/AuthNet.Tests.csproj" />
+  </Folder>
+</Solution>

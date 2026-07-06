@@ -1,0 +1,5 @@
+@inject global::AuthNet.Core.AuthNetOptions AuthNetOptions
+@{
+    Layout = string.IsNullOrWhiteSpace(AuthNetOptions.LayoutPath) ? "_Layout" : AuthNetOptions.LayoutPath;
+    ViewData["AuthNetApplicationName"] = AuthNetOptions.ApplicationName;
+}

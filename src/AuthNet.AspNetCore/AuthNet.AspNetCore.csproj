@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AuthNet.Core\AuthNet.Core.csproj" />
+    <ProjectReference Include="..\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj" />
+    <ProjectReference Include="..\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj" />
+    <ProjectReference Include="..\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

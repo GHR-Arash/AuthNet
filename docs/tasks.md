@@ -10,10 +10,10 @@ Build a .NET 10 solution with the initial package projects and a sample ASP.NET 
 
 Acceptance criteria:
 
-- [ ] The solution restores and builds.
-- [ ] The sample host app runs.
-- [ ] Project names match `docs/architecture-context.md`.
-- [ ] The sample host references the AuthNet packages through project references.
+- [x] The solution restores and builds.
+- [x] The sample host app runs.
+- [x] Project names match `docs/architecture-context.md`.
+- [x] The sample host references the AuthNet packages through project references.
 
 ## 2. Wire ASP.NET Core Identity with PostgreSQL
 
@@ -23,10 +23,10 @@ Add ASP.NET Core Identity, EF Core, and Npgsql setup through AuthNet registratio
 
 Acceptance criteria:
 
-- [ ] The sample host can configure PostgreSQL-backed Identity stores.
-- [ ] Identity users and roles are registered through AuthNet setup.
-- [ ] The chosen EF schema/migration workflow is documented.
-- [ ] The solution has a verification path for creating or applying the Identity schema.
+- [x] The sample host can configure PostgreSQL-backed Identity stores.
+- [x] Identity users and roles are registered through AuthNet setup.
+- [x] The chosen EF schema/migration workflow is documented.
+- [x] The solution has a verification path for creating or applying the Identity schema.
 
 ## 3. Add AuthNet Configuration and Validation
 
@@ -36,10 +36,10 @@ Implement options for registration, cookie settings, email policy, route prefix,
 
 Acceptance criteria:
 
-- [ ] Public registration defaults to disabled.
-- [ ] Cookie, password, lockout, email verification, route prefix, and branding options are configurable.
-- [ ] Production configuration without an email sender fails clearly.
-- [ ] Development configuration can use the development email sender.
+- [x] Public registration defaults to disabled.
+- [x] Cookie, password, lockout, email verification, route prefix, and branding options are configurable.
+- [x] Production configuration without an email sender fails clearly.
+- [x] Development configuration can use the development email sender.
 
 ## 4. Implement Local Account Razor Pages
 
@@ -49,12 +49,12 @@ Add the self-service account lifecycle using Razor Pages and cookie authenticati
 
 Acceptance criteria:
 
-- [ ] Users can log in and log out.
-- [ ] Public registration works only when explicitly enabled.
-- [ ] Users can verify email.
-- [ ] Users can request and complete password reset.
-- [ ] Authenticated users can view/update profile information.
-- [ ] Authenticated users can change password.
+- [x] Users can log in and log out.
+- [x] Public registration works only when explicitly enabled.
+- [x] Users can verify email.
+- [x] Users can request and complete password reset.
+- [x] Authenticated users can view/update profile information.
+- [x] Authenticated users can change password.
 
 ## 5. Add Email Sender Contract and Development Sender
 
@@ -64,10 +64,10 @@ Define the production email sender contract and a development logging/fake imple
 
 Acceptance criteria:
 
-- [ ] Verification emails use the configured sender.
-- [ ] Password reset emails use the configured sender.
-- [ ] Development sender exposes or logs generated messages for local testing.
-- [ ] Production mode requires a real sender implementation.
+- [x] Verification emails use the configured sender.
+- [x] Password reset emails use the configured sender.
+- [x] Development sender exposes or logs generated messages for local testing.
+- [x] Production mode requires a real sender implementation.
 
 ## 6. Integrate Role Infrastructure
 
@@ -77,10 +77,10 @@ Enable ASP.NET Core Identity roles and standard role-based authorization.
 
 Acceptance criteria:
 
-- [ ] Roles are enabled in Identity setup.
-- [ ] The sample host demonstrates a role-protected resource.
-- [ ] Role checks use standard ASP.NET Core authorization.
-- [ ] No custom fine-grained permission model is introduced.
+- [x] Roles are enabled in Identity setup.
+- [x] The sample host demonstrates a role-protected resource.
+- [x] Role checks use standard ASP.NET Core authorization.
+- [x] No custom fine-grained permission model is introduced.
 
 ## 7. Add Generic OpenID Connect Login
 
@@ -90,10 +90,10 @@ Configure generic OpenID Connect external login for the Razor Pages and cookie a
 
 Acceptance criteria:
 
-- [ ] The sample host can configure a generic OIDC provider.
-- [ ] Users can start an OIDC challenge.
-- [ ] Callback handling signs in or links the external identity through ASP.NET Core Identity.
-- [ ] Provider-specific Google/Microsoft helpers are not introduced in this slice.
+- [x] The sample host can configure a generic OIDC provider.
+- [x] Users can start an OIDC challenge.
+- [x] Callback handling signs in or links the external identity through ASP.NET Core Identity.
+- [x] Provider-specific Google/Microsoft helpers are not introduced in this slice.
 
 ## 8. Harden Developer Experience and Docs
 
@@ -103,8 +103,7 @@ Add the documentation and verification path needed for another developer to use 
 
 Acceptance criteria:
 
-- [ ] Setup docs explain restore, build, run, and required configuration.
-- [ ] Sample configuration covers PostgreSQL, cookies, email sender, and OIDC.
-- [ ] Test commands are documented.
-- [ ] `docs/architecture-context.md` is updated if implementation differs from the plan.
-
+- [x] Setup docs explain restore, build, run, and required configuration.
+- [x] Sample configuration covers PostgreSQL, cookies, email sender, and OIDC.
+- [x] Test commands are documented.
+- [x] `docs/architecture-context.md` is updated if implementation differs from the plan.

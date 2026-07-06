@@ -47,17 +47,43 @@ Deferred:
 
 ## Proposed Package Shape
 
-Initial package/project names:
+Current package/project names:
 
 - `AuthNet.Core`: options, shared contracts, account service boundaries.
 - `AuthNet.AspNetCore`: service registration, middleware, auth integration.
 - `AuthNet.UI.Razor`: Razor Pages account UI.
 - `AuthNet.Persistence.Postgres`: EF Core/Npgsql Identity store setup.
 - `AuthNet.ExternalProviders`: generic OpenID Connect integration.
+- `AuthNet.SampleHost`: sample Razor Pages host app.
+- `AuthNet.Tests`: configuration and development seam tests.
 
 Future package:
 
 - `AuthNet.Api`: API/JWT/SPA flows after MVP slice 1.
+
+## Canonical Commands
+
+Use the project-local .NET 10 SDK:
+
+```powershell
+.\.dotnet\dotnet.exe restore AuthNet.slnx
+.\.dotnet\dotnet.exe build AuthNet.slnx
+.\.dotnet\dotnet.exe test AuthNet.slnx
+```
+
+Run the sample host:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT='Development'
+.\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
+```
+
+Apply PostgreSQL schema:
+
+```powershell
+.\.dotnet\dotnet.exe tool install dotnet-ef --version 10.0.9 --tool-path .tools
+.\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
+```
 
 ## Key Integration Points
 
@@ -93,8 +119,8 @@ Final API can change during implementation, but setup should remain configuratio
 - Functional requirements: `docs/functional-requirements.md`
 - Integration requirements: `docs/integration-requirements.md`
 - Roadmap: `docs/mvp-roadmap.md`
+- Local tasks: `docs/tasks.md`
 
 ## Sync Rule
 
 When implementation changes architecture, package boundaries, auth flow, persistence strategy, UI strategy, or MVP scope, update this file in the same change.
-

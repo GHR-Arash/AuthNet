@@ -1,0 +1,9 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Account.ConfirmEmailModel
+@{
+    ViewData["Title"] = "Confirm email";
+}
+
+<h1>Confirm email</h1>
+
+<div class="alert @(Model.Succeeded ? "alert-success" : "alert-danger")">@Model.Message</div>
