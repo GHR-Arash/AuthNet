@@ -16,6 +16,7 @@ Product and planning artifacts:
 - [MVP Roadmap](./mvp-roadmap.md)
 - [Product Decisions](./product-decisions.md)
 - [Architecture Context](./architecture-context.md)
+- [Next Iteration Context](./next-iteration-context.md)
 - [MVP Tasks](./tasks.md)
 
 Developer guides:

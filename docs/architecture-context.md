@@ -1,6 +1,6 @@
 # Architecture Context
 
-Compact context for development sessions. Keep this file current, short, and linked to deeper docs instead of duplicating them.
+Compact architecture context for development sessions. For the shortest current-state memory, read `docs/next-iteration-context.md` first.
 
 ## Product Shape
 
@@ -114,6 +114,7 @@ Final API can change during implementation, but setup should remain configuratio
 
 ## Current Canonical Docs
 
+- Next iteration memory: `docs/next-iteration-context.md`
 - Product decisions: `docs/product-decisions.md`
 - Product requirements: `docs/prd.md`
 - Functional requirements: `docs/functional-requirements.md`
@@ -124,3 +125,5 @@ Final API can change during implementation, but setup should remain configuratio
 ## Sync Rule
 
 When implementation changes architecture, package boundaries, auth flow, persistence strategy, UI strategy, or MVP scope, update this file in the same change.
+
+When finishing a meaningful milestone, update `docs/next-iteration-context.md` with the current state, verification status, and likely next work.

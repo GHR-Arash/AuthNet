@@ -4,6 +4,7 @@
 
 Before making architecture, package structure, authentication, persistence, or public API changes, read:
 
+- `docs/next-iteration-context.md`
 - `docs/architecture-context.md`
 - `docs/product-decisions.md`
 - The relevant section of `docs/functional-requirements.md`
@@ -11,6 +12,7 @@ Before making architecture, package structure, authentication, persistence, or p
 ## Architecture Context Maintenance
 
 Keep `docs/architecture-context.md` compact and current as the project evolves.
+Keep `docs/next-iteration-context.md` compact and current when finishing a meaningful implementation milestone.
 
 Update it when:
 
@@ -21,4 +23,3 @@ Update it when:
 - A new development command or test command becomes canonical.
 
 Do not expand it into a full spec. Prefer short bullets and links to detailed docs.
-
