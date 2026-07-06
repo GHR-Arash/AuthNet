@@ -13,3 +13,5 @@ API/JWT, refresh tokens, SPA flows, admin UI, custom persistence stores, and pro
 - [Integration Requirements](./integration-requirements.md)
 - [MVP Roadmap](./mvp-roadmap.md)
 - [Product Decisions](./product-decisions.md)
+- [Architecture Context](./architecture-context.md)
+- [MVP Tasks](./tasks.md)

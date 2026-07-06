@@ -1,0 +1,24 @@
+# AuthNet Agent Instructions
+
+## Project Context
+
+Before making architecture, package structure, authentication, persistence, or public API changes, read:
+
+- `docs/architecture-context.md`
+- `docs/product-decisions.md`
+- The relevant section of `docs/functional-requirements.md`
+
+## Architecture Context Maintenance
+
+Keep `docs/architecture-context.md` compact and current as the project evolves.
+
+Update it when:
+
+- A major architecture decision changes.
+- A package/project is added, removed, or renamed.
+- Authentication, persistence, UI, or external provider strategy changes.
+- A deferred feature becomes active scope.
+- A new development command or test command becomes canonical.
+
+Do not expand it into a full spec. Prefer short bullets and links to detailed docs.
+
