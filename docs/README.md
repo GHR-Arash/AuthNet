@@ -23,6 +23,12 @@ Developer guides:
 - [Developer Onboarding](./developer/onboarding.md)
 - [Developer Quick Start](./developer/quick-start.md)
 
+Library user guides:
+
+- [AuthNet User Guide](./users/getting-started.md)
+- [Configuration Reference](./users/configuration.md)
+- [Account Pages](./users/account-pages.md)
+
 ## Commands
 
 Use the project-local .NET 10 SDK:
