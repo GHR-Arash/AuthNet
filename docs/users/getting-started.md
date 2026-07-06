@@ -74,7 +74,7 @@ if (app.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
 }
 
 app.MapStaticAssets();
-app.UseAuthNet();
+app.MapAuthNet();
 
 app.Run();
 ```
@@ -84,7 +84,9 @@ Order matters:
 1. `UseRouting()`
 2. `UseAuthentication()`
 3. `UseAuthorization()`
-4. `UseAuthNet()`
+4. `MapAuthNet()`
+
+`UseAuthNet()` remains as a compatibility wrapper, but new integrations should use `MapAuthNet()`.
 
 ## Minimal Configuration
 

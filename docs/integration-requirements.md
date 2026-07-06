@@ -27,10 +27,10 @@ builder.Services.AddAuthNet(options =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthNet();
+app.MapAuthNet();
 ```
 
-The final API may change during technical design, but the integration must remain simple and configuration-driven.
+`UseAuthNet()` is a compatibility wrapper; the endpoint mapping API is `MapAuthNet()`.
 
 ## Authentication Modes
 
@@ -66,6 +66,7 @@ Required default UI routes:
 - Change password
 - Access denied
 - External login callback
+- Resend email confirmation
 
 ## API Integration
 

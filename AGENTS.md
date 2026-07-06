@@ -23,3 +23,15 @@ Update it when:
 - A new development command or test command becomes canonical.
 
 Do not expand it into a full spec. Prefer short bullets and links to detailed docs.
+
+## Planning Artifact Naming
+
+Name planning and task artifacts by slice number so progress is traceable:
+
+- `tasks/slice-02-plan.md`
+- `tasks/slice-02-todo.md`
+
+If a slice needs phase-specific artifacts, include both slice and phase:
+
+- `tasks/slice-02-phase-01-plan.md`
+- `tasks/slice-02-phase-01-todo.md`

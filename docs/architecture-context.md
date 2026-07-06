@@ -6,7 +6,7 @@ Compact architecture context for development sessions. For the shortest current-
 
 AuthNet is a reusable .NET 10 ASP.NET Identity and Access Management component.
 
-It plugs into host applications through ASP.NET service registration and middleware, providing account management over ASP.NET Core Identity rather than a custom identity system.
+It plugs into host applications through ASP.NET service registration and endpoint mapping, providing account management over ASP.NET Core Identity rather than a custom identity system.
 
 ## MVP Slice 1
 
@@ -25,6 +25,7 @@ Build first:
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
+- Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
 
 Deferred:
 
@@ -108,10 +109,10 @@ builder.Services.AddAuthNet(options =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthNet();
+app.MapAuthNet();
 ```
 
-Final API can change during implementation, but setup should remain configuration-driven and small.
+`UseAuthNet()` remains as a compatibility wrapper. New integrations should use `MapAuthNet()`.
 
 ## Current Canonical Docs
 

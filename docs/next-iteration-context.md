@@ -6,12 +6,12 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
+  - `364f22a Harden account verification flows`
   - `e2ce343 Add next iteration context memory`
   - `852d48e Add library user documentation`
   - `9cdebdf Add developer onboarding guides`
-  - `9e71cae Implement AuthNet MVP slice one`
 - MVP slice 1 is implemented and `docs/tasks.md` is checked off.
-- Current iteration adds resend email confirmation, verified email-change confirmation, safer external login linking, and visible branding hooks.
+- Current iteration adds Slice 02 integration hardening: in-memory integration test host, route/account-flow coverage, explicit `MapAuthNet()` endpoint mapping, and bare-host UI fallbacks.
 
 ## Implemented Product Surface
 
@@ -31,7 +31,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
-- Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `UseAuthNet`.
+- Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
+- `UseAuthNet()` remains as a compatibility wrapper.
 
 ## Current Verification
 
@@ -63,6 +64,7 @@ Application started.
 - Do not add API/JWT/refresh-token/SPA flows unless explicitly re-scoped.
 - Do not replace ASP.NET Core Identity primitives.
 - PostgreSQL/EF Core is the only persistence path for now.
+- Integration tests use EF Core InMemory via the test host; this is not a production persistence provider.
 - Production must use a real `IAuthNetEmailSender`; development sender is rejected in production.
 - Public registration remains disabled by default.
 - External auto-provisioning requires a verified provider email claim.
@@ -92,10 +94,8 @@ For product/architecture:
 
 Good next iteration candidates:
 
-- Add integration tests for account routes and auth redirects.
-- Improve UI layout/branding hooks beyond current minimal support.
+- Package readiness: NuGet metadata, README/package docs, and public API review.
 - Add a real email sender sample implementation.
-- Add packaging metadata and NuGet packing workflow.
 - Add CI workflow for restore/build/test.
 - Add documentation for consuming AuthNet from NuGet once package IDs are finalized.
 

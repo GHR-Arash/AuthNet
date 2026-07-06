@@ -47,6 +47,6 @@ if (app.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
 }
 
 app.MapStaticAssets();
-app.UseAuthNet();
+app.MapAuthNet();
 
 app.Run();

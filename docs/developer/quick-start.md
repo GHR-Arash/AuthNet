@@ -84,8 +84,11 @@ Useful routes:
 - `/auth/login`
 - `/auth/register`
 - `/auth/forgot-password`
+- `/auth/resend-confirmation`
 - `/auth/profile`
 - `/Admin`
+
+The integration test suite uses EF Core InMemory through the AuthNet test host. Local manual runs still use PostgreSQL.
 
 ## Sample AuthNet Configuration
 
@@ -109,4 +112,3 @@ Useful routes:
 ```
 
 For production-like testing, set `UseDevelopmentEmailSender` to `false` and register a real `IAuthNetEmailSender`.
-

@@ -2,6 +2,7 @@ using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.ExternalProviders;
 using AuthNet.Persistence.Postgres;
+using AuthNetRazor.Areas.AuthNet.Pages.Account;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,8 @@ public static class AuthNetServiceCollectionExtensions
 {
     public static IServiceCollection AddAuthNet(
         this IServiceCollection services,
-        Action<AuthNetOptions>? configure = null)
+        Action<AuthNetOptions>? configure = null,
+        Action<DbContextOptionsBuilder>? configureDbContext = null)
     {
         var options = new AuthNetOptions();
         configure?.Invoke(options);
@@ -25,13 +27,21 @@ public static class AuthNetServiceCollectionExtensions
         services.AddOptions<AuthNetOptions>().Configure(configure ?? (_ => { }));
         services.AddSingleton<IValidateOptions<AuthNetOptions>, AuthNetOptionsValidator>();
 
-        if (string.IsNullOrWhiteSpace(options.PostgresConnectionString))
+        if (configureDbContext is null && string.IsNullOrWhiteSpace(options.PostgresConnectionString))
         {
             throw new AuthNetConfigurationException("AuthNet requires PostgresConnectionString for MVP slice 1.");
         }
 
         services.AddDbContext<AuthNetDbContext>(db =>
-            db.UseNpgsql(options.PostgresConnectionString));
+        {
+            if (configureDbContext is not null)
+            {
+                configureDbContext(db);
+                return;
+            }
+
+            db.UseNpgsql(options.PostgresConnectionString);
+        });
 
         services
             .AddIdentityCore<AuthNetUser>(identity =>
@@ -94,7 +104,8 @@ public static class AuthNetServiceCollectionExtensions
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ChangePassword", $"{prefix}/change-password");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/AccessDenied", $"{prefix}/access-denied");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ExternalLogin", $"{prefix}/external-login");
-            });
+            })
+            .AddApplicationPart(typeof(LoginModel).Assembly);
 
         return services;
     }
