@@ -87,6 +87,12 @@ Use the project-local .NET 10 SDK:
 .\.dotnet\dotnet.exe test AuthNet.slnx
 ```
 
+Canonical local verification:
+
+```powershell
+.\scripts\verify.ps1
+```
+
 Pack local package artifacts:
 
 ```powershell
@@ -153,6 +159,7 @@ app.MapAuthNet();
 - Functional requirements: `docs/functional-requirements.md`
 - Integration requirements: `docs/integration-requirements.md`
 - Slice 03 package readiness: `docs/slice-03/package-readiness.md`
+- Slice 05 CI and publication readiness: `docs/slice-05/ci-and-publication-readiness.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`
 

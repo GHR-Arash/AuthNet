@@ -41,7 +41,27 @@ Slice 04 files:
 - `tasks/slice-04-todo.md`
 - `docs/slice-04/development-inmemory.md`
 
+## Current Verification
+
+Canonical local verification:
+
+```powershell
+.\scripts\verify.ps1
+```
+
+Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
+
+CI does not publish packages, upload package artifacts, or require secrets.
+
+## Publication Blockers
+
+Before public package publication, confirm:
+
+- Public repository URL.
+- License expression or license file.
+- Final package owners/authors.
+- XML documentation policy.
+
 ## Next Attention
 
-- Confirm real repository URL and license metadata before public package publication.
-- Add CI for restore, build, test, and package verification.
+Plan a release/publish slice only after publication blockers are resolved.

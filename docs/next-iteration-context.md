@@ -14,6 +14,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 02 integration hardening is implemented and tracked in `tasks/slice-02-plan.md` and `tasks/slice-02-todo.md`.
 - Slice 03 package readiness is implemented and tracked in `tasks/slice-03-plan.md`, `tasks/slice-03-todo.md`, and `docs/slice-03/`.
 - Slice 04 development InMemory sample persistence is implemented and tracked in `tasks/slice-04-plan.md`, `tasks/slice-04-todo.md`, and `docs/slice-04/`.
+- Slice 05 CI and publication metadata readiness is implemented and tracked in `tasks/slice-05-plan.md`, `tasks/slice-05-todo.md`, and `docs/slice-05/`.
 
 ## Implemented Product Surface
 
@@ -40,12 +41,15 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, and `AuthNet.ExternalProviders`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
+- Local verification is centralized in `scripts/verify.ps1`.
+- GitHub Actions verify-only CI exists at `.github/workflows/ci.yml`; it does not publish or upload packages.
 
 ## Current Verification
 
 Known passing commands:
 
 ```powershell
+.\scripts\verify.ps1
 .\.dotnet\dotnet.exe restore AuthNet.slnx
 .\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
@@ -126,19 +130,22 @@ For product/architecture:
 - `tasks/slice-03-todo.md`
 - `tasks/slice-04-plan.md`
 - `tasks/slice-04-todo.md`
+- `tasks/slice-05-plan.md`
+- `tasks/slice-05-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
+- `docs/slice-05/ci-and-publication-readiness.md`
 - `docs/tasks.md`
 - `docs/prd.md`
 
 ## Likely Next Work
 
-Recommended Slice 05:
+Recommended Slice 06:
 
-- Add CI workflow for restore, build, test, and package verification.
 - Decide repository URL and license metadata before public package publication.
 - Decide whether XML documentation generation should be required before package publishing.
+- Add a release/publish workflow after repository URL, license, and package ownership are confirmed.
 
 Other candidates:
 

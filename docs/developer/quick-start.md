@@ -28,6 +28,14 @@ finally {
 From the repo root:
 
 ```powershell
+.\scripts\verify.ps1
+```
+
+This is the canonical local verification path. It restores, builds, tests, builds Release, packs the intended packages, and verifies the package output.
+
+For troubleshooting, run the individual commands:
+
+```powershell
 .\.dotnet\dotnet.exe restore AuthNet.slnx
 .\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
@@ -60,6 +68,12 @@ Expected packages:
 - `AuthNet.AspNetCore`
 
 `AuthNet.SampleHost` and `AuthNet.Tests` are not package artifacts.
+
+## CI
+
+GitHub Actions runs the verify-only workflow in `.github/workflows/ci.yml` for pushes and pull requests to `master`.
+
+The workflow does not publish packages, upload package artifacts, or require secrets.
 
 ## Configure PostgreSQL
 

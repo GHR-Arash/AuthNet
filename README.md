@@ -14,6 +14,12 @@ This repo uses a project-local .NET 10 SDK in `.dotnet/`.
 .\.dotnet\dotnet.exe test AuthNet.slnx
 ```
 
+Run the full local verification path:
+
+```powershell
+.\scripts\verify.ps1
+```
+
 Create local package artifacts:
 
 ```powershell
@@ -48,5 +54,6 @@ Apply the Identity schema to PostgreSQL by setting `AuthNet:ApplyMigrations` to 
 - [Developer Onboarding](docs/developer/onboarding.md)
 - [Architecture Context](docs/architecture-context.md)
 - [Slice 03 Package Readiness](docs/slice-03/package-readiness.md)
+- [Slice 05 CI and Publication Readiness](docs/slice-05/ci-and-publication-readiness.md)
 - [MVP Tasks](docs/tasks.md)
 - [Product Decisions](docs/product-decisions.md)
