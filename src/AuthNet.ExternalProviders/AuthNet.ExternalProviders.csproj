@@ -12,6 +12,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Description>Generic OpenID Connect external provider integration for AuthNet.</Description>
   </PropertyGroup>
 
 </Project>

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Description>Built-in Razor Pages account UI for AuthNet.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +16,5 @@
     <ProjectReference Include="..\AuthNet.Core\AuthNet.Core.csproj" />
     <ProjectReference Include="..\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj" />
   </ItemGroup>
-
-
 
 </Project>

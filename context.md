@@ -1,0 +1,36 @@
+# AuthNet Context
+
+## Current Iteration
+
+Slice 03 package readiness is implemented locally.
+
+## Current Package Shape
+
+Packable:
+
+- `AuthNet.Core`
+- `AuthNet.AspNetCore`
+- `AuthNet.UI.Razor`
+- `AuthNet.Persistence.Postgres`
+- `AuthNet.ExternalProviders`
+
+Not packable:
+
+- `AuthNet.SampleHost`
+- `AuthNet.Tests`
+
+Deferred:
+
+- `AuthNet.Api`
+
+## Current Verification
+
+Latest known package verification uses Release build plus per-project pack commands into ignored `artifacts/packages`.
+
+Latest package-consumer smoke app is ignored at `artifacts/package-smoke` and compiles against `AuthNet.AspNetCore` `0.1.0` from the local package source.
+
+## Next Attention
+
+- Confirm real repository URL and license metadata before public package publication.
+- Add CI for restore, build, test, and package verification.
+- Decide whether XML docs are required before publishing.

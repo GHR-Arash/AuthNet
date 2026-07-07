@@ -20,6 +20,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Description>PostgreSQL EF Core Identity persistence for AuthNet.</Description>
   </PropertyGroup>
 
 </Project>

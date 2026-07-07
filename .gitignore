@@ -5,3 +5,4 @@ samples/AuthNet.SampleHost/App_Data/
 *.csproj.user
 bin/
 obj/
+artifacts/

@@ -14,6 +14,17 @@ This repo uses a project-local .NET 10 SDK in `.dotnet/`.
 .\.dotnet\dotnet.exe test AuthNet.slnx
 ```
 
+Create local package artifacts:
+
+```powershell
+.\.dotnet\dotnet.exe build AuthNet.slnx --configuration Release --no-restore
+.\.dotnet\dotnet.exe pack src\AuthNet.Core\AuthNet.Core.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
+```
+
 Run the sample host:
 
 ```powershell
@@ -36,5 +47,6 @@ Apply the Identity schema to PostgreSQL by setting `AuthNet:ApplyMigrations` to 
 - [Developer Quick Start](docs/developer/quick-start.md)
 - [Developer Onboarding](docs/developer/onboarding.md)
 - [Architecture Context](docs/architecture-context.md)
+- [Slice 03 Package Readiness](docs/slice-03/package-readiness.md)
 - [MVP Tasks](docs/tasks.md)
 - [Product Decisions](docs/product-decisions.md)

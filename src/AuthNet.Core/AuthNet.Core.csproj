@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Description>Core AuthNet options, exceptions, and email abstractions.</Description>
   </PropertyGroup>
 
 </Project>

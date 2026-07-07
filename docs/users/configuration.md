@@ -2,6 +2,8 @@
 
 This page describes the current AuthNet MVP configuration surface.
 
+Package consumers should reference `AuthNet.AspNetCore`; the Razor UI, PostgreSQL persistence, external provider, and core packages are resolved through package dependencies in the current MVP package set.
+
 ## Connection String
 
 ```json

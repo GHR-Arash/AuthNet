@@ -30,16 +30,27 @@ Not included in this MVP:
 
 ## Required Packages
 
-When AuthNet is packaged, a typical app will reference:
+For package-based consumption, reference the primary integration package:
+
+```powershell
+dotnet add package AuthNet.AspNetCore
+```
+
+`AuthNet.AspNetCore` depends on the current MVP support packages:
 
 ```text
-AuthNet.AspNetCore
 AuthNet.UI.Razor
 AuthNet.Persistence.Postgres
 AuthNet.ExternalProviders
 ```
 
-While developing from this repository, reference the projects directly, as shown in `samples/AuthNet.SampleHost`.
+If you are consuming local packages produced from this repository, add the local package source:
+
+```powershell
+dotnet add package AuthNet.AspNetCore --version 0.1.0 --source C:\Projects\AuthNet\artifacts\packages
+```
+
+While developing AuthNet itself from this repository, reference the projects directly, as shown in `samples/AuthNet.SampleHost`.
 
 ## Minimal Setup
 
@@ -211,3 +222,4 @@ For security, automatic external account provisioning requires the provider to r
 - Keep `UseDevelopmentEmailSender` set to `false`.
 - Keep `EnablePublicRegistration` set to `false` unless public signup is intended.
 - Review cookie, password, lockout, and email-confirmation settings before launch.
+- `AuthNet.Api` is not available in the MVP package set; API/JWT and SPA authentication remain future scope.

@@ -38,6 +38,29 @@ Expected result:
 - Build: `0 Warning(s)`, `0 Error(s)`.
 - Tests: all tests pass.
 
+## Pack Local NuGet Artifacts
+
+Build Release first, then pack the intended package projects into ignored local artifacts:
+
+```powershell
+.\.dotnet\dotnet.exe build AuthNet.slnx --configuration Release --no-restore
+.\.dotnet\dotnet.exe pack src\AuthNet.Core\AuthNet.Core.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
+```
+
+Expected packages:
+
+- `AuthNet.Core`
+- `AuthNet.ExternalProviders`
+- `AuthNet.Persistence.Postgres`
+- `AuthNet.UI.Razor`
+- `AuthNet.AspNetCore`
+
+`AuthNet.SampleHost` and `AuthNet.Tests` are not package artifacts.
+
 ## Configure PostgreSQL
 
 The sample host default connection string is in `samples/AuthNet.SampleHost/appsettings.json`:

@@ -145,18 +145,25 @@ The host application shall be able to configure:
 
 ## Package Structure
 
-Recommended package structure:
+MVP package structure:
 
 ```text
 AuthNet.Core
 AuthNet.AspNetCore
 AuthNet.UI.Razor
-AuthNet.Api
 AuthNet.Persistence.Postgres
 AuthNet.ExternalProviders
 ```
 
-For MVP slice 1, `AuthNet.Api` should not be implemented unless needed as a placeholder for package planning because API/JWT is deferred.
+`AuthNet.AspNetCore` is the primary package a host app references for the current MVP. It depends on the UI, persistence, external provider, and core packages.
+
+Deferred package:
+
+```text
+AuthNet.Api
+```
+
+`AuthNet.Api` should not be implemented for MVP slice 1 because API/JWT is deferred.
 
 ## Non-Functional Integration Requirements
 

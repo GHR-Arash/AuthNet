@@ -47,9 +47,9 @@ Deferred:
 - Defer flexibility until a real requirement exists.
 - Expose identity through standard ASP.NET authentication and authorization mechanisms.
 
-## Proposed Package Shape
+## Package Shape
 
-Current package/project names:
+Current MVP package/project names:
 
 - `AuthNet.Core`: options, shared contracts, account service boundaries.
 - `AuthNet.AspNetCore`: service registration, middleware, auth integration.
@@ -58,6 +58,19 @@ Current package/project names:
 - `AuthNet.ExternalProviders`: generic OpenID Connect integration.
 - `AuthNet.SampleHost`: sample Razor Pages host app.
 - `AuthNet.Tests`: configuration and development seam tests.
+
+Packable packages:
+
+- `AuthNet.Core`
+- `AuthNet.AspNetCore`
+- `AuthNet.UI.Razor`
+- `AuthNet.Persistence.Postgres`
+- `AuthNet.ExternalProviders`
+
+Non-packable projects:
+
+- `AuthNet.SampleHost`
+- `AuthNet.Tests`
 
 Future package:
 
@@ -71,6 +84,17 @@ Use the project-local .NET 10 SDK:
 .\.dotnet\dotnet.exe restore AuthNet.slnx
 .\.dotnet\dotnet.exe build AuthNet.slnx
 .\.dotnet\dotnet.exe test AuthNet.slnx
+```
+
+Pack local package artifacts:
+
+```powershell
+.\.dotnet\dotnet.exe build AuthNet.slnx --configuration Release --no-restore
+.\.dotnet\dotnet.exe pack src\AuthNet.Core\AuthNet.Core.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
 ```
 
 Run the sample host:
@@ -121,6 +145,7 @@ app.MapAuthNet();
 - Product requirements: `docs/prd.md`
 - Functional requirements: `docs/functional-requirements.md`
 - Integration requirements: `docs/integration-requirements.md`
+- Slice 03 package readiness: `docs/slice-03/package-readiness.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`
 

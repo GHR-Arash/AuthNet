@@ -129,7 +129,7 @@ internal sealed class AuthNetOptionsValidator : IValidateOptions<AuthNetOptions>
     }
 }
 
-public sealed class AuthNetConfigurationValidator(
+internal sealed class AuthNetConfigurationValidator(
     IHostEnvironment environment,
     AuthNetOptions options,
     IServiceProvider serviceProvider)
