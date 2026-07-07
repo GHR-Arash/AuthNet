@@ -26,6 +26,7 @@ Build first:
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
 - Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
+- The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
 
 Deferred:
 
@@ -122,6 +123,12 @@ Host app should be able to configure:
 - Email sender implementation.
 - Generic OIDC provider settings.
 - Account route prefix and basic UI branding/layout.
+
+Sample-host-only development persistence:
+
+- `AuthNet:UseInMemoryDatabase=true` in Development uses EF Core InMemory through the existing `AddAuthNet` DbContext configuration seam.
+- The setting is rejected outside Development.
+- Startup migrations are skipped while InMemory mode is active.
 
 Conceptual setup:
 

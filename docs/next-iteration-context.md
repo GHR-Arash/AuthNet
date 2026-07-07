@@ -6,13 +6,14 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
+  - Current commit: Add development InMemory sample persistence
+  - `e50dadf Add Slice 03 package readiness`
   - `7afcf99 Add Slice 02 integration hardening`
   - `364f22a Harden account verification flows`
-  - `e2ce343 Add next iteration context memory`
-  - `852d48e Add library user documentation`
 - Slice 01/MVP account flows are implemented and `docs/tasks.md` is checked off.
 - Slice 02 integration hardening is implemented and tracked in `tasks/slice-02-plan.md` and `tasks/slice-02-todo.md`.
 - Slice 03 package readiness is implemented and tracked in `tasks/slice-03-plan.md`, `tasks/slice-03-todo.md`, and `docs/slice-03/`.
+- Slice 04 development InMemory sample persistence is implemented and tracked in `tasks/slice-04-plan.md`, `tasks/slice-04-todo.md`, and `docs/slice-04/`.
 
 ## Implemented Product Surface
 
@@ -38,6 +39,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot password, profile update, verified email change, external-login safety, and endpoint mapping compatibility.
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, and `AuthNet.ExternalProviders`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
+- Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
 
 ## Current Verification
 
@@ -49,7 +51,13 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 37 passing tests.
+Latest full test count: 43 passing tests.
+
+Slice 04 focused tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter SampleHostAuthNetPersistenceTests
+```
 
 Known passing package commands:
 
@@ -88,7 +96,8 @@ Application started.
 - Do not add API/JWT/refresh-token/SPA flows unless explicitly re-scoped.
 - Do not replace ASP.NET Core Identity primitives.
 - PostgreSQL/EF Core is the only persistence path for now.
-- Integration tests use EF Core InMemory via the test host; this is not a production persistence provider.
+- PostgreSQL/EF Core is the production/default persistence path.
+- Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
 - Production must use a real `IAuthNetEmailSender`; development sender is rejected in production.
 - Public registration remains disabled by default.
 - External auto-provisioning requires a verified provider email claim.
@@ -115,14 +124,17 @@ For product/architecture:
 - `tasks/slice-02-todo.md`
 - `tasks/slice-03-plan.md`
 - `tasks/slice-03-todo.md`
+- `tasks/slice-04-plan.md`
+- `tasks/slice-04-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
+- `docs/slice-04/development-inmemory.md`
 - `docs/tasks.md`
 - `docs/prd.md`
 
 ## Likely Next Work
 
-Recommended Slice 04:
+Recommended Slice 05:
 
 - Add CI workflow for restore, build, test, and package verification.
 - Decide repository URL and license metadata before public package publication.

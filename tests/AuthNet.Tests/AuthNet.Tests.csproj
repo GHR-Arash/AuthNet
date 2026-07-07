@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AuthNet.Core\AuthNet.Core.csproj" />
     <ProjectReference Include="..\..\src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj" />
   </ItemGroup>
 
 </Project>

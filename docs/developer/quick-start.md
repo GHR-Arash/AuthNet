@@ -73,6 +73,25 @@ The sample host default connection string is in `samples/AuthNet.SampleHost/apps
 
 Change this locally if your PostgreSQL credentials differ.
 
+## Development InMemory Sample Mode
+
+In Development, the sample host uses EF Core InMemory by default through `samples/AuthNet.SampleHost/appsettings.Development.json`:
+
+```json
+"AuthNet": {
+  "UseInMemoryDatabase": true
+}
+```
+
+This lets you run the sample account UI without a local PostgreSQL server:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT='Development'
+.\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
+```
+
+Use PostgreSQL for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
+
 ## Apply Database Schema
 
 Install EF tooling into the ignored `.tools/` folder:
@@ -111,7 +130,7 @@ Useful routes:
 - `/auth/profile`
 - `/Admin`
 
-The integration test suite uses EF Core InMemory through the AuthNet test host. Local manual runs still use PostgreSQL.
+The integration test suite uses isolated EF Core InMemory databases through the AuthNet test host. The sample host also supports Development-only InMemory mode for local manual account-flow smoke testing.
 
 ## Sample AuthNet Configuration
 

@@ -135,6 +135,8 @@ For production, register a real `IAuthNetEmailSender` and set `UseDevelopmentEma
 
 AuthNet uses EF Core migrations in `AuthNet.Persistence.Postgres`.
 
+PostgreSQL is the production/default persistence path. The repository sample host has a Development-only EF Core InMemory mode for local smoke testing, but that mode is not a production persistence provider and does not replace PostgreSQL migration or relational behavior testing.
+
 Apply the schema with EF tooling:
 
 ```powershell

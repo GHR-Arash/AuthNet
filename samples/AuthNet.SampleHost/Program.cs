@@ -1,5 +1,6 @@
 using AuthNet.AspNetCore;
 using AuthNet.Persistence.Postgres;
+using AuthNet.SampleHost;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,11 +17,7 @@ builder.Services.AddDataProtection()
         "DataProtectionKeys")));
 
 builder.Services.AddRazorPages();
-builder.Services.AddAuthNet(options =>
-{
-    builder.Configuration.GetSection("AuthNet").Bind(options);
-    options.PostgresConnectionString = builder.Configuration.GetConnectionString("AuthNet");
-});
+SampleHostAuthNetPersistence.AddAuthNet(builder.Services, builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
@@ -39,7 +36,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
+var useInMemoryDatabase = SampleHostAuthNetPersistence.ShouldUseInMemoryDatabase(app.Environment, app.Configuration);
+if (SampleHostAuthNetPersistence.ShouldApplyMigrations(app.Configuration, useInMemoryDatabase))
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AuthNetDbContext>();

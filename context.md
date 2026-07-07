@@ -29,8 +29,19 @@ Latest known package verification uses Release build plus per-project pack comma
 
 Latest package-consumer smoke app is ignored at `artifacts/package-smoke` and compiles against `AuthNet.AspNetCore` `0.1.0` from the local package source.
 
+## Current Persistence Modes
+
+PostgreSQL remains the default production/package persistence path.
+
+Development-only InMemory is implemented for the sample host through `AuthNet:UseInMemoryDatabase=true` in `appsettings.Development.json`.
+
+Slice 04 files:
+
+- `tasks/slice-04-plan.md`
+- `tasks/slice-04-todo.md`
+- `docs/slice-04/development-inmemory.md`
+
 ## Next Attention
 
 - Confirm real repository URL and license metadata before public package publication.
 - Add CI for restore, build, test, and package verification.
-- Decide whether XML docs are required before publishing.

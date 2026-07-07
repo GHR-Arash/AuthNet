@@ -4,6 +4,8 @@ This page describes the current AuthNet MVP configuration surface.
 
 Package consumers should reference `AuthNet.AspNetCore`; the Razor UI, PostgreSQL persistence, external provider, and core packages are resolved through package dependencies in the current MVP package set.
 
+PostgreSQL is the default and production persistence path. The sample host also has a Development-only `AuthNet:UseInMemoryDatabase` convenience setting, but that setting is sample-host behavior rather than a supported production persistence provider.
+
 ## Connection String
 
 ```json
@@ -108,6 +110,8 @@ false
 ```
 
 Prefer explicit migration deployment outside local development.
+
+When the sample host runs with Development-only InMemory mode, migrations are skipped because EF Core InMemory does not use relational migrations.
 
 ## Password Options
 
