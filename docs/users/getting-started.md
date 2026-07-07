@@ -175,7 +175,7 @@ Admin routes are mapped under the same prefix:
 - `/auth/admin/users`
 - `/auth/admin/users/{id}`
 
-These routes require a signed-in user in the `Administrator` role. AuthNet does not create a default admin user or default development password.
+These routes require a signed-in user in the `Administrator` role. AuthNet packages do not create a default admin user or default development password.
 
 ## Protecting Pages or Endpoints
 
@@ -228,6 +228,18 @@ if (user is not null)
 ```
 
 Use your own bootstrap policy for creating the first administrator. Do not ship a hardcoded admin password.
+
+The repository sample host includes an explicit Development-only convenience bootstrap for local testing:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT='Development'
+$env:AuthNet__DevelopmentAdmin__Enabled='true'
+$env:AuthNet__DevelopmentAdmin__Email='admin@example.test'
+$env:AuthNet__DevelopmentAdmin__Password='Password1!'
+.\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
+```
+
+This sample-host bootstrap is not package behavior and is rejected outside Development.
 
 ## External Login
 

@@ -44,6 +44,8 @@ if (SampleHostAuthNetPersistence.ShouldApplyMigrations(app.Configuration, useInM
     db.Database.Migrate();
 }
 
+await SampleHostDevelopmentAdmin.BootstrapAsync(app.Services, app.Configuration, app.Environment);
+
 app.MapStaticAssets();
 app.MapAuthNet();
 

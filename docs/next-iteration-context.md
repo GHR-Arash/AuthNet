@@ -6,7 +6,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current commit: Add admin user management UI
+  - Current commit: Add sample host development admin bootstrap
+  - `1c3571a Add admin user management UI`
   - `d04e077 Add verify-only CI workflow`
   - `2527dbd Add development InMemory sample persistence`
   - `e50dadf Add Slice 03 package readiness`
@@ -36,7 +37,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
 - Admin UI routes are `/auth/admin/users` and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role.
 - Admin UI supports user list/search, user detail, confirm/unconfirm email, lock/unlock, and reset access failed count.
-- AuthNet does not seed a default admin username or password; host applications own first-admin bootstrap.
+- AuthNet packages do not seed a default admin username or password; host applications own first-admin bootstrap.
 - ASP.NET Core Identity user/context in `AuthNet.Persistence.Postgres`.
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
@@ -48,6 +49,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, and `AuthNet.ExternalProviders`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
+- Sample host supports explicit Development-only admin bootstrap through `AuthNet:DevelopmentAdmin:{Enabled,Email,Password}` for local manual admin UI testing.
 - Local verification is centralized in `scripts/verify.ps1`.
 - GitHub Actions verify-only CI exists at `.github/workflows/ci.yml`; it does not publish or upload packages.
 
@@ -62,7 +64,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 51 passing tests.
+Latest full test count: 55 passing tests.
 
 Slice 04 focused tests:
 
@@ -74,6 +76,12 @@ Slice 06 focused tests:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
+```
+
+Sample host development admin focused tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostDevelopmentAdminTests
 ```
 
 Known passing package commands:
@@ -116,7 +124,7 @@ Application started.
 - PostgreSQL/EF Core is the production/default persistence path.
 - Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
 - Admin UI uses the fixed `Administrator` role for now; do not add custom permission scope unless explicitly re-scoped.
-- AuthNet must not ship hardcoded default admin credentials.
+- AuthNet packages must not ship hardcoded default admin credentials; sample-host dev bootstrap requires explicit config and is rejected outside Development.
 - Production must use a real `IAuthNetEmailSender`; development sender is rejected in production.
 - Public registration remains disabled by default.
 - External auto-provisioning requires a verified provider email claim.
