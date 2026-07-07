@@ -22,6 +22,7 @@ Build first:
 - Login, logout, email verification/resend, forgot/reset password, profile, verified email change, change password.
 - Email sender contract, with production sender required and development logging/fake sender allowed.
 - Role infrastructure using ASP.NET Core Identity roles.
+- Built-in admin user-management UI under the AuthNet route prefix, protected by the `Administrator` role.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
@@ -32,8 +33,8 @@ Deferred:
 
 - API/JWT and refresh tokens.
 - SPA authentication flows.
-- Admin user-management UI.
 - Fine-grained permissions.
+- Admin role assignment UI, user invitation, deletion, impersonation, and audit events.
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google/Microsoft helpers.
@@ -54,7 +55,7 @@ Current MVP package/project names:
 
 - `AuthNet.Core`: options, shared contracts, account service boundaries.
 - `AuthNet.AspNetCore`: service registration, middleware, auth integration.
-- `AuthNet.UI.Razor`: Razor Pages account UI.
+- `AuthNet.UI.Razor`: Razor Pages account and admin user-management UI.
 - `AuthNet.Persistence.Postgres`: EF Core/Npgsql Identity store setup.
 - `AuthNet.ExternalProviders`: generic OpenID Connect integration.
 - `AuthNet.SampleHost`: sample Razor Pages host app.
@@ -129,6 +130,7 @@ Host app should be able to configure:
 - Email sender implementation.
 - Generic OIDC provider settings.
 - Account route prefix and basic UI branding/layout.
+- Admin user-management routes under the account route prefix, guarded by the `Administrator` role.
 
 Sample-host-only development persistence:
 
@@ -160,6 +162,7 @@ app.MapAuthNet();
 - Integration requirements: `docs/integration-requirements.md`
 - Slice 03 package readiness: `docs/slice-03/package-readiness.md`
 - Slice 05 CI and publication readiness: `docs/slice-05/ci-and-publication-readiness.md`
+- Slice 06 admin user management: `docs/slice-06/admin-user-management.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`
 

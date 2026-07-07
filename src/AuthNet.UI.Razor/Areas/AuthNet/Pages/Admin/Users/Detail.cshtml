@@ -1,0 +1,45 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Admin.Users.DetailModel
+@{
+    ViewData["Title"] = "User details";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>User details</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+<dl>
+    <dt>Email</dt>
+    <dd>@Model.UserDetail.Email</dd>
+    <dt>Username</dt>
+    <dd>@Model.UserDetail.UserName</dd>
+    <dt>Display name</dt>
+    <dd>@Model.UserDetail.DisplayName</dd>
+    <dt>Phone number</dt>
+    <dd>@Model.UserDetail.PhoneNumber</dd>
+    <dt>Email confirmed</dt>
+    <dd>@(Model.UserDetail.EmailConfirmed ? "Yes" : "No")</dd>
+    <dt>Locked out</dt>
+    <dd>@(Model.UserDetail.IsLockedOut ? "Yes" : "No")</dd>
+    <dt>Access failed count</dt>
+    <dd>@Model.UserDetail.AccessFailedCount</dd>
+    <dt>External logins</dt>
+    <dd>@Model.UserDetail.ExternalLoginCount</dd>
+    <dt>Roles</dt>
+    <dd>@(Model.UserDetail.Roles.Count == 0 ? "None" : string.Join(", ", Model.UserDetail.Roles))</dd>
+</dl>
+
+<form method="post" class="mb-2">
+    <button asp-page-handler="ConfirmEmail" class="btn btn-outline-primary">Confirm email</button>
+    <button asp-page-handler="UnconfirmEmail" class="btn btn-outline-secondary">Unconfirm email</button>
+    <button asp-page-handler="Lock" class="btn btn-outline-danger">Lock user</button>
+    <button asp-page-handler="Unlock" class="btn btn-outline-success">Unlock user</button>
+    <button asp-page-handler="ResetAccessFailedCount" class="btn btn-outline-secondary">Reset access failures</button>
+</form>
+
+<p><a asp-page="./Index">Back to users</a></p>

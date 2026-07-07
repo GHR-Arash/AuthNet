@@ -14,6 +14,7 @@ After AuthNet is registered in your app, it provides:
 - Forgot password and reset password.
 - Profile management.
 - Change password.
+- Admin user management UI for users in the `Administrator` role.
 - Cookie authentication.
 - ASP.NET Core Identity roles.
 - PostgreSQL-backed Identity persistence.
@@ -24,7 +25,7 @@ Not included in this MVP:
 - JWT/API authentication.
 - Refresh tokens.
 - SPA flows.
-- Admin user management UI.
+- Role assignment UI and user invitation workflows.
 - MFA.
 - Multi-tenancy.
 
@@ -169,6 +170,13 @@ With `AccountRoutePrefix` set to `/auth`, AuthNet maps:
 - `/auth/access-denied`
 - `/auth/external-login`
 
+Admin routes are mapped under the same prefix:
+
+- `/auth/admin/users`
+- `/auth/admin/users/{id}`
+
+These routes require a signed-in user in the `Administrator` role. AuthNet does not create a default admin user or default development password.
+
 ## Protecting Pages or Endpoints
 
 Use standard ASP.NET Core authorization.
@@ -194,6 +202,32 @@ public sealed class AdminModel : PageModel;
 ```
 
 AuthNet does not introduce a custom permission model in MVP slice 1.
+
+## Admin User Management
+
+The built-in admin UI uses the standard `Administrator` role:
+
+```csharp
+using AuthNet.Persistence.Postgres;
+using Microsoft.AspNetCore.Identity;
+
+using var scope = app.Services.CreateScope();
+var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+
+if (!await roleManager.RoleExistsAsync("Administrator"))
+{
+    await roleManager.CreateAsync(new IdentityRole("Administrator"));
+}
+
+var user = await userManager.FindByEmailAsync("admin@example.com");
+if (user is not null)
+{
+    await userManager.AddToRoleAsync(user, "Administrator");
+}
+```
+
+Use your own bootstrap policy for creating the first administrator. Do not ship a hardcoded admin password.
 
 ## External Login
 

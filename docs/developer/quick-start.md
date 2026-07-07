@@ -142,9 +142,12 @@ Useful routes:
 - `/auth/forgot-password`
 - `/auth/resend-confirmation`
 - `/auth/profile`
+- `/auth/admin/users` after signing in as a user in the `Administrator` role
 - `/Admin`
 
 The integration test suite uses isolated EF Core InMemory databases through the AuthNet test host. The sample host also supports Development-only InMemory mode for local manual account-flow smoke testing.
+
+The sample host does not seed a default admin username or password. For manual admin UI testing, register a user, then assign that user to the `Administrator` role through your own temporary development seed code or a database update. Keep that bootstrap code development-only.
 
 ## Sample AuthNet Configuration
 

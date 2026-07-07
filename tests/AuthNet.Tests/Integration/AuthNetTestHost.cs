@@ -116,7 +116,8 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
     public async Task<AuthNetUser> CreateUserAsync(
         string email,
         string password = "Password1!",
-        bool emailConfirmed = true)
+        bool emailConfirmed = true,
+        string? displayName = null)
     {
         using var scope = Services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
@@ -124,10 +125,49 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
         {
             UserName = email,
             Email = email,
-            EmailConfirmed = emailConfirmed
+            EmailConfirmed = emailConfirmed,
+            LockoutEnabled = true,
+            DisplayName = displayName
         };
 
         var result = await userManager.CreateAsync(user, password);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(string.Join(" ", result.Errors.Select(error => error.Description)));
+        }
+
+        return user;
+    }
+
+    public async Task<AuthNetUser> CreateAdminUserAsync(string email, string password = "Password1!")
+    {
+        using var scope = Services.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        if (!await roleManager.RoleExistsAsync("Administrator"))
+        {
+            var roleResult = await roleManager.CreateAsync(new IdentityRole("Administrator"));
+            if (!roleResult.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join(" ", roleResult.Errors.Select(error => error.Description)));
+            }
+        }
+
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+        var user = new AuthNetUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true,
+            LockoutEnabled = true
+        };
+
+        var createResult = await userManager.CreateAsync(user, password);
+        if (!createResult.Succeeded)
+        {
+            throw new InvalidOperationException(string.Join(" ", createResult.Errors.Select(error => error.Description)));
+        }
+
+        var result = await userManager.AddToRoleAsync(user, "Administrator");
         if (!result.Succeeded)
         {
             throw new InvalidOperationException(string.Join(" ", result.Errors.Select(error => error.Description)));

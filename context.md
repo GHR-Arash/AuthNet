@@ -2,7 +2,7 @@
 
 ## Current Iteration
 
-Slice 03 package readiness is implemented locally.
+Slice 06 admin user management UI is implemented locally.
 
 ## Current Package Shape
 
@@ -62,6 +62,32 @@ Before public package publication, confirm:
 - Final package owners/authors.
 - XML documentation policy.
 
-## Next Attention
+Publication work is paused for now.
 
-Plan a release/publish slice only after publication blockers are resolved.
+## Current Admin UI
+
+Admin user management UI is available under the configured AuthNet route prefix:
+
+- `/auth/admin/users`
+- `/auth/admin/users/{id}`
+
+The UI requires the ASP.NET Core Identity `Administrator` role. AuthNet does not seed a default admin username or password.
+
+Implemented actions:
+
+- List/search users.
+- View user detail.
+- Confirm/unconfirm email.
+- Lock/unlock user.
+- Reset access failed count.
+
+Slice 06 files:
+
+- `tasks/slice-06-plan.md`
+- `tasks/slice-06-todo.md`
+- `docs/slice-06/admin-user-management.md`
+
+Likely next product slice:
+
+- Admin role assignment UI.
+- Or account invitation flow.

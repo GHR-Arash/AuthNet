@@ -28,6 +28,13 @@ With the default `/auth` prefix, routes are:
 | `/auth/access-denied` | Access denied page. |
 | `/auth/external-login` | External login callback flow. |
 
+Admin routes are also mapped under the same prefix:
+
+| Route | Purpose |
+|---|---|
+| `/auth/admin/users` | List and search users. Requires the `Administrator` role. |
+| `/auth/admin/users/{id}` | View user state and run safe account-state actions. Requires the `Administrator` role. |
+
 ## Registration
 
 Public registration is disabled by default.
@@ -82,6 +89,22 @@ Profile editing currently supports:
 - Phone number.
 
 The stored email address is not changed until the user opens the confirmation link sent to the new address.
+
+## Admin User Management
+
+The admin user-management UI is server-rendered and role-based.
+
+It requires a signed-in user in the standard ASP.NET Core Identity `Administrator` role. AuthNet does not seed a default administrator account, username, or password.
+
+The first admin slice supports:
+
+- List and search users by email or display name.
+- View email, username, display name, phone number, email confirmation state, lockout state, access failed count, external login count, and roles.
+- Confirm or unconfirm email.
+- Lock or unlock users.
+- Reset access failed count.
+
+Deferred admin features include role assignment UI, user invitation, deletion, impersonation, audit events, API endpoints, and fine-grained permissions.
 
 ## External Login
 

@@ -1,0 +1,61 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "Users";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Users</h1>
+
+<form method="get" class="mb-3">
+    <div class="mb-3">
+        <label asp-for="Search" class="form-label"></label>
+        <input asp-for="Search" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+    <a asp-page="./Index" class="btn btn-outline-secondary">Clear</a>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Display name</th>
+            <th>Email confirmed</th>
+            <th>Locked out</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.DisplayName</td>
+                <td>@(user.EmailConfirmed ? "Yes" : "No")</td>
+                <td>@(user.IsLockedOut ? "Yes" : "No")</td>
+                <td>
+                    <a asp-page="./Detail" asp-route-id="@user.Id">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Users.Count == 0)
+{
+    <p>No users found.</p>
+}
+
+<nav aria-label="User pages">
+    @if (Model.HasPreviousPage)
+    {
+        <a asp-page="./Index" asp-route-search="@Model.Search" asp-route-pageNumber="@(Model.PageNumber - 1)">Previous</a>
+    }
+    <span>Page @Model.PageNumber</span>
+    @if (Model.HasNextPage)
+    {
+        <a asp-page="./Index" asp-route-search="@Model.Search" asp-route-pageNumber="@(Model.PageNumber + 1)">Next</a>
+    }
+</nav>

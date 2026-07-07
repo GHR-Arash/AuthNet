@@ -38,6 +38,7 @@ Deliver the smallest useful AuthNet version that allows an ASP.NET developer to 
 - Built-in email verification flow.
 - Built-in profile page.
 - Built-in change password page.
+- Built-in admin user-management pages.
 - Basic route, layout, and branding configuration.
 
 ### API
@@ -157,7 +158,7 @@ The MVP is usable by developers outside the core team.
 
 Should Have:
 
-- Admin user management UI.
+- Admin user management UI. Implemented in Slice 06 as list/detail plus reversible account-state actions.
 - MFA.
 - Account invitation flow.
 - Audit events.
@@ -193,4 +194,5 @@ The MVP is complete when:
 - External login works through generic OpenID Connect.
 - PostgreSQL persistence works.
 - Roles can protect host application resources.
+- Administrators can use the built-in user list/detail UI when assigned the `Administrator` role.
 - Production email sender integration is required and development email logging is available.

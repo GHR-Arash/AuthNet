@@ -34,6 +34,7 @@ The first MVP slice shall provide:
 - Generic OpenID Connect external login.
 - Email sender integration contract.
 - Role infrastructure.
+- Server-rendered admin user-management UI protected by the `Administrator` role.
 
 ### Deferred Scope
 
@@ -42,7 +43,7 @@ The following are deferred beyond the first MVP slice:
 - API/JWT authentication.
 - Refresh tokens.
 - SPA-specific authentication flows.
-- Admin user-management UI.
+- Admin role assignment UI, invitation, deletion, impersonation, and audit events.
 - Fine-grained permissions.
 - Full Razor Page override.
 - Custom Identity stores.
@@ -76,4 +77,3 @@ Supported configuration should include:
 - Basic branding hooks.
 
 Full Razor Page override is deferred until the default UI and routing model are stable.
-

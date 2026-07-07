@@ -8,7 +8,7 @@ AuthNet
 
 AuthNet is a reusable Identity and Access Management component for ASP.NET applications.
 
-It is installed into a host ASP.NET application and configured as middleware. Once enabled, it provides common identity capabilities such as registration, login, logout, password recovery, email verification, profile management, role infrastructure, generic OpenID Connect login, and built-in Razor Pages account UI.
+It is installed into a host ASP.NET application and configured as middleware. Once enabled, it provides common identity capabilities such as registration, login, logout, password recovery, email verification, profile management, role infrastructure, generic OpenID Connect login, built-in Razor Pages account UI, and a minimal admin user-management UI.
 
 The first MVP slice targets .NET 10 server-rendered ASP.NET applications using Razor Pages UI and cookie authentication. API/JWT and SPA flows are planned after the first slice.
 
@@ -63,15 +63,16 @@ Responsibilities:
 
 ### Application Administrator
 
-Administrators manage users and access inside the host application in later product slices.
+Administrators manage users and access inside the host application.
 
 Responsibilities:
 
 - View users.
-- Manage roles.
 - Lock or unlock users.
-- Disable users.
+- Confirm or unconfirm email.
 - Initiate password recovery.
+
+Role assignment, invitation flows, deletion, impersonation, and audit events are later admin slices.
 
 ### Application Owner
 
@@ -91,6 +92,7 @@ AuthNet shall provide:
 
 - ASP.NET middleware integration.
 - Built-in Razor/MVC account UI.
+- Built-in admin user-management UI.
 - Cookie authentication for MVC/Razor apps.
 - External identity provider support.
 - PostgreSQL as the default persistence provider.
@@ -123,10 +125,11 @@ AuthNet MVP slice 1 shall provide:
 - Email sender integration contract.
 - Development fake/logging email sender.
 - Basic UI configuration.
+- Admin user list/detail UI protected by the `Administrator` role.
 
 ## Out of Scope for MVP
 
-- Full admin management UI.
+- Full admin management UI beyond list/detail and reversible account-state actions.
 - Multi-tenancy.
 - SAML support.
 - Passwordless login.

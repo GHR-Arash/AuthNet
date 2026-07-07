@@ -15,13 +15,14 @@ MVP slice 1 is server-rendered and cookie-based:
 - Cookie authentication.
 - Email verification and password reset.
 - Role infrastructure.
+- Admin user-management UI protected by the `Administrator` role.
 - Generic OpenID Connect external login.
 
 Deferred work:
 
 - API/JWT and refresh tokens.
 - SPA authentication.
-- Admin UI.
+- Admin role assignment, invitation, deletion, impersonation, and audit events.
 - Fine-grained permissions.
 - Custom stores.
 - MFA and multi-tenancy.
@@ -31,7 +32,7 @@ Deferred work:
 - `src/AuthNet.Core`: options, shared contracts, email abstractions.
 - `src/AuthNet.AspNetCore`: service registration, middleware integration, validation, development email sender.
 - `src/AuthNet.Persistence.Postgres`: Identity user, EF Core DbContext, PostgreSQL migrations.
-- `src/AuthNet.UI.Razor`: reusable Razor Pages account UI.
+- `src/AuthNet.UI.Razor`: reusable Razor Pages account and admin UI.
 - `src/AuthNet.ExternalProviders`: generic OpenID Connect registration.
 - `samples/AuthNet.SampleHost`: runnable host app for manual verification.
 - `tests/AuthNet.Tests`: unit tests for configuration and development seams.
@@ -85,4 +86,3 @@ Application started.
 - Do not add JWT/API behavior to MVP slice 1 unless the scope changes explicitly.
 - Do not introduce provider-specific Google/Microsoft helpers before the generic OIDC path is hardened.
 - Do not treat the development email sender as production-safe.
-

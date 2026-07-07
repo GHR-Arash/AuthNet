@@ -6,7 +6,9 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current commit: Add development InMemory sample persistence
+  - Current commit: Add admin user management UI
+  - `d04e077 Add verify-only CI workflow`
+  - `2527dbd Add development InMemory sample persistence`
   - `e50dadf Add Slice 03 package readiness`
   - `7afcf99 Add Slice 02 integration hardening`
   - `364f22a Harden account verification flows`
@@ -15,6 +17,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 03 package readiness is implemented and tracked in `tasks/slice-03-plan.md`, `tasks/slice-03-todo.md`, and `docs/slice-03/`.
 - Slice 04 development InMemory sample persistence is implemented and tracked in `tasks/slice-04-plan.md`, `tasks/slice-04-todo.md`, and `docs/slice-04/`.
 - Slice 05 CI and publication metadata readiness is implemented and tracked in `tasks/slice-05-plan.md`, `tasks/slice-05-todo.md`, and `docs/slice-05/`.
+- Slice 06 admin user management UI is implemented and tracked in `tasks/slice-06-plan.md`, `tasks/slice-06-todo.md`, and `docs/slice-06/`.
 
 ## Implemented Product Surface
 
@@ -30,14 +33,18 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `tests/AuthNet.Tests`
 - Built-in Razor Pages account UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Account`.
 - Account UI includes login/logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
+- Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
+- Admin UI routes are `/auth/admin/users` and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role.
+- Admin UI supports user list/search, user detail, confirm/unconfirm email, lock/unlock, and reset access failed count.
+- AuthNet does not seed a default admin username or password; host applications own first-admin bootstrap.
 - ASP.NET Core Identity user/context in `AuthNet.Persistence.Postgres`.
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
 - `UseAuthNet()` remains as a compatibility wrapper.
-- AuthNet UI ships fallback shared `_Layout.cshtml` and `_ValidationScriptsPartial.cshtml` so account pages render in a bare host.
-- `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot password, profile update, verified email change, external-login safety, and endpoint mapping compatibility.
+- AuthNet UI ships fallback shared `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml`, and `_AuthNetBrand.cshtml` so built-in pages render in a bare host.
+- `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot password, profile update, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, and `AuthNet.ExternalProviders`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
@@ -55,12 +62,18 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 43 passing tests.
+Latest full test count: 51 passing tests.
 
 Slice 04 focused tests:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter SampleHostAuthNetPersistenceTests
+```
+
+Slice 06 focused tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
 ```
 
 Known passing package commands:
@@ -102,6 +115,8 @@ Application started.
 - PostgreSQL/EF Core is the only persistence path for now.
 - PostgreSQL/EF Core is the production/default persistence path.
 - Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
+- Admin UI uses the fixed `Administrator` role for now; do not add custom permission scope unless explicitly re-scoped.
+- AuthNet must not ship hardcoded default admin credentials.
 - Production must use a real `IAuthNetEmailSender`; development sender is rejected in production.
 - Public registration remains disabled by default.
 - External auto-provisioning requires a verified provider email claim.
@@ -132,24 +147,29 @@ For product/architecture:
 - `tasks/slice-04-todo.md`
 - `tasks/slice-05-plan.md`
 - `tasks/slice-05-todo.md`
+- `tasks/slice-06-plan.md`
+- `tasks/slice-06-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
 - `docs/slice-05/ci-and-publication-readiness.md`
+- `docs/slice-06/admin-user-management.md`
 - `docs/tasks.md`
 - `docs/prd.md`
 
 ## Likely Next Work
 
-Recommended Slice 06:
+Publication decisions are intentionally paused for now.
 
-- Decide repository URL and license metadata before public package publication.
-- Decide whether XML documentation generation should be required before package publishing.
-- Add a release/publish workflow after repository URL, license, and package ownership are confirmed.
+Recommended next product slice:
+
+- Add admin role assignment UI, if admin management remains the priority.
+- Or add account invitation flow as the next admin-adjacent feature.
 
 Other candidates:
 
 - Add a real email sender sample implementation.
 - Add a committed package-consumer sample if local smoke coverage should be permanent.
+- Add audit events for admin actions.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

@@ -104,6 +104,8 @@ public static class AuthNetServiceCollectionExtensions
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ChangePassword", $"{prefix}/change-password");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/AccessDenied", $"{prefix}/access-denied");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ExternalLogin", $"{prefix}/external-login");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Index", $"{prefix}/admin/users");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Detail", $"{prefix}/admin/users/{{id}}");
             })
             .AddApplicationPart(typeof(LoginModel).Assembly);
 
