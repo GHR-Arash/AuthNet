@@ -15,6 +15,7 @@ After AuthNet is registered in your app, it provides:
 - Profile management.
 - Change password.
 - Authenticator-app MFA with recovery codes.
+- Same-origin SPA JSON external-login discovery, challenge, callback, and account-link orchestration.
 - Admin user management UI protected by `Administrator` or AuthNet permissions.
 - Role creation, role assignment, and built-in AuthNet permission assignment.
 - Account invitation flow.
@@ -222,9 +223,14 @@ SPA JSON routes are mapped under `{AccountRoutePrefix}/api`. With the default pr
 - `POST /auth/api/mfa/recovery-codes/regenerate`
 - `POST /auth/api/login/mfa`
 - `POST /auth/api/login/recovery-code`
+- `GET /auth/api/external-providers`
+- `POST /auth/api/external-login/challenge`
+- `GET /auth/api/external-login/callback`
+- `POST /auth/api/external-login/link/challenge`
+- `GET /auth/api/external-login/link/callback`
 - `GET /auth/api/openapi.json`
 
-These endpoints are intended for same-origin browser clients using the existing Identity application cookie. The OpenAPI document describes only AuthNet-owned SPA JSON routes. JWT access tokens, refresh tokens, cross-origin CORS policy management, admin JSON APIs, admin MFA reset, required-MFA policy, SMS/email OTP, passkeys, and bundled Swagger/Scalar UI are still deferred.
+These endpoints are intended for same-origin browser clients using the existing Identity application cookie. The OpenAPI document describes only AuthNet-owned SPA JSON routes. JWT access tokens, refresh tokens, cross-origin CORS policy management, admin JSON APIs, invitation acceptance JSON, admin MFA reset, required-MFA policy, SMS/email OTP, passkeys, provider-specific helper packages, and bundled Swagger/Scalar UI are still deferred.
 
 ## Protecting Pages or Endpoints
 
@@ -344,7 +350,7 @@ Enable generic OpenID Connect in configuration:
 }
 ```
 
-When enabled, the login page shows the configured external provider.
+When enabled, the login page shows the configured external provider. Same-origin SPA clients can discover configured providers at `/auth/api/external-providers`, start external sign-in at `/auth/api/external-login/challenge`, complete JSON callback handling at `/auth/api/external-login/callback`, and start/complete explicit signed-in account linking through `/auth/api/external-login/link/challenge` and `/auth/api/external-login/link/callback`.
 
 For security, automatic external account provisioning requires the provider to return a verified email claim. Existing local accounts are linked from the signed-in user's profile page, not by matching an unauthenticated external email claim.
 

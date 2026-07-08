@@ -78,14 +78,19 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
             HttpContext context,
             string email,
             string providerKey,
-            bool verified) =>
+            bool verified,
+            bool includeEmail) =>
         {
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, providerKey),
-                new(ClaimTypes.Email, email),
                 new("email_verified", verified ? "true" : "false")
             };
+            if (includeEmail)
+            {
+                claims.Add(new Claim(ClaimTypes.Email, email));
+            }
+
             var identity = new ClaimsIdentity(claims, IdentityConstants.ExternalScheme);
             var properties = new AuthenticationProperties();
             properties.Items["LoginProvider"] = "TestProvider";
@@ -255,9 +260,10 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
     public async Task SetExternalLoginAsync(
         string email,
         string providerKey = "external-key",
-        bool verified = true)
+        bool verified = true,
+        bool includeEmail = true)
     {
-        var path = $"/test/external-cookie?email={Uri.EscapeDataString(email)}&providerKey={Uri.EscapeDataString(providerKey)}&verified={verified}";
+        var path = $"/test/external-cookie?email={Uri.EscapeDataString(email)}&providerKey={Uri.EscapeDataString(providerKey)}&verified={verified}&includeEmail={includeEmail}";
         var response = await SendAsync(new HttpRequestMessage(HttpMethod.Get, path));
         response.EnsureSuccessStatusCode();
     }

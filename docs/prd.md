@@ -95,7 +95,7 @@ AuthNet shall provide:
 - Built-in Razor/MVC account UI.
 - Built-in admin user-management UI.
 - Cookie authentication for MVC/Razor apps.
-- Same-origin SPA JSON account and authenticator-app MFA endpoints using the existing application cookie.
+- Same-origin SPA JSON account, authenticator-app MFA, and external-login orchestration endpoints using the existing application cookie.
 - OpenAPI JSON document for the same-origin SPA account endpoints.
 - External identity provider support.
 - PostgreSQL as the default persistence provider.

@@ -159,11 +159,13 @@ Priority: Must Have
 - The system shall support generic OpenID Connect providers.
 - The system shall allow users to link an external login to an existing account.
 - The system shall prevent duplicate accounts for the same external provider identity.
+- The system shall expose same-origin SPA JSON orchestration for provider discovery, external-login challenge start, callback completion, and authenticated account linking.
 
 Acceptance criteria:
 
 - Given an OpenID Connect provider is configured, when a user completes external authentication, then the system signs in or provisions the user based on configuration.
 - Given an external identity is already linked, when the same provider identity signs in again, then the system signs in the linked account.
+- Given an authenticated user starts external account linking from a same-origin SPA client, when the provider callback completes successfully, then the system links the external identity to that user.
 
 ## Razor Pages Account UI
 
@@ -192,7 +194,7 @@ Priority: Should Have
 
 - The system shall expose JSON endpoints for same-origin browser SPA workflows.
 - The system shall expose a current-session endpoint.
-- The system shall expose JSON endpoints for registration, login, logout, password recovery initiation and completion, email confirmation resend and completion, profile read and update, password change, and authenticator-app MFA workflows.
+- The system shall expose JSON endpoints for registration, login, logout, password recovery initiation and completion, email confirmation resend and completion, profile read and update, password change, authenticator-app MFA workflows, and external-login orchestration.
 - The system shall expose an OpenAPI JSON document for the same-origin browser SPA endpoints.
 - The system shall use the existing ASP.NET Core Identity application cookie for the first SPA workflow slice.
 - The system shall return consistent JSON success and error responses.
@@ -211,6 +213,7 @@ Acceptance criteria:
 - Given an authenticated same-origin SPA client submits a correct current password and valid new password, then the system changes the password.
 - Given an authenticated same-origin SPA client verifies a valid authenticator code during setup, then the system enables MFA and returns one-time recovery codes.
 - Given a same-origin SPA client completes a pending MFA challenge with a valid authenticator code or recovery code, then the system completes cookie sign-in.
+- Given a same-origin SPA client completes an external-login callback with verified external email, then the system signs in the linked user or provisions and signs in a new user without linking by email alone.
 
 ## Role Authorization
 

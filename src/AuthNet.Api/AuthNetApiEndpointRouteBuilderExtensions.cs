@@ -301,7 +301,103 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
             .Produces<AuthNetApiResult>(StatusCodes.Status401Unauthorized)
             .Produces<AuthNetApiResult>(StatusCodes.Status409Conflict);
 
+        group.MapGet("/external-providers", async Task<Ok<AuthNetExternalProvidersResponse>> (
+            IAuthNetSpaAccountService accountService) =>
+        {
+            return TypedResults.Ok(await accountService.GetExternalProvidersAsync());
+        })
+            .WithName("AuthNetApiExternalProviders")
+            .WithSummary("Get configured external login providers.")
+            .Produces<AuthNetExternalProvidersResponse>(StatusCodes.Status200OK);
+
+        group.MapPost("/external-login/challenge", async Task<IResult> (
+            AuthNetExternalChallengeRequest request,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.PrepareExternalLoginChallengeAsync(
+                request,
+                options.NormalizedAccountRoutePrefix + "/api/external-login/callback",
+                cancellationToken);
+            return ToExternalChallengeResult(result);
+        })
+            .WithName("AuthNetApiExternalLoginChallenge")
+            .WithSummary("Start an external login challenge.")
+            .Produces(StatusCodes.Status302Found)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest);
+
+        group.MapGet("/external-login/callback", async Task<Ok<AuthNetExternalLoginCallbackResponse>> (
+            HttpContext httpContext,
+            string? returnUrl,
+            string? remoteError,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            return TypedResults.Ok(await accountService.CompleteExternalLoginAsync(
+                httpContext,
+                returnUrl,
+                remoteError,
+                cancellationToken));
+        })
+            .WithName("AuthNetApiExternalLoginCallback")
+            .WithSummary("Complete an external login callback.")
+            .Produces<AuthNetExternalLoginCallbackResponse>(StatusCodes.Status200OK);
+
+        group.MapPost("/external-login/link/challenge", async Task<IResult> (
+            AuthNetExternalChallengeRequest request,
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.PrepareExternalLinkChallengeAsync(
+                request,
+                httpContext,
+                options.NormalizedAccountRoutePrefix + "/api/external-login/link/callback",
+                cancellationToken);
+            return result is null
+                ? TypedResults.Unauthorized()
+                : ToExternalChallengeResult(result);
+        })
+            .WithName("AuthNetApiExternalLoginLinkChallenge")
+            .WithSummary("Start an external login link challenge for the current user.")
+            .Produces(StatusCodes.Status302Found)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapGet("/external-login/link/callback", async Task<IResult> (
+            HttpContext httpContext,
+            string? returnUrl,
+            string? remoteError,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.CompleteExternalLinkAsync(
+                httpContext,
+                returnUrl,
+                remoteError,
+                cancellationToken);
+            return result is null
+                ? TypedResults.Unauthorized()
+                : TypedResults.Ok(result);
+        })
+            .WithName("AuthNetApiExternalLoginLinkCallback")
+            .WithSummary("Complete an external login link callback for the current user.")
+            .Produces<AuthNetExternalLinkCallbackResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
+
         return group;
+    }
+
+    private static IResult ToExternalChallengeResult(AuthNetExternalChallengeResult result)
+    {
+        if (!result.Result.Succeeded)
+        {
+            return TypedResults.BadRequest(result.Result);
+        }
+
+        return Results.Challenge(
+            result.Properties,
+            [result.Provider!]);
     }
 
     private static IResult ToDataResult<T>(AuthNetApiResponse<T>? result)

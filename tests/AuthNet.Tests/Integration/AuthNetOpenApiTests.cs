@@ -61,6 +61,11 @@ public sealed class AuthNetOpenApiTests
         AssertOperation(paths, "/auth/api/mfa/recovery-codes/regenerate", "post", "AuthNetApiMfaRecoveryCodesRegenerate");
         AssertOperation(paths, "/auth/api/login/mfa", "post", "AuthNetApiLoginMfa");
         AssertOperation(paths, "/auth/api/login/recovery-code", "post", "AuthNetApiLoginRecoveryCode");
+        AssertOperation(paths, "/auth/api/external-providers", "get", "AuthNetApiExternalProviders");
+        AssertOperation(paths, "/auth/api/external-login/challenge", "post", "AuthNetApiExternalLoginChallenge");
+        AssertOperation(paths, "/auth/api/external-login/callback", "get", "AuthNetApiExternalLoginCallback");
+        AssertOperation(paths, "/auth/api/external-login/link/challenge", "post", "AuthNetApiExternalLoginLinkChallenge");
+        AssertOperation(paths, "/auth/api/external-login/link/callback", "get", "AuthNetApiExternalLoginLinkCallback");
         Assert.False(paths.TryGetProperty("/auth/login", out _));
         Assert.False(paths.TryGetProperty("/auth/admin/users", out _));
         Assert.False(paths.TryGetProperty("/Spa", out _));
@@ -96,6 +101,11 @@ public sealed class AuthNetOpenApiTests
         AssertSchema(schemas, "AuthNetRecoveryCodesRegenerateResponse");
         AssertSchema(schemas, "AuthNetMfaChallengeRequest");
         AssertSchema(schemas, "AuthNetRecoveryCodeLoginRequest");
+        AssertSchema(schemas, "AuthNetExternalProviderResponse");
+        AssertSchema(schemas, "AuthNetExternalProvidersResponse");
+        AssertSchema(schemas, "AuthNetExternalChallengeRequest");
+        AssertSchema(schemas, "AuthNetExternalLoginCallbackResponse");
+        AssertSchema(schemas, "AuthNetExternalLinkCallbackResponse");
 
         var loginRequestRef = document.RootElement
             .GetProperty("paths")
@@ -132,6 +142,18 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("$ref")
             .GetString();
         Assert.Equal("#/components/schemas/AuthNetMfaChallengeRequest", mfaChallengeRequestRef);
+
+        var externalChallengeRequestRef = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/external-login/challenge")
+            .GetProperty("post")
+            .GetProperty("requestBody")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema")
+            .GetProperty("$ref")
+            .GetString();
+        Assert.Equal("#/components/schemas/AuthNetExternalChallengeRequest", externalChallengeRequestRef);
     }
 
     [Fact]
@@ -169,6 +191,13 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("post")
             .GetProperty("security")[0];
         Assert.True(mfaSecurity.TryGetProperty("AuthNetApplicationCookie", out _));
+
+        var externalLinkSecurity = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/external-login/link/challenge")
+            .GetProperty("post")
+            .GetProperty("security")[0];
+        Assert.True(externalLinkSecurity.TryGetProperty("AuthNetApplicationCookie", out _));
     }
 
     private static async Task<JsonDocument> GetOpenApiDocumentAsync(AuthNetTestHost host)

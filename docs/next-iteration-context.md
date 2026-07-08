@@ -6,7 +6,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current HEAD: Add SPA MFA JSON workflows
+  - Current HEAD: Add SPA external login JSON orchestration
+  - `7d2d823 Add SPA MFA JSON workflows`
   - `69766bd Add SPA account workflow completion`
   - `d398cb7 Add OpenAPI document endpoint`
   - `328d103 Add SPA API workflow foundation`
@@ -31,6 +32,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 15 OpenAPI document endpoint is implemented and tracked in `tasks/slice-15-plan.md` and `tasks/slice-15-todo.md`.
 - Slice 16 SPA account workflow completion is implemented and tracked in `tasks/slice-16-plan.md` and `tasks/slice-16-todo.md`.
 - Slice 17 SPA MFA JSON workflows are implemented and tracked in `tasks/slice-17-plan.md` and `tasks/slice-17-todo.md`.
+- Slice 18 SPA external-login JSON orchestration is implemented and tracked in `tasks/slice-18-plan.md` and `tasks/slice-18-todo.md`.
 
 ## Implemented Product Surface
 
@@ -53,7 +55,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Built-in Razor Pages admin invitation UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Invitations`.
 - Admin user routes are `/auth/admin/users`, `/auth/admin/users/new`, and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet user permissions.
 - Admin role routes are `/auth/admin/roles`, `/auth/admin/roles/new`, and `/auth/admin/roles/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet role permissions.
-- Same-origin SPA JSON routes are mapped under `/auth/api` by default: session, profile read/update, login, logout, register, forgot-password, reset-password, resend-confirmation, confirm-email, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, and recovery-code sign-in.
+- Same-origin SPA JSON routes are mapped under `/auth/api` by default: session, profile read/update, login, logout, register, forgot-password, reset-password, resend-confirmation, confirm-email, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, and signed-in external-login link challenge/callback.
 - AuthNet SPA OpenAPI JSON is mapped at `/auth/api/openapi.json` by default.
 - Admin audit route is `/auth/admin/audit` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.audit.view`.
 - Admin invitation routes are `/auth/admin/invitations` and `/auth/admin/invitations/new` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.invitations.manage`.
@@ -123,6 +125,12 @@ Slice 17 focused SPA MFA API tests:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaMfaApiTests
+```
+
+Slice 18 focused SPA external-login API tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaExternalLoginApiTests
 ```
 
 Login regression focused tests:
@@ -305,7 +313,7 @@ Publication decisions are intentionally paused for now.
 
 Recommended next product slice:
 
-- Add same-origin SPA external-login orchestration endpoints or same-origin SPA invitation acceptance, depending on whether social/SSO or invitation-first onboarding is the higher priority.
+- Add same-origin SPA invitation acceptance or admin JSON APIs, depending on whether invitation-first onboarding or admin automation is the higher priority.
 
 Other candidates:
 

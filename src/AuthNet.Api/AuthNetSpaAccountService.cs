@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.Persistence.Postgres;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -514,6 +516,207 @@ internal sealed class AuthNetSpaAccountService(
         return AuthNetApiResult.Failure("Invalid recovery code.", [new("InvalidRecoveryCode", null, "Invalid recovery code.")]);
     }
 
+    public async Task<AuthNetExternalProvidersResponse> GetExternalProvidersAsync()
+    {
+        var schemes = await signInManager.GetExternalAuthenticationSchemesAsync();
+        return new AuthNetExternalProvidersResponse(
+            [.. schemes
+                .Where(scheme => !string.IsNullOrWhiteSpace(scheme.DisplayName))
+                .Select(scheme => new AuthNetExternalProviderResponse(
+                    scheme.Name,
+                    scheme.DisplayName ?? scheme.Name))]);
+    }
+
+    public async Task<AuthNetExternalChallengeResult> PrepareExternalLoginChallengeAsync(
+        AuthNetExternalChallengeRequest request,
+        string callbackPath,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var validationErrors = Validate(request);
+        if (validationErrors.Count > 0)
+        {
+            return ExternalChallengeFailure("Validation failed.", validationErrors);
+        }
+
+        var provider = request.Provider.Trim();
+        if (!await IsExternalProviderAsync(provider))
+        {
+            return ExternalChallengeFailure("External provider is not available.", [new("UnknownProvider", "provider", "External provider is not available.")]);
+        }
+
+        if (!TryNormalizeReturnUrl(request.ReturnUrl, out var returnUrl))
+        {
+            return ExternalChallengeFailure("Return URL must be local.", [new("InvalidReturnUrl", "returnUrl", "Return URL must be local.")]);
+        }
+
+        var redirectUrl = BuildCallbackPath(callbackPath, returnUrl);
+        var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        return new AuthNetExternalChallengeResult(AuthNetApiResult.Success("External login challenge started."), provider, properties);
+    }
+
+    public async Task<AuthNetExternalChallengeResult?> PrepareExternalLinkChallengeAsync(
+        AuthNetExternalChallengeRequest request,
+        HttpContext httpContext,
+        string callbackPath,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var currentUser = await userManager.GetUserAsync(httpContext.User);
+        if (currentUser is null)
+        {
+            return null;
+        }
+
+        var validationErrors = Validate(request);
+        if (validationErrors.Count > 0)
+        {
+            return ExternalChallengeFailure("Validation failed.", validationErrors);
+        }
+
+        var provider = request.Provider.Trim();
+        if (!await IsExternalProviderAsync(provider))
+        {
+            return ExternalChallengeFailure("External provider is not available.", [new("UnknownProvider", "provider", "External provider is not available.")]);
+        }
+
+        if (!TryNormalizeReturnUrl(request.ReturnUrl, out var returnUrl))
+        {
+            return ExternalChallengeFailure("Return URL must be local.", [new("InvalidReturnUrl", "returnUrl", "Return URL must be local.")]);
+        }
+
+        var redirectUrl = BuildCallbackPath(callbackPath, returnUrl);
+        var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        return new AuthNetExternalChallengeResult(AuthNetApiResult.Success("External link challenge started."), provider, properties);
+    }
+
+    public async Task<AuthNetExternalLoginCallbackResponse> CompleteExternalLoginAsync(
+        HttpContext httpContext,
+        string? returnUrl,
+        string? remoteError,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var safeReturnUrl = NormalizeReturnUrlOrDefault(returnUrl);
+        if (remoteError is not null)
+        {
+            return ExternalLoginCallback("remoteError", "External provider returned an error.", safeReturnUrl);
+        }
+
+        var info = await signInManager.GetExternalLoginInfoAsync();
+        if (info is null)
+        {
+            return ExternalLoginCallback("missingExternalInfo", "External login information was not available.", safeReturnUrl);
+        }
+
+        var signInResult = await signInManager.ExternalLoginSignInAsync(
+            info.LoginProvider,
+            info.ProviderKey,
+            isPersistent: false,
+            bypassTwoFactor: true);
+
+        if (signInResult.Succeeded)
+        {
+            var linkedUser = await userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            return ExternalLoginCallback(
+                "signedIn",
+                "Signed in.",
+                safeReturnUrl,
+                info,
+                linkedUser?.Id,
+                linkedUser?.Email);
+        }
+
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return ExternalLoginCallback("missingEmail", "The external provider did not return an email address.", safeReturnUrl, info);
+        }
+
+        if (!HasVerifiedEmail(info.Principal))
+        {
+            return ExternalLoginCallback("unverifiedEmail", "The external provider did not return a verified email address.", safeReturnUrl, info, email: email);
+        }
+
+        var existingUser = await userManager.FindByEmailAsync(email);
+        if (existingUser is not null)
+        {
+            return ExternalLoginCallback(
+                "existingLocalAccount",
+                "An account already exists for this email address. Sign in with your password before linking an external login.",
+                safeReturnUrl,
+                info,
+                existingUser.Id,
+                email);
+        }
+
+        var user = new AuthNetUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true,
+            DisplayName = info.Principal.Identity?.Name
+        };
+
+        var createResult = await userManager.CreateAsync(user);
+        if (!createResult.Succeeded)
+        {
+            return ExternalLoginCallback("externalLoginFailed", JoinIdentityErrors(createResult), safeReturnUrl, info, email: email);
+        }
+
+        var addLoginResult = await userManager.AddLoginAsync(user, info);
+        if (!addLoginResult.Succeeded)
+        {
+            return ExternalLoginCallback("externalLoginFailed", JoinIdentityErrors(addLoginResult), safeReturnUrl, info, user.Id, email);
+        }
+
+        await signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+        return ExternalLoginCallback("provisioned", "External account provisioned and signed in.", safeReturnUrl, info, user.Id, email);
+    }
+
+    public async Task<AuthNetExternalLinkCallbackResponse?> CompleteExternalLinkAsync(
+        HttpContext httpContext,
+        string? returnUrl,
+        string? remoteError,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var currentUser = await userManager.GetUserAsync(httpContext.User);
+        if (currentUser is null)
+        {
+            return null;
+        }
+
+        var safeReturnUrl = NormalizeReturnUrlOrDefault(returnUrl);
+        if (remoteError is not null)
+        {
+            return ExternalLinkCallback("remoteError", "External provider returned an error.", safeReturnUrl);
+        }
+
+        var info = await signInManager.GetExternalLoginInfoAsync();
+        if (info is null)
+        {
+            return ExternalLinkCallback("missingExternalInfo", "External login information was not available.", safeReturnUrl);
+        }
+
+        var currentLogins = await userManager.GetLoginsAsync(currentUser);
+        if (currentLogins.Any(login =>
+            login.LoginProvider == info.LoginProvider &&
+            login.ProviderKey == info.ProviderKey))
+        {
+            return ExternalLinkCallback("alreadyLinked", "External login is already linked.", safeReturnUrl, info.LoginProvider);
+        }
+
+        var linkResult = await userManager.AddLoginAsync(currentUser, info);
+        if (!linkResult.Succeeded)
+        {
+            return ExternalLinkCallback("linkFailed", JoinIdentityErrors(linkResult), safeReturnUrl, info.LoginProvider);
+        }
+
+        await signInManager.RefreshSignInAsync(currentUser);
+        return ExternalLinkCallback("linked", "External login linked.", safeReturnUrl, info.LoginProvider);
+    }
+
     private async Task<AuthNetUser?> FindUserAsync(string identifier)
     {
         var trimmedIdentifier = identifier.Trim();
@@ -582,6 +785,90 @@ internal sealed class AuthNetSpaAccountService(
     private static AuthNetApiResponse<T> Failure<T>(string message, IReadOnlyList<AuthNetApiError> errors)
     {
         return new AuthNetApiResponse<T>(AuthNetApiResult.Failure(message, errors), default);
+    }
+
+    private async Task<bool> IsExternalProviderAsync(string provider)
+    {
+        var schemes = await signInManager.GetExternalAuthenticationSchemesAsync();
+        return schemes.Any(scheme => string.Equals(scheme.Name, provider, StringComparison.Ordinal));
+    }
+
+    private static AuthNetExternalChallengeResult ExternalChallengeFailure(
+        string message,
+        IReadOnlyList<AuthNetApiError> errors)
+    {
+        return new AuthNetExternalChallengeResult(AuthNetApiResult.Failure(message, errors), null, null);
+    }
+
+    private static string BuildCallbackPath(string callbackPath, string returnUrl)
+    {
+        return QueryHelpers.AddQueryString(callbackPath, "returnUrl", returnUrl);
+    }
+
+    private static string NormalizeReturnUrlOrDefault(string? returnUrl)
+    {
+        return TryNormalizeReturnUrl(returnUrl, out var safeReturnUrl)
+            ? safeReturnUrl
+            : "/";
+    }
+
+    private static bool TryNormalizeReturnUrl(string? returnUrl, out string safeReturnUrl)
+    {
+        if (string.IsNullOrWhiteSpace(returnUrl))
+        {
+            safeReturnUrl = "/";
+            return true;
+        }
+
+        var trimmed = returnUrl.Trim();
+        if (trimmed.StartsWith("/", StringComparison.Ordinal) &&
+            !trimmed.StartsWith("//", StringComparison.Ordinal) &&
+            !trimmed.Contains("://", StringComparison.Ordinal))
+        {
+            safeReturnUrl = trimmed;
+            return true;
+        }
+
+        safeReturnUrl = "/";
+        return false;
+    }
+
+    private static AuthNetExternalLoginCallbackResponse ExternalLoginCallback(
+        string status,
+        string message,
+        string returnUrl,
+        ExternalLoginInfo? info = null,
+        string? userId = null,
+        string? email = null)
+    {
+        return new AuthNetExternalLoginCallbackResponse(
+            status,
+            message,
+            returnUrl,
+            info?.LoginProvider,
+            email ?? info?.Principal.FindFirstValue(ClaimTypes.Email),
+            userId);
+    }
+
+    private static AuthNetExternalLinkCallbackResponse ExternalLinkCallback(
+        string status,
+        string message,
+        string returnUrl,
+        string? provider = null)
+    {
+        return new AuthNetExternalLinkCallbackResponse(status, message, returnUrl, provider);
+    }
+
+    private static bool HasVerifiedEmail(ClaimsPrincipal principal)
+    {
+        var verifiedClaim = principal.FindFirst("email_verified")?.Value;
+        return string.Equals(verifiedClaim, "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(verifiedClaim, "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string JoinIdentityErrors(IdentityResult result)
+    {
+        return string.Join(" ", result.Errors.Select(error => error.Description));
     }
 
     private static string NormalizeAuthenticatorCode(string code)

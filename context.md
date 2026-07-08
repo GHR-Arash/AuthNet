@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 18 SPA external-login JSON orchestration is implemented and tracked in:
+
+- `tasks/slice-18-plan.md`
+- `tasks/slice-18-todo.md`
+
 Slice 17 SPA MFA JSON workflows are implemented and tracked in:
 
 - `tasks/slice-17-plan.md`
@@ -100,6 +105,12 @@ Focused SPA MFA API verification:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaMfaApiTests
+```
+
+Focused SPA external-login API verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaExternalLoginApiTests
 ```
 
 Focused sample email sender verification:
@@ -255,15 +266,15 @@ Out of scope:
 
 ## Current SPA Workflow Scope
 
-Implemented Slice 14 through Slice 17 scope:
+Implemented Slice 14 through Slice 18 scope:
 
 - `AuthNet.Api` package/project for JSON browser account endpoints.
 - Same-origin SPA/BFF-style cookie workflow using the existing Identity application cookie.
 - JSON routes under the configured account route prefix, `/auth/api` by default.
-- Session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, and recovery-code sign-in JSON endpoints.
+- Session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, and signed-in external-login link challenge/callback JSON endpoints.
 - OpenAPI document endpoint at `/auth/api/openapi.json`, scoped to AuthNet SPA JSON endpoints.
-- Sample SPA smoke page in the sample host at `/Spa` exercises session, login/logout, profile update, password change, reset completion, confirm-email completion, MFA workflows, and OpenAPI discovery.
-- Keep JWT access tokens, refresh tokens, admin JSON, invitation acceptance JSON, and external-login JSON deferred to separate slices.
+- Sample SPA smoke page in the sample host at `/Spa` exercises session, login/logout, profile update, password change, reset completion, confirm-email completion, MFA workflows, external-login provider/challenge/link calls, and OpenAPI discovery.
+- Keep JWT access tokens, refresh tokens, admin JSON, invitation acceptance JSON, cross-origin SPA auth, and provider-specific helper packages deferred to separate slices.
 
 ## Current Sample Email Scope
 

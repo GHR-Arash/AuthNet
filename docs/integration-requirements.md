@@ -84,12 +84,13 @@ Implemented initial API groups:
 - Profile
 - Password change
 - MFA setup, challenge completion, recovery-code login, recovery-code status, and user-owned disable
+- External-login provider discovery, challenge start, callback completion, and authenticated account linking
 
 Future API groups:
 
 - Token refresh
-- External login
 - Admin APIs
+- Invitation acceptance JSON
 
 The API routes use the configured AuthNet account route prefix plus `/api`.
 

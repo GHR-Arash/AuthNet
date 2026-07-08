@@ -41,4 +41,14 @@ public interface IAuthNetSpaAccountService
     Task<AuthNetApiResult> LoginWithMfaAsync(AuthNetMfaChallengeRequest request, CancellationToken cancellationToken);
 
     Task<AuthNetApiResult> LoginWithRecoveryCodeAsync(AuthNetRecoveryCodeLoginRequest request, CancellationToken cancellationToken);
+
+    Task<AuthNetExternalProvidersResponse> GetExternalProvidersAsync();
+
+    Task<AuthNetExternalChallengeResult> PrepareExternalLoginChallengeAsync(AuthNetExternalChallengeRequest request, string callbackPath, CancellationToken cancellationToken);
+
+    Task<AuthNetExternalChallengeResult?> PrepareExternalLinkChallengeAsync(AuthNetExternalChallengeRequest request, HttpContext httpContext, string callbackPath, CancellationToken cancellationToken);
+
+    Task<AuthNetExternalLoginCallbackResponse> CompleteExternalLoginAsync(HttpContext httpContext, string? returnUrl, string? remoteError, CancellationToken cancellationToken);
+
+    Task<AuthNetExternalLinkCallbackResponse?> CompleteExternalLinkAsync(HttpContext httpContext, string? returnUrl, string? remoteError, CancellationToken cancellationToken);
 }

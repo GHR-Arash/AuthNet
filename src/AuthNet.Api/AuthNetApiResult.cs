@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+
 namespace AuthNet.Api;
 
 /// <summary>Represents a standard AuthNet API operation result.</summary>
@@ -76,3 +78,34 @@ public sealed record AuthNetRecoveryCodesResponse(
 /// <summary>Represents newly generated recovery codes.</summary>
 public sealed record AuthNetRecoveryCodesRegenerateResponse(
     IReadOnlyList<string> RecoveryCodes);
+
+/// <summary>Represents an available external login provider.</summary>
+public sealed record AuthNetExternalProviderResponse(
+    string Name,
+    string DisplayName);
+
+/// <summary>Represents available external login providers.</summary>
+public sealed record AuthNetExternalProvidersResponse(
+    IReadOnlyList<AuthNetExternalProviderResponse> Providers);
+
+/// <summary>Represents an external login callback outcome.</summary>
+public sealed record AuthNetExternalLoginCallbackResponse(
+    string Status,
+    string Message,
+    string ReturnUrl,
+    string? Provider,
+    string? Email,
+    string? UserId);
+
+/// <summary>Represents an external login link callback outcome.</summary>
+public sealed record AuthNetExternalLinkCallbackResponse(
+    string Status,
+    string Message,
+    string ReturnUrl,
+    string? Provider);
+
+/// <summary>Represents a prepared external authentication challenge.</summary>
+public sealed record AuthNetExternalChallengeResult(
+    AuthNetApiResult Result,
+    string? Provider,
+    AuthenticationProperties? Properties);

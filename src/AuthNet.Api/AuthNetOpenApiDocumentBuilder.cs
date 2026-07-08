@@ -277,6 +277,64 @@ internal static class AuthNetOpenApiDocumentBuilder
                         ["401"] = JsonResponse("No pending challenge or invalid recovery code.", "AuthNetApiResult"),
                         ["409"] = JsonResponse("Account cannot complete sign-in.", "AuthNetApiResult")
                     })
+            },
+            [$"{apiRoot}/external-providers"] = new Dictionary<string, object?>
+            {
+                ["get"] = Operation(
+                    "AuthNetApiExternalProviders",
+                    "Get configured external login providers.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Configured external providers.", "AuthNetExternalProvidersResponse")
+                    })
+            },
+            [$"{apiRoot}/external-login/challenge"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiExternalLoginChallenge",
+                    "Start an external login challenge.",
+                    requestSchema: "AuthNetExternalChallengeRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["302"] = Response("Redirects to the selected external provider."),
+                        ["400"] = JsonResponse("Validation or provider selection failed.", "AuthNetApiResult")
+                    })
+            },
+            [$"{apiRoot}/external-login/callback"] = new Dictionary<string, object?>
+            {
+                ["get"] = Operation(
+                    "AuthNetApiExternalLoginCallback",
+                    "Complete an external login callback.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("External login callback result.", "AuthNetExternalLoginCallbackResponse")
+                    })
+            },
+            [$"{apiRoot}/external-login/link/challenge"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiExternalLoginLinkChallenge",
+                    "Start an external login link challenge for the current user.",
+                    requestSchema: "AuthNetExternalChallengeRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["302"] = Response("Redirects to the selected external provider."),
+                        ["400"] = JsonResponse("Validation or provider selection failed.", "AuthNetApiResult"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
+            },
+            [$"{apiRoot}/external-login/link/callback"] = new Dictionary<string, object?>
+            {
+                ["get"] = Operation(
+                    "AuthNetApiExternalLoginLinkCallback",
+                    "Complete an external login link callback for the current user.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("External login link callback result.", "AuthNetExternalLinkCallbackResponse"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
             }
         };
     }
@@ -511,6 +569,46 @@ internal static class AuthNetOpenApiDocumentBuilder
                 properties: new Dictionary<string, object?>
                 {
                     ["recoveryCode"] = StringSchema("Recovery code for the pending sign-in.")
+                }),
+            ["AuthNetExternalProviderResponse"] = ObjectSchema(
+                required: ["name", "displayName"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["name"] = StringSchema("Authentication scheme name."),
+                    ["displayName"] = StringSchema("Provider display name.")
+                }),
+            ["AuthNetExternalProvidersResponse"] = ObjectSchema(
+                required: ["providers"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["providers"] = ArraySchema(Ref("AuthNetExternalProviderResponse"), "Configured external login providers.")
+                }),
+            ["AuthNetExternalChallengeRequest"] = ObjectSchema(
+                required: ["provider"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["provider"] = StringSchema("Authentication scheme name to challenge."),
+                    ["returnUrl"] = NullableStringSchema("Local URL to return to after the callback.")
+                }),
+            ["AuthNetExternalLoginCallbackResponse"] = ObjectSchema(
+                required: ["status", "message", "returnUrl"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["status"] = StringSchema("Stable callback outcome."),
+                    ["message"] = StringSchema("Human-readable callback message."),
+                    ["returnUrl"] = StringSchema("Safe local URL supplied by the challenge."),
+                    ["provider"] = NullableStringSchema("External login provider, when available."),
+                    ["email"] = NullableStringSchema("External or linked user email, when available."),
+                    ["userId"] = NullableStringSchema("AuthNet user identifier, when available.")
+                }),
+            ["AuthNetExternalLinkCallbackResponse"] = ObjectSchema(
+                required: ["status", "message", "returnUrl"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["status"] = StringSchema("Stable link callback outcome."),
+                    ["message"] = StringSchema("Human-readable callback message."),
+                    ["returnUrl"] = StringSchema("Safe local URL supplied by the challenge."),
+                    ["provider"] = NullableStringSchema("External login provider, when available.")
                 })
         };
     }

@@ -106,3 +106,12 @@ public sealed record AuthNetRecoveryCodeLoginRequest
     [Required]
     public string RecoveryCode { get; init; } = string.Empty;
 }
+
+/// <summary>Payload for starting an external login or link challenge.</summary>
+public sealed record AuthNetExternalChallengeRequest
+{
+    [Required]
+    public string Provider { get; init; } = string.Empty;
+
+    public string? ReturnUrl { get; init; }
+}

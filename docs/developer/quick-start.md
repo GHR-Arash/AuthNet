@@ -100,6 +100,12 @@ Focused SPA MFA API tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaMfaApiTests
 ```
 
+Focused SPA external-login API tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaExternalLoginApiTests
+```
+
 Focused OpenAPI tests:
 
 ```powershell
@@ -289,6 +295,11 @@ Useful routes:
 - `/auth/api/mfa/setup/verify` to enable MFA with an authenticator code
 - `/auth/api/login/mfa` to complete an MFA challenge after password login
 - `/auth/api/login/recovery-code` to complete sign-in with a recovery code
+- `/auth/api/external-providers` to inspect configured external providers
+- `/auth/api/external-login/challenge` to start SPA external sign-in
+- `/auth/api/external-login/callback` to complete SPA external sign-in callback handling
+- `/auth/api/external-login/link/challenge` to start signed-in external account linking
+- `/auth/api/external-login/link/callback` to complete signed-in external account linking
 - `/auth/api/openapi.json` to inspect the AuthNet SPA API OpenAPI document
 - `/Spa` to exercise the sample same-origin SPA workflow
 - `/Admin`
