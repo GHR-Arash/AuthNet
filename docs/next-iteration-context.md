@@ -19,6 +19,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 04 development InMemory sample persistence is implemented and tracked in `tasks/slice-04-plan.md`, `tasks/slice-04-todo.md`, and `docs/slice-04/`.
 - Slice 05 CI and publication metadata readiness is implemented and tracked in `tasks/slice-05-plan.md`, `tasks/slice-05-todo.md`, and `docs/slice-05/`.
 - Slice 06 admin user management UI is implemented and tracked in `tasks/slice-06-plan.md`, `tasks/slice-06-todo.md`, and `docs/slice-06/`.
+- Slice 07 admin role assignment UI is implemented and tracked in `tasks/slice-07-plan.md`, `tasks/slice-07-todo.md`, and `docs/slice-07/`.
 
 ## Implemented Product Surface
 
@@ -36,7 +37,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Account UI includes login/logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
 - Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
 - Admin UI routes are `/auth/admin/users` and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role.
-- Admin UI supports user list/search, user detail, confirm/unconfirm email, lock/unlock, and reset access failed count.
+- Admin UI supports user list/search, user detail, confirm/unconfirm email, lock/unlock, reset access failed count, and fixed `Administrator` role grant/remove with last-admin protection.
 - AuthNet packages do not seed a default admin username or password; host applications own first-admin bootstrap.
 - ASP.NET Core Identity user/context in `AuthNet.Persistence.Postgres`.
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
@@ -73,6 +74,12 @@ Slice 04 focused tests:
 ```
 
 Slice 06 focused tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
+```
+
+Slice 07 focused tests are covered by the same admin test class:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
@@ -157,11 +164,14 @@ For product/architecture:
 - `tasks/slice-05-todo.md`
 - `tasks/slice-06-plan.md`
 - `tasks/slice-06-todo.md`
+- `tasks/slice-07-plan.md`
+- `tasks/slice-07-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
 - `docs/slice-05/ci-and-publication-readiness.md`
 - `docs/slice-06/admin-user-management.md`
+- `docs/slice-07/admin-role-assignment.md`
 - `docs/tasks.md`
 - `docs/prd.md`
 
@@ -171,13 +181,12 @@ Publication decisions are intentionally paused for now.
 
 Recommended next product slice:
 
-- Add admin role assignment UI, if admin management remains the priority.
-- Or add account invitation flow as the next admin-adjacent feature.
+- Add account invitation flow, if admin management remains the priority.
+- Or add audit events for admin actions.
 
 Other candidates:
 
 - Add a real email sender sample implementation.
 - Add a committed package-consumer sample if local smoke coverage should be permanent.
-- Add audit events for admin actions.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

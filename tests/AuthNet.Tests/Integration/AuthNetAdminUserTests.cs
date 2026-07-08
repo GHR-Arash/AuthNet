@@ -69,6 +69,8 @@ public sealed class AuthNetAdminUserTests
         Assert.Contains("Detail Person", body);
         Assert.Contains("Email confirmed", body);
         Assert.Contains("External logins", body);
+        Assert.Contains("Administrator access", body);
+        Assert.Contains("Not granted", body);
     }
 
     [Fact]
@@ -149,6 +151,83 @@ public sealed class AuthNetAdminUserTests
         await AssertEmailConfirmedAsync(host, target.Id, expected: false);
     }
 
+    [Fact]
+    public async Task Admin_user_can_grant_administrator_access()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.grant@example.test");
+        var target = await host.CreateUserAsync("grant.target@example.test");
+        await host.SignInAsync("admin.grant@example.test");
+
+        var form = await host.GetFormAsync($"/auth/admin/users/{target.Id}");
+        var response = await host.PostFormAsync($"/auth/admin/users/{target.Id}?handler=GrantAdministrator", form);
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+        Assert.Contains("Administrator access granted.", body);
+        Assert.Contains("Granted", body);
+        await AssertInRoleAsync(host, target.Id, "Administrator", expected: true);
+    }
+
+    [Fact]
+    public async Task Admin_user_can_remove_administrator_access_when_another_admin_remains()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.revoke.actor@example.test");
+        var target = await host.CreateAdminUserAsync("admin.revoke.target@example.test");
+        await host.SignInAsync("admin.revoke.actor@example.test");
+
+        var form = await host.GetFormAsync($"/auth/admin/users/{target.Id}");
+        var response = await host.PostFormAsync($"/auth/admin/users/{target.Id}?handler=RemoveAdministrator", form);
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+        Assert.Contains("Administrator access removed.", body);
+        Assert.Contains("Not granted", body);
+        await AssertInRoleAsync(host, target.Id, "Administrator", expected: false);
+    }
+
+    [Fact]
+    public async Task Admin_user_cannot_remove_last_administrator()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        var admin = await host.CreateAdminUserAsync("admin.last@example.test");
+        await host.SignInAsync("admin.last@example.test");
+
+        var form = await host.GetFormAsync($"/auth/admin/users/{admin.Id}");
+        var response = await host.PostFormAsync($"/auth/admin/users/{admin.Id}?handler=RemoveAdministrator", form);
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+        Assert.Contains("Cannot remove administrator access from the last administrator.", body);
+        await AssertInRoleAsync(host, admin.Id, "Administrator", expected: true);
+    }
+
+    [Fact]
+    public async Task Non_admin_user_cannot_post_admin_role_assignment_actions()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        var target = await host.CreateUserAsync("role.target@example.test");
+        await host.CreateUserAsync("role.nonadmin@example.test");
+        await host.SignInAsync("role.nonadmin@example.test");
+
+        var grantResponse = await host.PostFormAsync(
+            $"/auth/admin/users/{target.Id}?handler=GrantAdministrator",
+            new AuthNetTestForm("not-a-real-token"));
+
+        Assert.Equal(HttpStatusCode.Redirect, grantResponse.StatusCode);
+        Assert.StartsWith("/auth/access-denied", grantResponse.Headers.Location?.PathAndQuery);
+        await AssertInRoleAsync(host, target.Id, "Administrator", expected: false);
+
+        var removeResponse = await host.PostFormAsync(
+            $"/auth/admin/users/{target.Id}?handler=RemoveAdministrator",
+            new AuthNetTestForm("not-a-real-token"));
+
+        Assert.Equal(HttpStatusCode.Redirect, removeResponse.StatusCode);
+        Assert.StartsWith("/auth/access-denied", removeResponse.Headers.Location?.PathAndQuery);
+        await AssertInRoleAsync(host, target.Id, "Administrator", expected: false);
+    }
+
     private static async Task AssertEmailConfirmedAsync(AuthNetTestHost host, string userId, bool expected)
     {
         using var scope = host.Services.CreateScope();
@@ -174,6 +253,15 @@ public sealed class AuthNetAdminUserTests
         var user = await userManager.FindByIdAsync(userId);
         Assert.NotNull(user);
         Assert.Equal(expected, await userManager.GetAccessFailedCountAsync(user));
+    }
+
+    private static async Task AssertInRoleAsync(AuthNetTestHost host, string userId, string roleName, bool expected)
+    {
+        using var scope = host.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+        var user = await userManager.FindByIdAsync(userId);
+        Assert.NotNull(user);
+        Assert.Equal(expected, await userManager.IsInRoleAsync(user, roleName));
     }
 
     private static async Task AddAccessFailureAsync(AuthNetTestHost host, string userId)

@@ -2,7 +2,11 @@
 
 ## Current Iteration
 
-Slice 06 admin user management UI is implemented locally.
+Slice 07 admin role assignment UI is implemented and tracked in:
+
+- `tasks/slice-07-plan.md`
+- `tasks/slice-07-todo.md`
+- `docs/slice-07/admin-role-assignment.md`
 
 ## Current Package Shape
 
@@ -87,6 +91,8 @@ Implemented actions:
 - Confirm/unconfirm email.
 - Lock/unlock user.
 - Reset access failed count.
+- Grant/remove the fixed `Administrator` role.
+- Prevent removing the last administrator.
 
 Slice 06 files:
 
@@ -94,7 +100,13 @@ Slice 06 files:
 - `tasks/slice-06-todo.md`
 - `docs/slice-06/admin-user-management.md`
 
+Slice 07 files:
+
+- `tasks/slice-07-plan.md`
+- `tasks/slice-07-todo.md`
+- `docs/slice-07/admin-role-assignment.md`
+
 Likely next product slice:
 
-- Admin role assignment UI.
-- Or account invitation flow.
+- Account invitation flow.
+- Or audit events for admin actions.

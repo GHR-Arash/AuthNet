@@ -33,7 +33,7 @@ Admin routes are also mapped under the same prefix:
 | Route | Purpose |
 |---|---|
 | `/auth/admin/users` | List and search users. Requires the `Administrator` role. |
-| `/auth/admin/users/{id}` | View user state and run safe account-state actions. Requires the `Administrator` role. |
+| `/auth/admin/users/{id}` | View user state, run safe account-state actions, and manage fixed administrator access. Requires the `Administrator` role. |
 
 ## Registration
 
@@ -100,11 +100,13 @@ The first admin slice supports:
 
 - List and search users by email or display name.
 - View email, username, display name, phone number, email confirmation state, lockout state, access failed count, external login count, and roles.
+- Grant or remove the fixed `Administrator` role.
+- Prevent removing the last administrator.
 - Confirm or unconfirm email.
 - Lock or unlock users.
 - Reset access failed count.
 
-Deferred admin features include role assignment UI, user invitation, deletion, impersonation, audit events, API endpoints, and fine-grained permissions.
+Deferred admin features include arbitrary role management, user invitation, deletion, impersonation, audit events, API endpoints, and fine-grained permissions.
 
 ## External Login
 

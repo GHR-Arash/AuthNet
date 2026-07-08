@@ -15,6 +15,7 @@ After AuthNet is registered in your app, it provides:
 - Profile management.
 - Change password.
 - Admin user management UI for users in the `Administrator` role.
+- Fixed administrator role assignment UI.
 - Cookie authentication.
 - ASP.NET Core Identity roles.
 - PostgreSQL-backed Identity persistence.
@@ -25,7 +26,7 @@ Not included in this MVP:
 - JWT/API authentication.
 - Refresh tokens.
 - SPA flows.
-- Role assignment UI and user invitation workflows.
+- Arbitrary role management and user invitation workflows.
 - MFA.
 - Multi-tenancy.
 
@@ -228,6 +229,8 @@ if (user is not null)
 ```
 
 Use your own bootstrap policy for creating the first administrator. Do not ship a hardcoded admin password.
+
+After the first administrator exists, the built-in user detail page can grant or remove the fixed `Administrator` role for other users. AuthNet prevents removing the last remaining administrator.
 
 The repository sample host includes an explicit admin bootstrap that uses the same configuration in Development and Production:
 

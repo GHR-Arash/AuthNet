@@ -32,7 +32,24 @@
     <dd>@Model.UserDetail.ExternalLoginCount</dd>
     <dt>Roles</dt>
     <dd>@(Model.UserDetail.Roles.Count == 0 ? "None" : string.Join(", ", Model.UserDetail.Roles))</dd>
+    <dt>Administrator access</dt>
+    <dd>@(Model.UserDetail.IsAdministrator ? "Granted" : "Not granted")</dd>
 </dl>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<h2>Administrator access</h2>
+
+<form method="post" class="mb-2">
+    @if (Model.UserDetail.IsAdministrator)
+    {
+        <button asp-page-handler="RemoveAdministrator" class="btn btn-outline-danger">Remove administrator</button>
+    }
+    else
+    {
+        <button asp-page-handler="GrantAdministrator" class="btn btn-outline-primary">Grant administrator</button>
+    }
+</form>
 
 <form method="post" class="mb-2">
     <button asp-page-handler="ConfirmEmail" class="btn btn-outline-primary">Confirm email</button>

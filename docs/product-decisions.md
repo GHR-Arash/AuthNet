@@ -35,6 +35,7 @@ The first MVP slice shall provide:
 - Email sender integration contract.
 - Role infrastructure.
 - Server-rendered admin user-management UI protected by the `Administrator` role.
+- Server-rendered fixed administrator role assignment UI with last-admin protection.
 
 ### Deferred Scope
 
@@ -43,7 +44,7 @@ The following are deferred beyond the first MVP slice:
 - API/JWT authentication.
 - Refresh tokens.
 - SPA-specific authentication flows.
-- Admin role assignment UI, invitation, deletion, impersonation, and audit events.
+- Arbitrary role management, invitation, deletion, impersonation, and audit events.
 - Fine-grained permissions.
 - Full Razor Page override.
 - Custom Identity stores.

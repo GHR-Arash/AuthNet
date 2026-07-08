@@ -134,6 +134,8 @@ Open the admin UI:
 http://127.0.0.1:5127/auth/admin/users
 ```
 
+Use a user's detail page to grant or remove the fixed `Administrator` role for other users. The UI prevents removing the last remaining administrator.
+
 If the user already exists, the bootstrap can assign the `Administrator` role without a password:
 
 ```powershell
@@ -180,6 +182,7 @@ Useful routes:
 - `/auth/resend-confirmation`
 - `/auth/profile`
 - `/auth/admin/users` after signing in as a user in the `Administrator` role
+- `/auth/admin/users/{id}` to view user state and manage fixed administrator access
 - `/Admin`
 
 The integration test suite uses isolated EF Core InMemory databases through the AuthNet test host. The sample host also supports Development-only InMemory mode for local manual account-flow smoke testing.

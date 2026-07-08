@@ -72,7 +72,6 @@ The admin role name is fixed as `Administrator` for this slice.
 
 ## Follow-On Candidates
 
-- Role assignment UI.
 - Account invitation flow.
 - Audit events for admin actions.
 - Session and device management.

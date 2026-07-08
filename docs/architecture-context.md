@@ -23,6 +23,7 @@ Build first:
 - Email sender contract, with production sender required and development logging/fake sender allowed.
 - Role infrastructure using ASP.NET Core Identity roles.
 - Built-in admin user-management UI under the AuthNet route prefix, protected by the `Administrator` role.
+- Fixed `Administrator` role assignment from the built-in admin user detail page, with last-admin removal protection.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
@@ -35,7 +36,7 @@ Deferred:
 - API/JWT and refresh tokens.
 - SPA authentication flows.
 - Fine-grained permissions.
-- Admin role assignment UI, user invitation, deletion, impersonation, and audit events.
+- Arbitrary role management, user invitation, deletion, impersonation, and audit events.
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google/Microsoft helpers.
@@ -132,6 +133,7 @@ Host app should be able to configure:
 - Generic OIDC provider settings.
 - Account route prefix and basic UI branding/layout.
 - Admin user-management routes under the account route prefix, guarded by the `Administrator` role.
+- Fixed `Administrator` role assignment on the admin user detail page.
 
 Sample-host-only development persistence:
 
@@ -172,6 +174,7 @@ app.MapAuthNet();
 - Slice 03 package readiness: `docs/slice-03/package-readiness.md`
 - Slice 05 CI and publication readiness: `docs/slice-05/ci-and-publication-readiness.md`
 - Slice 06 admin user management: `docs/slice-06/admin-user-management.md`
+- Slice 07 admin role assignment: `docs/slice-07/admin-role-assignment.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`
 
