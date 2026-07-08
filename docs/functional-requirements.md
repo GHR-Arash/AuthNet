@@ -216,6 +216,25 @@ Acceptance criteria:
 - Given a user has a required role, when they access a protected resource, then access is allowed.
 - Given a user does not have a required role, when they access a protected resource, then access is denied.
 
+## Account Invitations
+
+Priority: Should Have
+
+- The system shall allow administrators to create account invitations by email.
+- The system shall send invitation links through the configured email sender.
+- The system shall store invitation state and only persist a hash of the invitation token.
+- The system shall reject expired, invalid, and already accepted invitations.
+- The system shall prevent duplicate pending invitations for the same email.
+- The system shall allow invited users to create local account credentials.
+- The system shall mark the invited email confirmed after successful invitation acceptance.
+- The system shall keep account invitations independent from public registration being enabled or disabled.
+
+Acceptance criteria:
+
+- Given an administrator creates an invitation for a new email, when the form is submitted, then the system stores a pending invitation and sends an invitation email.
+- Given a valid pending invitation, when the invited user submits valid credentials, then the system creates an account, confirms the invited email, marks the invitation accepted, and signs in the user.
+- Given an expired, invalid, or already accepted invitation, when acceptance is attempted, then the system rejects the request without creating a user.
+
 ## Persistence
 
 Priority: Must Have

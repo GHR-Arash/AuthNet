@@ -25,6 +25,7 @@ Build first:
 - Role infrastructure using ASP.NET Core Identity roles.
 - Built-in admin user-management UI under the AuthNet route prefix, protected by the `Administrator` role.
 - Fixed `Administrator` role assignment from the built-in admin user detail page, with last-admin removal protection.
+- Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
@@ -37,7 +38,7 @@ Deferred:
 - API/JWT and refresh tokens.
 - SPA authentication flows.
 - Fine-grained permissions.
-- Arbitrary role management, user invitation, deletion, impersonation, and audit events.
+- Arbitrary role management, deletion, impersonation, and audit events.
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google/Microsoft helpers.
@@ -136,6 +137,9 @@ Host app should be able to configure:
 - Authenticator-app MFA account routes under the account route prefix.
 - Admin user-management routes under the account route prefix, guarded by the `Administrator` role.
 - Fixed `Administrator` role assignment on the admin user detail page.
+- Admin invitation routes under the account route prefix, guarded by the `Administrator` role.
+- Invitation acceptance route under the account route prefix.
+- Invitation expiration through `AuthNetOptions.Invitations.Expiration`.
 
 Sample-host-only development persistence:
 
@@ -178,6 +182,9 @@ app.MapAuthNet();
 - Slice 06 admin user management: `docs/slice-06/admin-user-management.md`
 - Slice 07 admin role assignment: `docs/slice-07/admin-role-assignment.md`
 - Slice 08 MFA foundation: `docs/slice-08/mfa-foundation.md`
+- Slice 09 account invitation plan: `tasks/slice-09-plan.md`
+- Slice 09 account invitation todo: `tasks/slice-09-todo.md`
+- Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`
 

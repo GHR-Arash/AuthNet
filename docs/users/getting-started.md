@@ -17,6 +17,7 @@ After AuthNet is registered in your app, it provides:
 - Authenticator-app MFA with recovery codes.
 - Admin user management UI for users in the `Administrator` role.
 - Fixed administrator role assignment UI.
+- Account invitation flow.
 - Cookie authentication.
 - ASP.NET Core Identity roles.
 - PostgreSQL-backed Identity persistence.
@@ -27,7 +28,7 @@ Not included in this MVP:
 - JWT/API authentication.
 - Refresh tokens.
 - SPA flows.
-- Arbitrary role management and user invitation workflows.
+- Arbitrary role management, invitation resend/cancel, and bulk invitation workflows.
 - SMS/email OTP, passkeys, and global required-MFA policy.
 - Multi-tenancy.
 
@@ -175,6 +176,7 @@ With `AccountRoutePrefix` set to `/auth`, AuthNet maps:
 - `/auth/mfa/disable`
 - `/auth/login/mfa`
 - `/auth/login/recovery-code`
+- `/auth/invitations/accept`
 - `/auth/access-denied`
 - `/auth/external-login`
 
@@ -182,6 +184,8 @@ Admin routes are mapped under the same prefix:
 
 - `/auth/admin/users`
 - `/auth/admin/users/{id}`
+- `/auth/admin/invitations`
+- `/auth/admin/invitations/new`
 
 These routes require a signed-in user in the `Administrator` role. AuthNet packages do not create a default admin user or default development password.
 
@@ -251,6 +255,21 @@ $env:AuthNet__AdminBootstrap__Password='Password1!'
 ```
 
 This sample-host bootstrap is not package behavior and does not provide default credentials.
+
+## Account Invitations
+
+Administrators can onboard users while public registration remains disabled.
+
+Use the admin invitation pages:
+
+```text
+/auth/admin/invitations
+/auth/admin/invitations/new
+```
+
+AuthNet sends an invitation link through `IAuthNetEmailSender`. The invited user opens the link, sets a username, optional display name, and password, then AuthNet creates the local account with the invited email confirmed.
+
+Invitation tokens are single-use, expire after `AuthNet:Invitations:Expiration`, and are stored only as hashes.
 
 ## External Login
 

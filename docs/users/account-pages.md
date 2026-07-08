@@ -33,6 +33,7 @@ With the default `/auth` prefix, routes are:
 | `/auth/mfa/disable` | Disable MFA. Requires authentication. |
 | `/auth/login/mfa` | Complete sign-in with an authenticator code. |
 | `/auth/login/recovery-code` | Complete sign-in with a recovery code. |
+| `/auth/invitations/accept` | Accept an account invitation. |
 
 Admin routes are also mapped under the same prefix:
 
@@ -40,6 +41,8 @@ Admin routes are also mapped under the same prefix:
 |---|---|
 | `/auth/admin/users` | List and search users. Requires the `Administrator` role. |
 | `/auth/admin/users/{id}` | View user state, run safe account-state actions, and manage fixed administrator access. Requires the `Administrator` role. |
+| `/auth/admin/invitations` | List account invitations. Requires the `Administrator` role. |
+| `/auth/admin/invitations/new` | Create and send an account invitation. Requires the `Administrator` role. |
 
 ## Registration
 
@@ -139,7 +142,21 @@ The first admin slice supports:
 - Lock or unlock users.
 - Reset access failed count.
 
-Deferred admin features include arbitrary role management, user invitation, deletion, impersonation, audit events, API endpoints, and fine-grained permissions.
+## Account Invitations
+
+Administrators can invite users without enabling public registration.
+
+The invitation flow uses:
+
+- `/auth/admin/invitations` to view invitation status.
+- `/auth/admin/invitations/new` to create an invitation by email.
+- `/auth/invitations/accept` for the invited user to set username, display name, and password.
+
+Invitation links are sent through `IAuthNetEmailSender`. AuthNet stores only a hash of the raw invitation token.
+
+When an invitation is accepted, AuthNet creates a local Identity user, marks the invited email confirmed, marks the invitation accepted, and signs in the new user. Invitations are single-use and expire after the configured invitation lifetime.
+
+Deferred admin features include arbitrary role management, deletion, impersonation, audit events, invitation resend/cancel, bulk invitations, API endpoints, and fine-grained permissions.
 
 ## External Login
 

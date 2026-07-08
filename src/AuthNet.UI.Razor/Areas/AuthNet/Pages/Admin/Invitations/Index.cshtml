@@ -1,0 +1,54 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Admin.Invitations.IndexModel
+@{
+    ViewData["Title"] = "Invitations";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Invitations</h1>
+
+<p>
+    <a asp-page="./Create" class="btn btn-primary">New invitation</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Expires</th>
+            <th>Accepted</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invitation in Model.Invitations)
+        {
+            <tr>
+                <td>@invitation.Email</td>
+                <td>@invitation.Status</td>
+                <td>@invitation.CreatedAtUtc.UtcDateTime.ToString("u")</td>
+                <td>@invitation.ExpiresAtUtc.UtcDateTime.ToString("u")</td>
+                <td>@(invitation.AcceptedAtUtc?.UtcDateTime.ToString("u") ?? "Not accepted")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Invitations.Count == 0)
+{
+    <p>No invitations found.</p>
+}
+
+<nav aria-label="Invitation pages">
+    @if (Model.HasPreviousPage)
+    {
+        <a asp-page="./Index" asp-route-pageNumber="@(Model.PageNumber - 1)">Previous</a>
+    }
+    <span>Page @Model.PageNumber</span>
+    @if (Model.HasNextPage)
+    {
+        <a asp-page="./Index" asp-route-pageNumber="@(Model.PageNumber + 1)">Next</a>
+    }
+</nav>

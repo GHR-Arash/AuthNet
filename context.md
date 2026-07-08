@@ -2,6 +2,12 @@
 
 ## Current Iteration
 
+Slice 09 account invitation flow is implemented and tracked in:
+
+- `tasks/slice-09-plan.md`
+- `tasks/slice-09-todo.md`
+- `docs/slice-09/account-invitations.md`
+
 Slice 08 MFA foundation is implemented and tracked in:
 
 - `tasks/slice-08-plan.md`
@@ -116,7 +122,32 @@ Implemented Slice 08 scope:
 - User-owned MFA disable flow.
 - No SMS/email OTP, passkeys, API/JWT, SPA, or global required-MFA policy.
 
-Likely next product slice:
+## Current Invitation Scope
 
-- Account invitation flow.
-- Or audit events for admin actions.
+Implemented Slice 09 scope:
+
+- Admin-only invitation list and create pages.
+- Anonymous invitation acceptance page with secure token.
+- Persisted invitation records in `AuthNet.Persistence.Postgres`.
+- Invitation token hashes only; raw tokens are sent in email links and are not stored.
+- Invitation email delivery through `IAuthNetEmailSender`.
+- Identity user creation with invited email confirmed after successful acceptance.
+- Single-use and expiration handling.
+
+Routes:
+
+- `/auth/admin/invitations`
+- `/auth/admin/invitations/new`
+- `/auth/invitations/accept`
+
+Out of scope:
+
+- Bulk invitations.
+- Role assignment during invite.
+- Invitation resend/cancel.
+- Organization/team membership.
+- API/JWT/SPA invitation endpoints.
+
+Likely product slice after invitations:
+
+- Audit events for admin actions.

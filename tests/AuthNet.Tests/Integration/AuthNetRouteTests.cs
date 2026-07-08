@@ -12,6 +12,7 @@ public sealed class AuthNetRouteTests
     [InlineData("/auth/confirm-email")]
     [InlineData("/auth/access-denied")]
     [InlineData("/auth/external-login")]
+    [InlineData("/auth/invitations/accept")]
     public async Task Public_account_routes_render(string route)
     {
         await using var host = await AuthNetTestHost.CreateAsync();
@@ -61,5 +62,18 @@ public sealed class AuthNetRouteTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("host-owned", await response.Content.ReadAsStringAsync());
+    }
+
+    [Theory]
+    [InlineData("/auth/admin/invitations")]
+    [InlineData("/auth/admin/invitations/new")]
+    public async Task Admin_invitation_routes_challenge_anonymous_users(string route)
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+
+        var response = await host.Client.GetAsync(route);
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("/auth/login?ReturnUrl=", response.Headers.Location?.OriginalString);
     }
 }

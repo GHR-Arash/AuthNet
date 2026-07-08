@@ -53,4 +53,22 @@ internal static class AccountEmailMessages
             $"Confirm your new email by <a href=\"{callbackUrl}\">clicking here</a>.",
             $"Confirm your new email: {callbackUrl}");
     }
+
+    public static string BuildAcceptInvitationUrl(PageModel page, string token)
+    {
+        return page.Url.Page(
+            "/Account/AcceptInvitation",
+            pageHandler: null,
+            values: new { area = "AuthNet", token },
+            protocol: page.Request.Scheme)!;
+    }
+
+    public static AuthNetEmailMessage CreateInvitationMessage(string email, string callbackUrl)
+    {
+        return new AuthNetEmailMessage(
+            email,
+            "You're invited to create an account",
+            $"Create your account by <a href=\"{callbackUrl}\">clicking here</a>.",
+            $"Create your account: {callbackUrl}");
+    }
 }

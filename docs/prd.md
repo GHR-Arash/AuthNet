@@ -8,7 +8,7 @@ AuthNet
 
 AuthNet is a reusable Identity and Access Management component for ASP.NET applications.
 
-It is installed into a host ASP.NET application and configured as middleware. Once enabled, it provides common identity capabilities such as registration, login, logout, password recovery, email verification, profile management, role infrastructure, generic OpenID Connect login, built-in Razor Pages account UI, and a minimal admin user-management UI.
+It is installed into a host ASP.NET application and configured as middleware. Once enabled, it provides common identity capabilities such as registration, login, logout, password recovery, email verification, profile management, role infrastructure, generic OpenID Connect login, built-in Razor Pages account UI, account invitations, and a minimal admin user-management UI.
 
 The first MVP slice targets .NET 10 server-rendered ASP.NET applications using Razor Pages UI and cookie authentication. API/JWT and SPA flows are planned after the first slice.
 
@@ -71,8 +71,9 @@ Responsibilities:
 - Lock or unlock users.
 - Confirm or unconfirm email.
 - Initiate password recovery.
+- Invite users by email.
 
-Role assignment, invitation flows, deletion, impersonation, and audit events are later admin slices.
+Invitation resend/cancel, deletion, impersonation, and audit events are later admin slices.
 
 ### Application Owner
 
@@ -127,10 +128,12 @@ AuthNet MVP slice 1 shall provide:
 - Development fake/logging email sender.
 - Basic UI configuration.
 - Admin user list/detail UI protected by the `Administrator` role.
+- Admin-created account invitations.
 
 ## Out of Scope for MVP
 
 - Full admin management UI beyond list/detail and reversible account-state actions.
+- Invitation resend/cancel and bulk invitation management.
 - Multi-tenancy.
 - SAML support.
 - Passwordless login.

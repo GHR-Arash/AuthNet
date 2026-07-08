@@ -26,6 +26,8 @@ public sealed class AuthNetOptions
 
     public AuthNetOpenIdConnectOptions OpenIdConnect { get; } = new();
 
+    public AuthNetInvitationOptions Invitations { get; } = new();
+
     public string NormalizedAccountRoutePrefix
     {
         get
@@ -83,3 +85,7 @@ public sealed class AuthNetOpenIdConnectOptions
     public string CallbackPath { get; set; } = "/signin-authnet-oidc";
 }
 
+public sealed class AuthNetInvitationOptions
+{
+    public TimeSpan Expiration { get; set; } = TimeSpan.FromDays(7);
+}

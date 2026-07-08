@@ -52,6 +52,12 @@ Focused MFA tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetMfaTests
 ```
 
+Focused invitation tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetInvitationTests
+```
+
 ## Pack Local NuGet Artifacts
 
 Build Release first, then pack the intended package projects into ignored local artifacts:
@@ -190,6 +196,8 @@ Useful routes:
 - `/auth/mfa`
 - `/auth/admin/users` after signing in as a user in the `Administrator` role
 - `/auth/admin/users/{id}` to view user state and manage fixed administrator access
+- `/auth/admin/invitations` to list account invitations
+- `/auth/admin/invitations/new` to invite a user
 - `/Admin`
 
 The integration test suite uses isolated EF Core InMemory databases through the AuthNet test host. The sample host also supports Development-only InMemory mode for local manual account-flow smoke testing.
@@ -206,6 +214,9 @@ The sample host does not seed a default admin username or password unless the ex
   "UseDevelopmentEmailSender": true,
   "RequireConfirmedEmail": true,
   "ApplyMigrations": false,
+  "Invitations": {
+    "Expiration": "7.00:00:00"
+  },
   "AdminBootstrap": {
     "Enabled": false,
     "UserName": "",

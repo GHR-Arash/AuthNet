@@ -27,7 +27,10 @@ PostgreSQL is the default and production persistence path. The sample host also 
   "EnablePublicRegistration": false,
   "UseDevelopmentEmailSender": false,
   "RequireConfirmedEmail": true,
-  "ApplyMigrations": false
+  "ApplyMigrations": false,
+  "Invitations": {
+    "Expiration": "7.00:00:00"
+  }
 }
 ```
 
@@ -112,6 +115,18 @@ false
 Prefer explicit migration deployment outside local development.
 
 When the sample host runs with Development-only InMemory mode, migrations are skipped because EF Core InMemory does not use relational migrations.
+
+### `Invitations:Expiration`
+
+Controls how long account invitation links remain valid.
+
+Default:
+
+```text
+7.00:00:00
+```
+
+Invitation tokens are single-use and stored only as hashes.
 
 ## Password Options
 

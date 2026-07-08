@@ -160,7 +160,7 @@ Should Have:
 
 - Admin user management UI. Implemented in Slice 06 as list/detail plus reversible account-state actions.
 - MFA. Implemented in Slice 08 as authenticator-app TOTP plus recovery codes.
-- Account invitation flow.
+- Account invitation flow. Implemented in Slice 09 as admin-created, email-delivered, single-use local account invitations.
 - Audit events.
 - Session and device management.
 - SQL Server persistence provider.
