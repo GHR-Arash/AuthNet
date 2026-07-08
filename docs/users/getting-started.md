@@ -229,17 +229,18 @@ if (user is not null)
 
 Use your own bootstrap policy for creating the first administrator. Do not ship a hardcoded admin password.
 
-The repository sample host includes an explicit Development-only convenience bootstrap for local testing:
+The repository sample host includes an explicit admin bootstrap that uses the same configuration in Development and Production:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
-$env:AuthNet__DevelopmentAdmin__Enabled='true'
-$env:AuthNet__DevelopmentAdmin__Email='admin@example.test'
-$env:AuthNet__DevelopmentAdmin__Password='Password1!'
+$env:AuthNet__AdminBootstrap__Enabled='true'
+$env:AuthNet__AdminBootstrap__UserName='admin'
+$env:AuthNet__AdminBootstrap__Email='admin@example.test'
+$env:AuthNet__AdminBootstrap__Password='Password1!'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
-This sample-host bootstrap is not package behavior and is rejected outside Development.
+This sample-host bootstrap is not package behavior and does not provide default credentials.
 
 ## External Login
 

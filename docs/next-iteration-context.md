@@ -6,7 +6,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current commit: Add sample host development admin bootstrap
+  - Current work: unify sample host admin bootstrap across environments
   - `1c3571a Add admin user management UI`
   - `d04e077 Add verify-only CI workflow`
   - `2527dbd Add development InMemory sample persistence`
@@ -49,7 +49,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, and `AuthNet.ExternalProviders`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
-- Sample host supports explicit Development-only admin bootstrap through `AuthNet:DevelopmentAdmin:{Enabled,Email,Password}` for local manual admin UI testing.
+- Sample host supports explicit admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
 - Local verification is centralized in `scripts/verify.ps1`.
 - GitHub Actions verify-only CI exists at `.github/workflows/ci.yml`; it does not publish or upload packages.
 
@@ -78,10 +78,10 @@ Slice 06 focused tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
 ```
 
-Sample host development admin focused tests:
+Sample host admin bootstrap focused tests:
 
 ```powershell
-.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostDevelopmentAdminTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAdminBootstrapTests
 ```
 
 Known passing package commands:
@@ -124,7 +124,7 @@ Application started.
 - PostgreSQL/EF Core is the production/default persistence path.
 - Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
 - Admin UI uses the fixed `Administrator` role for now; do not add custom permission scope unless explicitly re-scoped.
-- AuthNet packages must not ship hardcoded default admin credentials; sample-host dev bootstrap requires explicit config and is rejected outside Development.
+- AuthNet packages must not ship hardcoded default admin credentials; sample-host admin bootstrap requires explicit config.
 - Production must use a real `IAuthNetEmailSender`; development sender is rejected in production.
 - Public registration remains disabled by default.
 - External auto-provisioning requires a verified provider email claim.

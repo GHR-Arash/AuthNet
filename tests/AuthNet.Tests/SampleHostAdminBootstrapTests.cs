@@ -9,16 +9,15 @@ using Microsoft.Extensions.Hosting;
 
 namespace AuthNet.Tests;
 
-public sealed class SampleHostDevelopmentAdminTests
+public sealed class SampleHostAdminBootstrapTests
 {
     [Fact]
     public async Task Disabled_bootstrap_does_not_create_admin_user()
     {
         var services = Services();
         var configuration = Configuration();
-        var environment = new TestHostEnvironment(Environments.Development);
 
-        await SampleHostDevelopmentAdmin.BootstrapAsync(services, configuration, environment);
+        await SampleHostAdminBootstrap.BootstrapAsync(services, configuration);
 
         using var scope = services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
@@ -26,32 +25,15 @@ public sealed class SampleHostDevelopmentAdminTests
     }
 
     [Fact]
-    public async Task Non_development_rejects_enabled_bootstrap()
-    {
-        var services = Services();
-        var configuration = Configuration(
-            ("AuthNet:DevelopmentAdmin:Enabled", "true"),
-            ("AuthNet:DevelopmentAdmin:Email", "admin@example.test"),
-            ("AuthNet:DevelopmentAdmin:Password", "Password1!"));
-        var environment = new TestHostEnvironment(Environments.Production);
-
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            SampleHostDevelopmentAdmin.BootstrapAsync(services, configuration, environment));
-
-        Assert.Contains("only allowed in Development", exception.Message);
-    }
-
-    [Fact]
     public async Task Enabled_bootstrap_creates_admin_user_and_role()
     {
         var services = Services();
         var configuration = Configuration(
-            ("AuthNet:DevelopmentAdmin:Enabled", "true"),
-            ("AuthNet:DevelopmentAdmin:Email", "admin@example.test"),
-            ("AuthNet:DevelopmentAdmin:Password", "Password1!"));
-        var environment = new TestHostEnvironment(Environments.Development);
+            ("AuthNet:AdminBootstrap:Enabled", "true"),
+            ("AuthNet:AdminBootstrap:Email", "admin@example.test"),
+            ("AuthNet:AdminBootstrap:Password", "Password1!"));
 
-        await SampleHostDevelopmentAdmin.BootstrapAsync(services, configuration, environment);
+        await SampleHostAdminBootstrap.BootstrapAsync(services, configuration);
 
         using var scope = services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
@@ -59,9 +41,31 @@ public sealed class SampleHostDevelopmentAdminTests
         var user = await userManager.FindByEmailAsync("admin@example.test");
 
         Assert.NotNull(user);
+        Assert.Equal("admin@example.test", user.UserName);
         Assert.True(user.EmailConfirmed);
-        Assert.True(await roleManager.RoleExistsAsync(SampleHostDevelopmentAdmin.RoleName));
-        Assert.True(await userManager.IsInRoleAsync(user, SampleHostDevelopmentAdmin.RoleName));
+        Assert.True(await roleManager.RoleExistsAsync(SampleHostAdminBootstrap.RoleName));
+        Assert.True(await userManager.IsInRoleAsync(user, SampleHostAdminBootstrap.RoleName));
+    }
+
+    [Fact]
+    public async Task Enabled_bootstrap_can_create_admin_with_separate_user_name()
+    {
+        var services = Services();
+        var configuration = Configuration(
+            ("AuthNet:AdminBootstrap:Enabled", "true"),
+            ("AuthNet:AdminBootstrap:UserName", "admin"),
+            ("AuthNet:AdminBootstrap:Email", "admin@example.test"),
+            ("AuthNet:AdminBootstrap:Password", "Password1!"));
+
+        await SampleHostAdminBootstrap.BootstrapAsync(services, configuration);
+
+        using var scope = services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+        var user = await userManager.FindByNameAsync("admin");
+
+        Assert.NotNull(user);
+        Assert.Equal("admin@example.test", user.Email);
+        Assert.True(await userManager.IsInRoleAsync(user, SampleHostAdminBootstrap.RoleName));
     }
 
     [Fact]
@@ -69,16 +73,15 @@ public sealed class SampleHostDevelopmentAdminTests
     {
         var services = Services();
         var configuration = Configuration(
-            ("AuthNet:DevelopmentAdmin:Enabled", "true"),
-            ("AuthNet:DevelopmentAdmin:Email", "existing@example.test"));
-        var environment = new TestHostEnvironment(Environments.Development);
+            ("AuthNet:AdminBootstrap:Enabled", "true"),
+            ("AuthNet:AdminBootstrap:Email", "existing@example.test"));
 
         using (var scope = services.CreateScope())
         {
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
             var result = await userManager.CreateAsync(new AuthNetUser
             {
-                UserName = "existing@example.test",
+                UserName = "existing",
                 Email = "existing@example.test",
                 EmailConfirmed = true,
                 LockoutEnabled = true
@@ -86,14 +89,14 @@ public sealed class SampleHostDevelopmentAdminTests
             Assert.True(result.Succeeded);
         }
 
-        await SampleHostDevelopmentAdmin.BootstrapAsync(services, configuration, environment);
+        await SampleHostAdminBootstrap.BootstrapAsync(services, configuration);
 
         using var assertScope = services.CreateScope();
         var assertUserManager = assertScope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
         var user = await assertUserManager.FindByEmailAsync("existing@example.test");
 
         Assert.NotNull(user);
-        Assert.True(await assertUserManager.IsInRoleAsync(user, SampleHostDevelopmentAdmin.RoleName));
+        Assert.True(await assertUserManager.IsInRoleAsync(user, SampleHostAdminBootstrap.RoleName));
     }
 
     private static IServiceProvider Services()
@@ -106,7 +109,13 @@ public sealed class SampleHostDevelopmentAdminTests
 
         SampleHostAuthNetPersistence.AddAuthNet(services, configuration, environment);
 
-        return services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AuthNetDbContext>();
+        db.Database.EnsureDeleted();
+        db.Database.EnsureCreated();
+
+        return provider;
     }
 
     private static IConfiguration Configuration(params (string Key, string Value)[] values)

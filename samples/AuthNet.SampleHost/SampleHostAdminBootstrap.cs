@@ -3,34 +3,28 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AuthNet.SampleHost;
 
-public static class SampleHostDevelopmentAdmin
+public static class SampleHostAdminBootstrap
 {
     public const string RoleName = "Administrator";
 
     public static bool IsEnabled(IConfiguration configuration)
     {
-        return configuration.GetValue<bool>("AuthNet:DevelopmentAdmin:Enabled");
+        return configuration.GetValue<bool>("AuthNet:AdminBootstrap:Enabled");
     }
 
     public static async Task BootstrapAsync(
         IServiceProvider services,
-        IConfiguration configuration,
-        IHostEnvironment environment)
+        IConfiguration configuration)
     {
         if (!IsEnabled(configuration))
         {
             return;
         }
 
-        if (!environment.IsDevelopment())
-        {
-            throw new InvalidOperationException("AuthNet sample development admin bootstrap is only allowed in Development.");
-        }
-
-        var email = configuration["AuthNet:DevelopmentAdmin:Email"];
+        var email = configuration["AuthNet:AdminBootstrap:Email"];
         if (string.IsNullOrWhiteSpace(email))
         {
-            throw new InvalidOperationException("AuthNet:DevelopmentAdmin:Email is required when development admin bootstrap is enabled.");
+            throw new InvalidOperationException("AuthNet:AdminBootstrap:Email is required when admin bootstrap is enabled.");
         }
 
         using var scope = services.CreateScope();
@@ -40,34 +34,35 @@ public static class SampleHostDevelopmentAdmin
         if (!await roleManager.RoleExistsAsync(RoleName))
         {
             var roleResult = await roleManager.CreateAsync(new IdentityRole(RoleName));
-            ThrowIfFailed(roleResult, "create development admin role");
+            ThrowIfFailed(roleResult, "create admin role");
         }
 
         var user = await userManager.FindByEmailAsync(email);
         if (user is null)
         {
-            var password = configuration["AuthNet:DevelopmentAdmin:Password"];
+            var password = configuration["AuthNet:AdminBootstrap:Password"];
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new InvalidOperationException("AuthNet:DevelopmentAdmin:Password is required to create a development admin user.");
+                throw new InvalidOperationException("AuthNet:AdminBootstrap:Password is required to create an admin user.");
             }
 
+            var userName = configuration["AuthNet:AdminBootstrap:UserName"];
             user = new AuthNetUser
             {
-                UserName = email,
+                UserName = string.IsNullOrWhiteSpace(userName) ? email : userName,
                 Email = email,
                 EmailConfirmed = true,
                 LockoutEnabled = true
             };
 
             var createResult = await userManager.CreateAsync(user, password);
-            ThrowIfFailed(createResult, "create development admin user");
+            ThrowIfFailed(createResult, "create admin user");
         }
 
         if (!await userManager.IsInRoleAsync(user, RoleName))
         {
             var roleResult = await userManager.AddToRoleAsync(user, RoleName);
-            ThrowIfFailed(roleResult, "assign development admin role");
+            ThrowIfFailed(roleResult, "assign admin role");
         }
     }
 

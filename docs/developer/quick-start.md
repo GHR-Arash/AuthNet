@@ -106,24 +106,25 @@ $env:ASPNETCORE_ENVIRONMENT='Development'
 
 Use PostgreSQL for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
 
-## Development Admin Bootstrap
+## Admin Bootstrap
 
-The sample host can create or promote a development admin user when explicit environment variables are set. This is sample-host-only and is rejected outside Development.
+The sample host can create or promote an admin user when explicit configuration is set. This is sample-host-only and uses the same configuration shape in Development and Production.
 
-To create an admin user in Development:
+To create an admin user:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
-$env:AuthNet__DevelopmentAdmin__Enabled='true'
-$env:AuthNet__DevelopmentAdmin__Email='admin@example.test'
-$env:AuthNet__DevelopmentAdmin__Password='Password1!'
+$env:AuthNet__AdminBootstrap__Enabled='true'
+$env:AuthNet__AdminBootstrap__UserName='admin'
+$env:AuthNet__AdminBootstrap__Email='admin@example.test'
+$env:AuthNet__AdminBootstrap__Password='Password1!'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
 Then sign in at `/auth/login` with:
 
 ```text
-admin@example.test
+admin
 Password1!
 ```
 
@@ -137,8 +138,8 @@ If the user already exists, the bootstrap can assign the `Administrator` role wi
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
-$env:AuthNet__DevelopmentAdmin__Enabled='true'
-$env:AuthNet__DevelopmentAdmin__Email='existing@example.test'
+$env:AuthNet__AdminBootstrap__Enabled='true'
+$env:AuthNet__AdminBootstrap__Email='existing@example.test'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
@@ -183,7 +184,7 @@ Useful routes:
 
 The integration test suite uses isolated EF Core InMemory databases through the AuthNet test host. The sample host also supports Development-only InMemory mode for local manual account-flow smoke testing.
 
-The sample host does not seed a default admin username or password unless the explicit `AuthNet:DevelopmentAdmin` bootstrap settings are supplied.
+The sample host does not seed a default admin username or password unless the explicit `AuthNet:AdminBootstrap` settings are supplied.
 
 ## Sample AuthNet Configuration
 
@@ -195,8 +196,9 @@ The sample host does not seed a default admin username or password unless the ex
   "UseDevelopmentEmailSender": true,
   "RequireConfirmedEmail": true,
   "ApplyMigrations": false,
-  "DevelopmentAdmin": {
+  "AdminBootstrap": {
     "Enabled": false,
+    "UserName": "",
     "Email": "",
     "Password": ""
   },

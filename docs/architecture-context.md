@@ -28,7 +28,7 @@ Build first:
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
 - Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
 - The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
-- The sample host can explicitly bootstrap a development admin only in Development via `AuthNet:DevelopmentAdmin`; this is local sample behavior, not package behavior.
+- The sample host can explicitly bootstrap an admin user via `AuthNet:AdminBootstrap` in any environment; this is local sample behavior, not package behavior.
 
 Deferred:
 
@@ -139,12 +139,13 @@ Sample-host-only development persistence:
 - The setting is rejected outside Development.
 - Startup migrations are skipped while InMemory mode is active.
 
-Sample-host-only development admin bootstrap:
+Sample-host-only admin bootstrap:
 
-- `AuthNet:DevelopmentAdmin:Enabled=true` in Development creates the `Administrator` role.
-- `AuthNet:DevelopmentAdmin:Email` identifies the user to promote or create.
-- `AuthNet:DevelopmentAdmin:Password` is required only when creating a missing user.
-- The bootstrap is rejected outside Development and does not change package behavior.
+- `AuthNet:AdminBootstrap:Enabled=true` creates the `Administrator` role.
+- `AuthNet:AdminBootstrap:Email` identifies the user to promote or create.
+- `AuthNet:AdminBootstrap:UserName` optionally sets the username for a newly created admin.
+- `AuthNet:AdminBootstrap:Password` is required only when creating a missing user.
+- The bootstrap uses the same explicit configuration in Development and Production and does not change package behavior.
 
 Conceptual setup:
 
