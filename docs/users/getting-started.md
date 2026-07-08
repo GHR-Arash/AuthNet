@@ -183,6 +183,7 @@ With `AccountRoutePrefix` set to `/auth`, AuthNet maps:
 Admin routes are mapped under the same prefix:
 
 - `/auth/admin/users`
+- `/auth/admin/users/new`
 - `/auth/admin/users/{id}`
 - `/auth/admin/invitations`
 - `/auth/admin/invitations/new`
@@ -245,6 +246,8 @@ Use your own bootstrap policy for creating the first administrator. Do not ship 
 
 After the first administrator exists, the built-in user detail page can grant or remove the fixed `Administrator` role for other users. AuthNet prevents removing the last remaining administrator.
 
+Administrators can also directly create local users at `/auth/admin/users/new`. The form creates the account through ASP.NET Core Identity with username, email, optional display name, password, email confirmation state, and optional fixed administrator access. Use invitations when the user should set their own password.
+
 The repository sample host includes an explicit admin bootstrap that uses the same configuration in Development and Production:
 
 ```powershell
@@ -257,6 +260,8 @@ $env:AuthNet__AdminBootstrap__Password='Password1!'
 ```
 
 With that configuration, sign in at `/auth/login` using username `admin` and password `Password1!`.
+
+In the repository sample host, the home page, navbar, and protected `/Admin` page link to the user list, direct user creation, and invitation pages so the admin workflows are discoverable after sign-in.
 
 This sample-host bootstrap is not package behavior and does not provide default credentials.
 

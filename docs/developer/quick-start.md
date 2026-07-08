@@ -58,6 +58,12 @@ Focused invitation tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetInvitationTests
 ```
 
+Focused admin user tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
+```
+
 ## Pack Local NuGet Artifacts
 
 Build Release first, then pack the intended package projects into ignored local artifacts:
@@ -186,6 +192,8 @@ Open:
 http://127.0.0.1:5127
 ```
 
+The sample home page, navbar, and protected `/Admin` page link to the built-in AuthNet admin screens after you sign in as an administrator.
+
 Useful routes:
 
 - `/auth/login`
@@ -195,6 +203,7 @@ Useful routes:
 - `/auth/profile`
 - `/auth/mfa`
 - `/auth/admin/users` after signing in as a user in the `Administrator` role
+- `/auth/admin/users/new` to directly create a local user
 - `/auth/admin/users/{id}` to view user state and manage fixed administrator access
 - `/auth/admin/invitations` to list account invitations
 - `/auth/admin/invitations/new` to invite a user

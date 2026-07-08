@@ -32,6 +32,30 @@ public sealed class AuthNetAdminUserTests
     }
 
     [Fact]
+    public async Task Anonymous_user_is_challenged_from_admin_create_user()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+
+        var response = await host.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/auth/admin/users/new"));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.StartsWith("/auth/login", response.Headers.Location?.PathAndQuery);
+    }
+
+    [Fact]
+    public async Task Non_admin_user_is_denied_from_admin_create_user()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateUserAsync("create.nonadmin@example.test");
+        await host.SignInAsync("create.nonadmin@example.test");
+
+        var response = await host.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/auth/admin/users/new"));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.StartsWith("/auth/access-denied", response.Headers.Location?.PathAndQuery);
+    }
+
+    [Fact]
     public async Task Admin_user_can_list_and_search_users()
     {
         await using var host = await AuthNetTestHost.CreateAsync();
@@ -71,6 +95,129 @@ public sealed class AuthNetAdminUserTests
         Assert.Contains("External logins", body);
         Assert.Contains("Administrator access", body);
         Assert.Contains("Not granted", body);
+    }
+
+    [Fact]
+    public async Task Admin_user_can_create_user()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync(configure: options =>
+        {
+            options.EnablePublicRegistration = false;
+        });
+        await host.CreateAdminUserAsync("admin.create@example.test");
+        await host.SignInAsync("admin.create@example.test");
+
+        var form = await host.GetFormAsync("/auth/admin/users/new");
+        var response = await host.PostFormAsync("/auth/admin/users/new", form,
+            ("Input.UserName", "created.user"),
+            ("Input.Email", "created@example.test"),
+            ("Input.DisplayName", "Created Person"),
+            ("Input.Password", "Password1!"),
+            ("Input.ConfirmPassword", "Password1!"),
+            ("Input.EmailConfirmed", "true"),
+            ("Input.GrantAdministrator", "false"));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        var user = await FindUserByEmailAsync(host, "created@example.test");
+        Assert.NotNull(user);
+        Assert.Equal($"/auth/admin/users/{user.Id}", response.Headers.Location?.OriginalString);
+        Assert.Equal("created.user", user.UserName);
+        Assert.Equal("Created Person", user.DisplayName);
+        Assert.True(user.EmailConfirmed);
+        await AssertInRoleAsync(host, user.Id, "Administrator", expected: false);
+    }
+
+    [Fact]
+    public async Task Admin_user_can_create_user_with_unconfirmed_email()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.create.unconfirmed@example.test");
+        await host.SignInAsync("admin.create.unconfirmed@example.test");
+
+        var form = await host.GetFormAsync("/auth/admin/users/new");
+        var response = await host.PostFormAsync("/auth/admin/users/new", form,
+            ("Input.UserName", "unconfirmed.user"),
+            ("Input.Email", "unconfirmed.created@example.test"),
+            ("Input.DisplayName", ""),
+            ("Input.Password", "Password1!"),
+            ("Input.ConfirmPassword", "Password1!"),
+            ("Input.EmailConfirmed", "false"),
+            ("Input.GrantAdministrator", "false"));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        var user = await FindUserByEmailAsync(host, "unconfirmed.created@example.test");
+        Assert.NotNull(user);
+        Assert.False(user.EmailConfirmed);
+    }
+
+    [Fact]
+    public async Task Admin_user_can_create_user_with_administrator_access()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.create.role@example.test");
+        await host.SignInAsync("admin.create.role@example.test");
+
+        var form = await host.GetFormAsync("/auth/admin/users/new");
+        var response = await host.PostFormAsync("/auth/admin/users/new", form,
+            ("Input.UserName", "created.admin"),
+            ("Input.Email", "created.admin@example.test"),
+            ("Input.DisplayName", "Created Admin"),
+            ("Input.Password", "Password1!"),
+            ("Input.ConfirmPassword", "Password1!"),
+            ("Input.EmailConfirmed", "true"),
+            ("Input.GrantAdministrator", "true"));
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        var user = await FindUserByEmailAsync(host, "created.admin@example.test");
+        Assert.NotNull(user);
+        await AssertInRoleAsync(host, user.Id, "Administrator", expected: true);
+    }
+
+    [Fact]
+    public async Task Admin_create_user_rejects_duplicate_email_and_username()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.create.duplicate@example.test");
+        await host.CreateUserAsync("duplicate@example.test");
+        await host.SignInAsync("admin.create.duplicate@example.test");
+
+        var form = await host.GetFormAsync("/auth/admin/users/new");
+        var response = await host.PostFormAsync("/auth/admin/users/new", form,
+            ("Input.UserName", "duplicate@example.test"),
+            ("Input.Email", "duplicate@example.test"),
+            ("Input.DisplayName", "Duplicate Person"),
+            ("Input.Password", "Password1!"),
+            ("Input.ConfirmPassword", "Password1!"),
+            ("Input.EmailConfirmed", "true"),
+            ("Input.GrantAdministrator", "false"));
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+        Assert.Contains("A user with this username already exists.", body);
+        Assert.Contains("A user with this email already exists.", body);
+    }
+
+    [Fact]
+    public async Task Admin_create_user_surfaces_password_policy_errors()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.create.password@example.test");
+        await host.SignInAsync("admin.create.password@example.test");
+
+        var form = await host.GetFormAsync("/auth/admin/users/new");
+        var response = await host.PostFormAsync("/auth/admin/users/new", form,
+            ("Input.UserName", "weak.password.user"),
+            ("Input.Email", "weak.password@example.test"),
+            ("Input.DisplayName", "Weak Password"),
+            ("Input.Password", "short"),
+            ("Input.ConfirmPassword", "short"),
+            ("Input.EmailConfirmed", "true"),
+            ("Input.GrantAdministrator", "false"));
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+        Assert.Contains("Passwords must be at least", body);
+        Assert.Null(await FindUserByEmailAsync(host, "weak.password@example.test"));
     }
 
     [Fact]
@@ -262,6 +409,13 @@ public sealed class AuthNetAdminUserTests
         var user = await userManager.FindByIdAsync(userId);
         Assert.NotNull(user);
         Assert.Equal(expected, await userManager.IsInRoleAsync(user, roleName));
+    }
+
+    private static async Task<AuthNetUser?> FindUserByEmailAsync(AuthNetTestHost host, string email)
+    {
+        using var scope = host.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+        return await userManager.FindByEmailAsync(email);
     }
 
     private static async Task AddAccessFailureAsync(AuthNetTestHost host, string userId)

@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 10 admin direct user creation is implemented and tracked in:
+
+- `tasks/slice-10-plan.md`
+- `tasks/slice-10-todo.md`
+
 Slice 09 account invitation flow is implemented and tracked in:
 
 - `tasks/slice-09-plan.md`
@@ -59,6 +64,8 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
+Latest full verification: 89 passing tests.
+
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
 CI does not publish packages, upload package artifacts, or require secrets.
@@ -90,9 +97,17 @@ The sample host has explicit admin bootstrap in any environment through:
 - `AuthNet:AdminBootstrap:Email`
 - `AuthNet:AdminBootstrap:Password`
 
+The sample host exposes admin workflow links from the home page, shared navigation, and protected `/Admin` page:
+
+- `/auth/admin/users`
+- `/auth/admin/users/new`
+- `/auth/admin/invitations`
+- `/auth/admin/invitations/new`
+
 Implemented actions:
 
 - List/search users.
+- Directly create local users.
 - View user detail.
 - Confirm/unconfirm email.
 - Lock/unlock user.

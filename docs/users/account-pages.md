@@ -40,6 +40,7 @@ Admin routes are also mapped under the same prefix:
 | Route | Purpose |
 |---|---|
 | `/auth/admin/users` | List and search users. Requires the `Administrator` role. |
+| `/auth/admin/users/new` | Directly create a local user. Requires the `Administrator` role. |
 | `/auth/admin/users/{id}` | View user state, run safe account-state actions, and manage fixed administrator access. Requires the `Administrator` role. |
 | `/auth/admin/invitations` | List account invitations. Requires the `Administrator` role. |
 | `/auth/admin/invitations/new` | Create and send an account invitation. Requires the `Administrator` role. |
@@ -135,6 +136,7 @@ It requires a signed-in user in the standard ASP.NET Core Identity `Administrato
 The first admin slice supports:
 
 - List and search users by email or display name.
+- Directly create a local user with username, email, optional display name, password, email confirmation state, and optional fixed administrator access.
 - View email, username, display name, phone number, email confirmation state, lockout state, access failed count, external login count, and roles.
 - Grant or remove the fixed `Administrator` role.
 - Prevent removing the last administrator.
@@ -145,6 +147,8 @@ The first admin slice supports:
 ## Account Invitations
 
 Administrators can invite users without enabling public registration.
+
+Use invitations when the user should set their own password without the administrator knowing it. Use direct admin creation when an administrator intentionally creates a local account with an initial password.
 
 The invitation flow uses:
 

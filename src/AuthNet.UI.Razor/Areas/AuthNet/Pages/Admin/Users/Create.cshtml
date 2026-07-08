@@ -1,0 +1,53 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Admin.Users.CreateModel
+@{
+    ViewData["Title"] = "Create user";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Create user</h1>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="Input.UserName" class="form-label"></label>
+        <input asp-for="Input.UserName" class="form-control" autocomplete="username" />
+        <span asp-validation-for="Input.UserName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Email" class="form-label"></label>
+        <input asp-for="Input.Email" class="form-control" autocomplete="email" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.DisplayName" class="form-label"></label>
+        <input asp-for="Input.DisplayName" class="form-control" autocomplete="name" />
+        <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label"></label>
+        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
+        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="Input.EmailConfirmed" class="form-check-input" />
+        <label asp-for="Input.EmailConfirmed" class="form-check-label"></label>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="Input.GrantAdministrator" class="form-check-input" />
+        <label asp-for="Input.GrantAdministrator" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Create user</button>
+    <a asp-page="./Index" class="btn btn-outline-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

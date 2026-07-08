@@ -111,6 +111,7 @@ public static class AuthNetServiceCollectionExtensions
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/LoginWithMfa", $"{prefix}/login/mfa");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/LoginWithRecoveryCode", $"{prefix}/login/recovery-code");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Index", $"{prefix}/admin/users");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Create", $"{prefix}/admin/users/new");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Detail", $"{prefix}/admin/users/{{id}}");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Invitations/Index", $"{prefix}/admin/invitations");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Invitations/Create", $"{prefix}/admin/invitations/new");

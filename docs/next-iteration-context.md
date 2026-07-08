@@ -22,6 +22,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 07 admin role assignment UI is implemented and tracked in `tasks/slice-07-plan.md`, `tasks/slice-07-todo.md`, and `docs/slice-07/`.
 - Slice 08 MFA foundation is implemented and tracked in `tasks/slice-08-plan.md`, `tasks/slice-08-todo.md`, and `docs/slice-08/`.
 - Slice 09 account invitation flow is implemented and tracked in `tasks/slice-09-plan.md`, `tasks/slice-09-todo.md`, and `docs/slice-09/`.
+- Slice 10 admin direct user creation is implemented and tracked in `tasks/slice-10-plan.md` and `tasks/slice-10-todo.md`.
 
 ## Implemented Product Surface
 
@@ -40,10 +41,10 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Account UI includes authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count display, and user-owned MFA disable.
 - Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
 - Built-in Razor Pages admin invitation UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Invitations`.
-- Admin UI routes are `/auth/admin/users` and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role.
+- Admin UI routes are `/auth/admin/users`, `/auth/admin/users/new`, and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role.
 - Admin invitation routes are `/auth/admin/invitations` and `/auth/admin/invitations/new` by default, protected by the ASP.NET Core Identity `Administrator` role.
 - Invitation acceptance route is `/auth/invitations/accept`.
-- Admin UI supports user list/search, user detail, confirm/unconfirm email, lock/unlock, reset access failed count, and fixed `Administrator` role grant/remove with last-admin protection.
+- Admin UI supports user list/search, direct user creation, user detail, confirm/unconfirm email, lock/unlock, reset access failed count, and fixed `Administrator` role grant/remove with last-admin protection.
 - Admin invitation UI supports invitation list/create, duplicate pending invite rejection, existing-user rejection, and email-delivered single-use acceptance links.
 - Invitation acceptance creates a local Identity user, confirms the invited email, marks the invitation accepted, and signs in the user.
 - AuthNet packages do not seed a default admin username or password; host applications own first-admin bootstrap.
@@ -53,6 +54,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
+- Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user list, direct user creation, and invitation pages.
 - `UseAuthNet()` remains as a compatibility wrapper.
 - AuthNet UI ships fallback shared `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml`, and `_AuthNetBrand.cshtml` so built-in pages render in a bare host.
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot password, profile update, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
@@ -76,7 +78,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 82 passing tests.
+Latest full test count: 89 passing tests.
 
 Login regression focused tests:
 
@@ -96,7 +98,7 @@ Slice 06 focused tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
 ```
 
-Slice 07 focused tests are covered by the same admin test class:
+Slice 07 and Slice 10 focused tests are covered by the same admin test class:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
@@ -199,6 +201,8 @@ For product/architecture:
 - `tasks/slice-08-todo.md`
 - `tasks/slice-09-plan.md`
 - `tasks/slice-09-todo.md`
+- `tasks/slice-10-plan.md`
+- `tasks/slice-10-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`

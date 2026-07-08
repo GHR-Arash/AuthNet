@@ -25,6 +25,7 @@ Build first:
 - Role infrastructure using ASP.NET Core Identity roles.
 - Built-in admin user-management UI under the AuthNet route prefix, protected by the `Administrator` role.
 - Fixed `Administrator` role assignment from the built-in admin user detail page, with last-admin removal protection.
+- Direct admin local user creation from the built-in admin user-management UI.
 - Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
@@ -32,6 +33,7 @@ Build first:
 - Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
 - The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
 - The sample host can explicitly bootstrap an admin user via `AuthNet:AdminBootstrap` in any environment; this is local sample behavior, not package behavior.
+- The sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user and invitation pages for manual verification.
 
 Deferred:
 
@@ -136,6 +138,7 @@ Host app should be able to configure:
 - Account route prefix and basic UI branding/layout.
 - Authenticator-app MFA account routes under the account route prefix.
 - Admin user-management routes under the account route prefix, guarded by the `Administrator` role.
+- Direct admin user creation route under the account route prefix.
 - Fixed `Administrator` role assignment on the admin user detail page.
 - Admin invitation routes under the account route prefix, guarded by the `Administrator` role.
 - Invitation acceptance route under the account route prefix.
@@ -154,6 +157,8 @@ Sample-host-only admin bootstrap:
 - `AuthNet:AdminBootstrap:UserName` optionally sets the username for a newly created admin.
 - `AuthNet:AdminBootstrap:Password` is required only when creating a missing user.
 - The bootstrap uses the same explicit configuration in Development and Production and does not change package behavior.
+- The sample home page, shared navigation, and protected `/Admin` page expose links to `/auth/admin/users`, `/auth/admin/invitations`, and `/auth/admin/invitations/new`.
+- The same sample pages expose `/auth/admin/users/new` for direct local user creation.
 
 Conceptual setup:
 

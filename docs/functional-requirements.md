@@ -236,6 +236,23 @@ Acceptance criteria:
 - Given a valid pending invitation, when the invited user submits valid credentials, then the system creates an account, confirms the invited email, marks the invitation accepted, and signs in the user.
 - Given an expired, invalid, or already accepted invitation, when acceptance is attempted, then the system rejects the request without creating a user.
 
+## Admin Direct User Creation
+
+Priority: Should Have
+
+- The system shall allow administrators to directly create local users.
+- The system shall create direct users through ASP.NET Core Identity.
+- The system shall validate username, email, password, and duplicate account state.
+- The system shall allow administrators to set the new user's email confirmation state.
+- The system shall allow administrators to optionally grant the fixed `Administrator` role during creation.
+- The system shall keep admin direct creation independent from public registration being enabled or disabled.
+
+Acceptance criteria:
+
+- Given an administrator submits valid local user details, when the form is submitted, then the system creates the user and redirects to that user's detail page.
+- Given duplicate username, duplicate email, or invalid password input, when the form is submitted, then the system rejects the request without creating a user.
+- Given the administrator role option is selected, when the user is created, then the system grants the fixed `Administrator` role.
+
 ## Persistence
 
 Priority: Must Have

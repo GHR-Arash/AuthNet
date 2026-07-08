@@ -5,5 +5,27 @@
 }
 
 <h1>Admin</h1>
-<p>This page is protected by the <code>Administrator</code> role.</p>
+<p>This page is protected by the <code>Administrator</code> role. Use it as the sample host entry point for built-in AuthNet admin workflows.</p>
 
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="border rounded p-3 h-100">
+            <h2 class="h5">Users</h2>
+            <p>Search users, review account status, lock or unlock accounts, confirm email, and grant or remove fixed administrator access.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary" href="/auth/admin/users/new">Create user</a>
+                <a class="btn btn-outline-secondary" href="/auth/admin/users">Open user list</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="border rounded p-3 h-100">
+            <h2 class="h5">Invitations</h2>
+            <p>Invite new users by email while keeping public registration disabled.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary" href="/auth/admin/invitations/new">Create invitation</a>
+                <a class="btn btn-outline-secondary" href="/auth/admin/invitations">View invitations</a>
+            </div>
+        </div>
+    </div>
+</div>
