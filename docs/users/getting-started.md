@@ -19,6 +19,7 @@ After AuthNet is registered in your app, it provides:
 - Role creation, role assignment, and built-in AuthNet permission assignment.
 - Account invitation flow.
 - Same-origin SPA JSON account endpoints.
+- OpenAPI JSON document for the same-origin SPA endpoints.
 - Cookie authentication.
 - ASP.NET Core Identity roles.
 - PostgreSQL-backed Identity persistence.
@@ -209,8 +210,9 @@ SPA JSON routes are mapped under `{AccountRoutePrefix}/api`. With the default pr
 - `POST /auth/api/register`
 - `POST /auth/api/forgot-password`
 - `POST /auth/api/resend-confirmation`
+- `GET /auth/api/openapi.json`
 
-These endpoints are intended for same-origin browser clients using the existing Identity application cookie. JWT access tokens, refresh tokens, cross-origin CORS policy management, MFA JSON endpoints, and admin JSON APIs are still deferred.
+These endpoints are intended for same-origin browser clients using the existing Identity application cookie. The OpenAPI document describes only AuthNet-owned SPA JSON routes. JWT access tokens, refresh tokens, cross-origin CORS policy management, MFA JSON endpoints, admin JSON APIs, and bundled Swagger/Scalar UI are still deferred.
 
 ## Protecting Pages or Endpoints
 
@@ -343,4 +345,4 @@ For security, automatic external account provisioning requires the provider to r
 - Keep `UseDevelopmentEmailSender` set to `false`.
 - Keep `EnablePublicRegistration` set to `false` unless public signup is intended.
 - Review cookie, password, lockout, and email-confirmation settings before launch.
-- `AuthNet.Api` uses the existing application cookie for same-origin SPA workflows. JWT and refresh-token authentication remain future scope.
+- `AuthNet.Api` uses the existing application cookie for same-origin SPA workflows and exposes `/auth/api/openapi.json` for API contract inspection. JWT and refresh-token authentication remain future scope.

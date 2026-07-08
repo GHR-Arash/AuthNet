@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 15 OpenAPI document endpoint is implemented and tracked in:
+
+- `tasks/slice-15-plan.md`
+- `tasks/slice-15-todo.md`
+
 Slice 14 SPA workflow foundation is implemented and tracked in:
 
 - `tasks/slice-14-plan.md`
@@ -69,6 +74,12 @@ Focused SPA API verification:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetSpaApiTests
 ```
 
+Focused OpenAPI verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetOpenApiTests
+```
+
 Focused sample email sender verification:
 
 ```powershell
@@ -95,7 +106,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 126 passing tests.
+Latest full verification: 131 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -227,6 +238,7 @@ Implemented Slice 14 scope:
 - Same-origin SPA/BFF-style cookie workflow using the existing Identity application cookie.
 - JSON routes under the configured account route prefix, `/auth/api` by default.
 - Session, login, logout, registration, forgot-password, resend-confirmation, and profile-read JSON endpoints.
+- OpenAPI document endpoint at `/auth/api/openapi.json`, scoped to AuthNet SPA JSON endpoints.
 - Minimal sample SPA smoke page in the sample host at `/Spa`.
 - Keep JWT access tokens and refresh tokens deferred to a separate token-authentication slice.
 

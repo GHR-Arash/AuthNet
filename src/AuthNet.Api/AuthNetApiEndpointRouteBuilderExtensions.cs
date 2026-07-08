@@ -16,6 +16,14 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
             .MapGroup(options.NormalizedAccountRoutePrefix + "/api")
             .WithTags("AuthNet SPA");
 
+        group.MapGet("/openapi.json", () =>
+        {
+            return TypedResults.Json(AuthNetOpenApiDocumentBuilder.Build(options));
+        })
+            .WithName("AuthNetApiOpenApi")
+            .WithSummary("Get the OpenAPI document for AuthNet SPA JSON endpoints.")
+            .Produces(StatusCodes.Status200OK, contentType: "application/json");
+
         group.MapGet("/session", async Task<Ok<AuthNetSessionResponse>> (
             HttpContext httpContext,
             IAuthNetSpaAccountService accountService,

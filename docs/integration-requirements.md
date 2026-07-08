@@ -100,6 +100,14 @@ Example route root:
 /auth/api
 ```
 
+The OpenAPI document for AuthNet-owned SPA JSON endpoints is available under the same API root:
+
+```text
+/auth/api/openapi.json
+```
+
+Swagger UI, Scalar UI, JWT bearer auth, and global host OpenAPI generation are not required by AuthNet.
+
 ## External Provider Integration
 
 AuthNet shall support provider-based configuration for:

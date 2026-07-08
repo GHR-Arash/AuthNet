@@ -2,7 +2,7 @@
 
 AuthNet is a reusable ASP.NET Identity and Access Management component.
 
-The first MVP slice targets .NET 10 and plugs into ASP.NET applications as middleware. It provides ASP.NET Core Identity integration, Razor Pages account UI, same-origin SPA JSON account endpoints, admin user-management UI, account invitations, cookie authentication, PostgreSQL-backed EF Core persistence, role infrastructure, generic OpenID Connect login, authenticator-app MFA, and email-based account flows.
+The first MVP slice targets .NET 10 and plugs into ASP.NET applications as middleware. It provides ASP.NET Core Identity integration, Razor Pages account UI, same-origin SPA JSON account endpoints with an OpenAPI document, admin user-management UI, account invitations, cookie authentication, PostgreSQL-backed EF Core persistence, role infrastructure, generic OpenID Connect login, authenticator-app MFA, and email-based account flows.
 
 API/JWT token authentication, refresh tokens, cross-origin SPA token flows, custom persistence stores, and provider-specific helpers are deferred.
 

@@ -6,7 +6,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current HEAD: Add SPA API workflow foundation
+  - Current HEAD: Add OpenAPI document endpoint
+  - `328d103 Add SPA API workflow foundation`
   - `2e70e6f Add role management and permissions`
   - `28870a1 Add sample SMTP email sender`
   - `aab30ad Add admin audit events`
@@ -25,6 +26,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 12 real email sender sample is implemented and tracked in `tasks/slice-12-plan.md` and `tasks/slice-12-todo.md`.
 - Slice 13 role management and permission enhancement is implemented and tracked in `tasks/slice-13-plan.md` and `tasks/slice-13-todo.md`.
 - Slice 14 SPA workflow foundation is implemented and tracked in `tasks/slice-14-plan.md` and `tasks/slice-14-todo.md`.
+- Slice 15 OpenAPI document endpoint is implemented and tracked in `tasks/slice-15-plan.md` and `tasks/slice-15-todo.md`.
 
 ## Implemented Product Surface
 
@@ -48,6 +50,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Admin user routes are `/auth/admin/users`, `/auth/admin/users/new`, and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet user permissions.
 - Admin role routes are `/auth/admin/roles`, `/auth/admin/roles/new`, and `/auth/admin/roles/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet role permissions.
 - Same-origin SPA JSON routes are mapped under `/auth/api` by default: session, profile, login, logout, register, forgot-password, and resend-confirmation.
+- AuthNet SPA OpenAPI JSON is mapped at `/auth/api/openapi.json` by default.
 - Admin audit route is `/auth/admin/audit` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.audit.view`.
 - Admin invitation routes are `/auth/admin/invitations` and `/auth/admin/invitations/new` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.invitations.manage`.
 - Invitation acceptance route is `/auth/invitations/accept`.
@@ -65,6 +68,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user list, direct user creation, role management, invitation pages, and SPA smoke page.
+- Sample host SPA/home pages link to `/auth/api/openapi.json`.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin audit page.
 - `UseAuthNet()` remains as a compatibility wrapper.
 - AuthNet UI ships fallback shared `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml`, and `_AuthNetBrand.cshtml` so built-in pages render in a bare host.
@@ -91,12 +95,18 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 126 passing tests.
+Latest full test count: 131 passing tests.
 
 Slice 14 focused SPA API tests:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetSpaApiTests
+```
+
+Slice 15 focused OpenAPI tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetOpenApiTests
 ```
 
 Login regression focused tests:
@@ -256,6 +266,8 @@ For product/architecture:
 - `tasks/slice-13-todo.md`
 - `tasks/slice-14-plan.md`
 - `tasks/slice-14-todo.md`
+- `tasks/slice-15-plan.md`
+- `tasks/slice-15-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`

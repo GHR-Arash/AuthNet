@@ -31,6 +31,7 @@ Build first:
 - Persisted admin audit events with a built-in admin audit list page.
 - Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
 - Same-origin SPA workflow foundation through JSON account endpoints and the existing Identity application cookie.
+- OpenAPI document endpoint for the same-origin SPA JSON endpoints.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
@@ -151,6 +152,7 @@ Host app should be able to configure:
 - Role management routes under the account route prefix.
 - Bounded AuthNet UI permissions backed by Identity role claims.
 - Same-origin SPA JSON routes under `{AccountRoutePrefix}/api` for session, login, logout, registration, forgot-password, resend-confirmation, and profile read.
+- AuthNet-owned OpenAPI JSON document under `{AccountRoutePrefix}/api/openapi.json`, scoped to AuthNet SPA API routes.
 
 Sample-host-only development persistence:
 
@@ -212,6 +214,8 @@ app.MapAuthNet();
 - Slice 13 role management and permission enhancement todo: `tasks/slice-13-todo.md`
 - Slice 14 SPA workflow foundation plan: `tasks/slice-14-plan.md`
 - Slice 14 SPA workflow foundation todo: `tasks/slice-14-todo.md`
+- Slice 15 OpenAPI document endpoint plan: `tasks/slice-15-plan.md`
+- Slice 15 OpenAPI document endpoint todo: `tasks/slice-15-todo.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`

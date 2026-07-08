@@ -39,6 +39,7 @@ The first MVP slice shall provide:
 - Server-rendered admin audit event review for successful admin mutations.
 - Authenticator-app MFA for local password sign-in, using ASP.NET Core Identity primitives.
 - Server-rendered account invitation flow with persisted single-use email invitations.
+- Same-origin SPA JSON account endpoints with a package-owned OpenAPI JSON document.
 
 ### Deferred Scope
 

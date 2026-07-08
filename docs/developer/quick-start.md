@@ -88,6 +88,12 @@ Focused SPA API tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetSpaApiTests
 ```
 
+Focused OpenAPI tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetOpenApiTests
+```
+
 Focused sample email sender tests:
 
 ```powershell
@@ -263,6 +269,7 @@ Useful routes:
 - `/auth/admin/invitations/new` to invite a user
 - `/auth/api/session` to inspect same-origin SPA session JSON
 - `/auth/api/profile` to inspect authenticated SPA profile JSON
+- `/auth/api/openapi.json` to inspect the AuthNet SPA API OpenAPI document
 - `/Spa` to exercise the sample same-origin SPA workflow
 - `/Admin`
 
