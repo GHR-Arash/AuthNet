@@ -1,0 +1,75 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Admin.Roles.DetailModel
+@{
+    ViewData["Title"] = "Role details";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Role details</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+<dl>
+    <dt>Name</dt>
+    <dd>@Model.RoleDetail.Name</dd>
+    <dt>Permissions</dt>
+    <dd>@(Model.RoleDetail.Permissions.Count == 0 ? "None" : string.Join(", ", Model.RoleDetail.Permissions))</dd>
+</dl>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<h2>Permissions</h2>
+
+@if (Model.RoleDetail.Permissions.Count == 0)
+{
+    <p>No permissions assigned.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Permission</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var permission in Model.RoleDetail.Permissions)
+            {
+                <tr>
+                    <td>@permission</td>
+                    <td>
+                        <form method="post" asp-page-handler="RemovePermission" asp-route-permission="@permission">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (Model.AvailablePermissions.Count > 0)
+{
+    <form method="post" asp-page-handler="AddPermission" class="mb-3">
+        <div class="mb-3">
+            <label asp-for="Input.Permission" class="form-label">Add permission</label>
+            <select asp-for="Input.Permission" class="form-select">
+                @foreach (var permission in Model.AvailablePermissions)
+                {
+                    <option value="@permission.Value">@permission.DisplayName (@permission.Value)</option>
+                }
+            </select>
+            <span asp-validation-for="Input.Permission" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Add permission</button>
+    </form>
+}
+
+<p><a asp-page="./Index">Back to roles</a></p>
+
+<partial name="_ValidationScriptsPartial" />

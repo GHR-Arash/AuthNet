@@ -71,6 +71,8 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapGet("/host-owned", () => Results.Text("host-owned"));
+        app.MapGet("/test/roles-manage", () => Results.Text("roles-manage"))
+            .RequireAuthorization(AuthNetPermissions.RolesManage);
         app.MapGet("/test/external-cookie", async (
             HttpContext context,
             string email,
@@ -174,6 +176,64 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
         }
 
         return user;
+    }
+
+    public async Task AddRoleAsync(string roleName, params string[] permissions)
+    {
+        using var scope = Services.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var role = await roleManager.FindByNameAsync(roleName);
+        if (role is null)
+        {
+            var createResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+            if (!createResult.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join(" ", createResult.Errors.Select(error => error.Description)));
+            }
+
+            role = await roleManager.FindByNameAsync(roleName);
+        }
+
+        if (role is null)
+        {
+            throw new InvalidOperationException($"Role '{roleName}' could not be loaded.");
+        }
+
+        var existingClaims = await roleManager.GetClaimsAsync(role);
+        foreach (var permission in permissions)
+        {
+            if (existingClaims.Any(claim =>
+                claim.Type == AuthNetPermissions.ClaimType &&
+                claim.Value == permission))
+            {
+                continue;
+            }
+
+            var result = await roleManager.AddClaimAsync(
+                role,
+                new Claim(AuthNetPermissions.ClaimType, permission));
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(string.Join(" ", result.Errors.Select(error => error.Description)));
+            }
+        }
+    }
+
+    public async Task AddUserToRoleAsync(string userId, string roleName)
+    {
+        using var scope = Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new InvalidOperationException($"User '{userId}' could not be loaded.");
+        }
+
+        var result = await userManager.AddToRoleAsync(user, roleName);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(string.Join(" ", result.Errors.Select(error => error.Description)));
+        }
     }
 
     public async Task<HttpResponseMessage> SignInAsync(string email, string password = "Password1!")

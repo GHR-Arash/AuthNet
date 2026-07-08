@@ -1,4 +1,5 @@
 using System.Net;
+using AuthNet.Core;
 using AuthNet.Persistence.Postgres;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -125,6 +126,66 @@ public sealed class AuthNetAuditTests
     }
 
     [Fact]
+    public async Task Role_and_permission_mutations_record_audit_events()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        var admin = await host.CreateAdminUserAsync("audit.roles.actor@example.test");
+        var target = await host.CreateUserAsync("audit.roles.target@example.test");
+        await host.SignInAsync(admin.Email!);
+
+        var form = await host.GetFormAsync("/auth/admin/roles/new");
+        var createRoleResponse = await host.PostFormAsync("/auth/admin/roles/new", form,
+            ("Input.Name", "Audit Operators"));
+
+        Assert.Equal(HttpStatusCode.Redirect, createRoleResponse.StatusCode);
+        var roleId = createRoleResponse.Headers.Location?.OriginalString.Split('/').Last();
+        Assert.False(string.IsNullOrWhiteSpace(roleId));
+
+        form = await host.GetFormAsync($"/auth/admin/roles/{roleId}");
+        await AssertPostOkAsync(host, $"/auth/admin/roles/{roleId}?handler=AddPermission", form,
+            ("Input.Permission", AuthNetPermissions.AuditView));
+
+        form = await host.GetFormAsync($"/auth/admin/roles/{roleId}");
+        await AssertPostOkAsync(
+            host,
+            $"/auth/admin/roles/{roleId}?handler=RemovePermission&permission={Uri.EscapeDataString(AuthNetPermissions.AuditView)}",
+            form);
+
+        form = await host.GetFormAsync($"/auth/admin/users/{target.Id}");
+        await AssertPostOkAsync(host, $"/auth/admin/users/{target.Id}?handler=AddRole", form,
+            ("Input.RoleName", "Audit Operators"));
+
+        form = await host.GetFormAsync($"/auth/admin/users/{target.Id}");
+        await AssertPostOkAsync(
+            host,
+            $"/auth/admin/users/{target.Id}?handler=RemoveRole&roleName={Uri.EscapeDataString("Audit Operators")}",
+            form);
+
+        var actions = await AuditActionsAsync(host);
+        Assert.Contains("RoleCreated", actions);
+        Assert.Contains("RolePermissionAdded", actions);
+        Assert.Contains("RolePermissionRemoved", actions);
+        Assert.Contains("UserRoleAssigned", actions);
+        Assert.Contains("UserRoleRemoved", actions);
+
+        var events = await AuditEventsAsync(host);
+        Assert.All(events, auditEvent =>
+        {
+            Assert.Equal(admin.Id, auditEvent.ActorUserId);
+            Assert.Equal(admin.Email, auditEvent.ActorEmail);
+            Assert.DoesNotContain("Password1!", auditEvent.Metadata ?? string.Empty);
+        });
+        Assert.Contains(events, auditEvent =>
+            auditEvent.Action == "RolePermissionAdded" &&
+            auditEvent.Metadata != null &&
+            auditEvent.Metadata.Contains(AuthNetPermissions.AuditView));
+        Assert.Contains(events, auditEvent =>
+            auditEvent.Action == "UserRoleAssigned" &&
+            auditEvent.TargetUserId == target.Id &&
+            auditEvent.Metadata == "Role=Audit Operators");
+    }
+
+    [Fact]
     public async Task Admin_can_filter_audit_events()
     {
         await using var host = await AuthNetTestHost.CreateAsync();
@@ -158,9 +219,13 @@ public sealed class AuthNetAuditTests
         Assert.DoesNotContain("audit.filter.created@example.test", body);
     }
 
-    private static async Task AssertPostOkAsync(AuthNetTestHost host, string path, AuthNetTestForm form)
+    private static async Task AssertPostOkAsync(
+        AuthNetTestHost host,
+        string path,
+        AuthNetTestForm form,
+        params (string Name, string Value)[] fields)
     {
-        var response = await host.PostFormAsync(path, form);
+        var response = await host.PostFormAsync(path, form, fields);
         var body = await response.Content.ReadAsStringAsync();
         Assert.True(response.StatusCode == HttpStatusCode.OK, body);
     }

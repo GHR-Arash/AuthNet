@@ -4,6 +4,7 @@ using AuthNet.ExternalProviders;
 using AuthNet.Persistence.Postgres;
 using AuthNetRazor;
 using AuthNetRazor.Areas.AuthNet.Pages.Account;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -88,8 +89,17 @@ public static class AuthNetServiceCollectionExtensions
         }
 
         services.TryAddScoped<IAuthNetAuditWriter, AuthNetAuditWriter>();
+        services.AddSingleton<IAuthorizationHandler, AuthNetPermissionAuthorizationHandler>();
         services.TryAddSingleton<AuthNetConfigurationValidator>();
-        services.AddAuthorization();
+        services.AddAuthorization(authorization =>
+        {
+            foreach (var permission in AuthNetPermissions.All)
+            {
+                authorization.AddPolicy(
+                    permission.Value,
+                    policy => policy.Requirements.Add(new AuthNetPermissionRequirement(permission.Value)));
+            }
+        });
 
         services
             .AddRazorPages(razor =>
@@ -115,6 +125,9 @@ public static class AuthNetServiceCollectionExtensions
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Index", $"{prefix}/admin/users");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Create", $"{prefix}/admin/users/new");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Detail", $"{prefix}/admin/users/{{id}}");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Roles/Index", $"{prefix}/admin/roles");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Roles/Create", $"{prefix}/admin/roles/new");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Roles/Detail", $"{prefix}/admin/roles/{{id}}");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Audit/Index", $"{prefix}/admin/audit");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Invitations/Index", $"{prefix}/admin/invitations");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Invitations/Create", $"{prefix}/admin/invitations/new");

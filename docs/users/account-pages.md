@@ -39,12 +39,15 @@ Admin routes are also mapped under the same prefix:
 
 | Route | Purpose |
 |---|---|
-| `/auth/admin/users` | List and search users. Requires the `Administrator` role. |
-| `/auth/admin/users/new` | Directly create a local user. Requires the `Administrator` role. |
-| `/auth/admin/users/{id}` | View user state, run safe account-state actions, and manage fixed administrator access. Requires the `Administrator` role. |
-| `/auth/admin/audit` | Review admin audit events. Requires the `Administrator` role. |
-| `/auth/admin/invitations` | List account invitations. Requires the `Administrator` role. |
-| `/auth/admin/invitations/new` | Create and send an account invitation. Requires the `Administrator` role. |
+| `/auth/admin/users` | List and search users. Requires `Administrator` or `authnet.users.view`. |
+| `/auth/admin/users/new` | Directly create a local user. Requires `Administrator` or `authnet.users.manage`. |
+| `/auth/admin/users/{id}` | View user state, run account-state actions, and manage role assignment. Requires `Administrator` or `authnet.users.manage`. |
+| `/auth/admin/roles` | List roles. Requires `Administrator` or `authnet.roles.view`. |
+| `/auth/admin/roles/new` | Create a role. Requires `Administrator` or `authnet.roles.manage`. |
+| `/auth/admin/roles/{id}` | View role permissions and assign/remove built-in permissions. View requires `authnet.roles.view`; changes require `authnet.roles.manage`. |
+| `/auth/admin/audit` | Review admin audit events. Requires `Administrator` or `authnet.audit.view`. |
+| `/auth/admin/invitations` | List account invitations. Requires `Administrator` or `authnet.invitations.manage`. |
+| `/auth/admin/invitations/new` | Create and send an account invitation. Requires `Administrator` or `authnet.invitations.manage`. |
 
 ## Registration
 
@@ -130,21 +133,37 @@ This slice does not include SMS OTP, email OTP, passkeys, generated QR-code imag
 
 ## Admin User Management
 
-The admin user-management UI is server-rendered and role-based.
+The admin user-management UI is server-rendered and role/permission-based.
 
-It requires a signed-in user in the standard ASP.NET Core Identity `Administrator` role. AuthNet does not seed a default administrator account, username, or password.
+The `Administrator` role remains the built-in superuser role and satisfies every AuthNet admin permission. AuthNet does not seed a default administrator account, username, or password.
 
-The first admin slice supports:
+The admin UI supports:
 
 - List and search users by email or display name.
 - Directly create a local user with username, email, optional display name, password, email confirmation state, and optional fixed administrator access.
 - View email, username, display name, phone number, email confirmation state, lockout state, access failed count, external login count, and roles.
-- Grant or remove the fixed `Administrator` role.
+- Create roles through ASP.NET Core Identity.
+- Assign or remove roles on user detail.
+- Grant or remove the `Administrator` role.
 - Prevent removing the last administrator.
+- Assign or remove built-in AuthNet permissions on roles.
 - Confirm or unconfirm email.
 - Lock or unlock users.
 - Reset access failed count.
 - Review admin audit events for successful admin mutations.
+
+AuthNet permissions are stored as ASP.NET Core Identity role claims with claim type `authnet.permission`. The built-in permission values are:
+
+- `authnet.users.view`
+- `authnet.users.manage`
+- `authnet.roles.view`
+- `authnet.roles.manage`
+- `authnet.invitations.manage`
+- `authnet.audit.view`
+
+Permission changes apply through the normal ASP.NET Core Identity claims principal. A signed-in user may need to sign out and sign in again before newly assigned role permissions are reflected in their current session.
+
+The manage permissions for users and roles also satisfy the corresponding view policies.
 
 ## Admin Audit Events
 
@@ -154,7 +173,7 @@ The audit flow uses:
 
 - `/auth/admin/audit` to review recent audit events.
 
-Current audit coverage includes direct user creation, invitation creation, fixed administrator grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
+Current audit coverage includes direct user creation, invitation creation, role creation, role assignment/removal, role permission assignment/removal, administrator grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
 
 Audit events include timestamp, action, outcome, actor, target, and compact metadata. AuthNet does not store passwords, raw invitation tokens, or invitation acceptance URLs in audit metadata.
 
@@ -174,7 +193,7 @@ Invitation links are sent through `IAuthNetEmailSender`. AuthNet stores only a h
 
 When an invitation is accepted, AuthNet creates a local Identity user, marks the invited email confirmed, marks the invitation accepted, and signs in the new user. Invitations are single-use and expire after the configured invitation lifetime.
 
-Deferred admin features include arbitrary role management, deletion, impersonation, audit export, audit retention policy, tamper-proof audit signing, invitation resend/cancel, bulk invitations, API endpoints, and fine-grained permissions.
+Deferred admin features include role deletion, host-defined permission catalogs, tenant-scoped permissions, impersonation, audit export, audit retention policy, tamper-proof audit signing, invitation resend/cancel, bulk invitations, and API endpoints.
 
 ## External Login
 

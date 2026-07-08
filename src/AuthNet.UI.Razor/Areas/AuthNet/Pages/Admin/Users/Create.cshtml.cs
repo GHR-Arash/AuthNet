@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AuthNet.Core;
 using AuthNet.Persistence.Postgres;
 using AuthNetRazor;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AuthNetRazor.Areas.AuthNet.Pages.Admin.Users;
 
-[Authorize(Roles = "Administrator")]
+[Authorize(Policy = AuthNetPermissions.UsersManage)]
 public sealed class CreateModel(
     UserManager<AuthNetUser> userManager,
     RoleManager<IdentityRole> roleManager,

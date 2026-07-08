@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthNetRazor.Areas.AuthNet.Pages.Admin.Invitations;
 
-[Authorize(Roles = "Administrator")]
+[Authorize(Policy = AuthNetPermissions.InvitationsManage)]
 public sealed class CreateModel(
     AuthNetDbContext dbContext,
     UserManager<AuthNetUser> userManager,

@@ -1,13 +1,15 @@
+using AuthNet.Core;
 using AuthNet.Persistence.Postgres;
 using AuthNetRazor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthNetRazor.Areas.AuthNet.Pages.Admin.Users;
 
-[Authorize(Roles = "Administrator")]
+[Authorize(Policy = AuthNetPermissions.UsersManage)]
 public sealed class DetailModel(
     UserManager<AuthNetUser> userManager,
     RoleManager<IdentityRole> roleManager,
@@ -17,7 +19,12 @@ public sealed class DetailModel(
 
     public AdminUserDetail UserDetail { get; private set; } = AdminUserDetail.Empty;
 
+    public IReadOnlyList<string> AvailableRoles { get; private set; } = [];
+
     public string? StatusMessage { get; private set; }
+
+    [BindProperty]
+    public RoleInput Input { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync(string id)
     {
@@ -128,12 +135,6 @@ public sealed class DetailModel(
 
     public async Task<IActionResult> OnPostGrantAdministratorAsync(string id)
     {
-        var user = await userManager.FindByIdAsync(id);
-        if (user is null)
-        {
-            return NotFound();
-        }
-
         if (!await roleManager.RoleExistsAsync(AdministratorRoleName))
         {
             var createRoleResult = await roleManager.CreateAsync(new IdentityRole(AdministratorRoleName));
@@ -144,22 +145,30 @@ public sealed class DetailModel(
             }
         }
 
-        if (!await userManager.IsInRoleAsync(user, AdministratorRoleName))
-        {
-            var addRoleResult = await userManager.AddToRoleAsync(user, AdministratorRoleName);
-            if (!addRoleResult.Succeeded)
-            {
-                AddErrors(addRoleResult);
-                return await LoadPageAsync(id);
-            }
-        }
-
-        await auditWriter.RecordAsync(User, "AdministratorGranted", user, metadata: "Role=Administrator", cancellationToken: HttpContext.RequestAborted);
-        StatusMessage = "Administrator access granted.";
-        return await LoadPageAsync(id);
+        Input.RoleName = AdministratorRoleName;
+        return await AddRoleAsync(id, "Administrator access granted.", "AdministratorGranted");
     }
 
     public async Task<IActionResult> OnPostRemoveAdministratorAsync(string id)
+    {
+        return await RemoveRoleAsync(
+            id,
+            AdministratorRoleName,
+            "Administrator access removed.",
+            "AdministratorRemoved");
+    }
+
+    public async Task<IActionResult> OnPostAddRoleAsync(string id)
+    {
+        return await AddRoleAsync(id, "Role assigned.", "UserRoleAssigned");
+    }
+
+    public async Task<IActionResult> OnPostRemoveRoleAsync(string id, string roleName)
+    {
+        return await RemoveRoleAsync(id, roleName, "Role removed.", "UserRoleRemoved");
+    }
+
+    private async Task<IActionResult> AddRoleAsync(string id, string successMessage, string auditAction)
     {
         var user = await userManager.FindByIdAsync(id);
         if (user is null)
@@ -167,28 +176,77 @@ public sealed class DetailModel(
             return NotFound();
         }
 
-        if (!await userManager.IsInRoleAsync(user, AdministratorRoleName))
+        var roleName = Input.RoleName.Trim();
+        if (string.IsNullOrWhiteSpace(roleName))
         {
-            StatusMessage = "Administrator access removed.";
+            ModelState.AddModelError("Input.RoleName", "Role is required.");
             return await LoadPageAsync(id);
         }
 
-        var administrators = await userManager.GetUsersInRoleAsync(AdministratorRoleName);
-        if (administrators.Count <= 1)
+        if (!await roleManager.RoleExistsAsync(roleName))
         {
-            ModelState.AddModelError(string.Empty, "Cannot remove administrator access from the last administrator.");
+            ModelState.AddModelError("Input.RoleName", "Role does not exist.");
             return await LoadPageAsync(id);
         }
 
-        var removeRoleResult = await userManager.RemoveFromRoleAsync(user, AdministratorRoleName);
+        if (!await userManager.IsInRoleAsync(user, roleName))
+        {
+            var addRoleResult = await userManager.AddToRoleAsync(user, roleName);
+            if (!addRoleResult.Succeeded)
+            {
+                AddErrors(addRoleResult);
+                return await LoadPageAsync(id);
+            }
+        }
+
+        await auditWriter.RecordAsync(User, auditAction, user, metadata: $"Role={roleName}", cancellationToken: HttpContext.RequestAborted);
+        StatusMessage = successMessage;
+        return await LoadPageAsync(id);
+    }
+
+    private async Task<IActionResult> RemoveRoleAsync(
+        string id,
+        string roleName,
+        string successMessage,
+        string auditAction)
+    {
+        var user = await userManager.FindByIdAsync(id);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            ModelState.AddModelError(string.Empty, "Role is required.");
+            return await LoadPageAsync(id);
+        }
+
+        if (!await userManager.IsInRoleAsync(user, roleName))
+        {
+            StatusMessage = successMessage;
+            return await LoadPageAsync(id);
+        }
+
+        if (string.Equals(roleName, AdministratorRoleName, StringComparison.Ordinal))
+        {
+            var administrators = await userManager.GetUsersInRoleAsync(AdministratorRoleName);
+            if (administrators.Count <= 1)
+            {
+                ModelState.AddModelError(string.Empty, "Cannot remove administrator access from the last administrator.");
+                return await LoadPageAsync(id);
+            }
+        }
+
+        var removeRoleResult = await userManager.RemoveFromRoleAsync(user, roleName);
         if (!removeRoleResult.Succeeded)
         {
             AddErrors(removeRoleResult);
             return await LoadPageAsync(id);
         }
 
-        await auditWriter.RecordAsync(User, "AdministratorRemoved", user, metadata: "Role=Administrator", cancellationToken: HttpContext.RequestAborted);
-        StatusMessage = "Administrator access removed.";
+        await auditWriter.RecordAsync(User, auditAction, user, metadata: $"Role={roleName}", cancellationToken: HttpContext.RequestAborted);
+        StatusMessage = successMessage;
         return await LoadPageAsync(id);
     }
 
@@ -200,7 +258,15 @@ public sealed class DetailModel(
             return NotFound();
         }
 
-        var roles = await userManager.GetRolesAsync(user);
+        var roles = (await userManager.GetRolesAsync(user))
+            .OrderBy(role => role)
+            .ToList();
+        AvailableRoles = await roleManager.Roles
+            .AsNoTracking()
+            .Where(role => role.Name != null && !roles.Contains(role.Name))
+            .OrderBy(role => role.Name)
+            .Select(role => role.Name!)
+            .ToListAsync();
 
         UserDetail = new AdminUserDetail(
             user.Id,
@@ -213,7 +279,7 @@ public sealed class DetailModel(
             user.AccessFailedCount,
             (await userManager.GetLoginsAsync(user)).Count,
             roles.Contains(AdministratorRoleName),
-            [.. roles]);
+            roles);
 
         return Page();
     }
@@ -224,6 +290,11 @@ public sealed class DetailModel(
         {
             ModelState.AddModelError(string.Empty, error.Description);
         }
+    }
+
+    public sealed class RoleInput
+    {
+        public string RoleName { get; set; } = string.Empty;
     }
 }
 

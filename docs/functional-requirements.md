@@ -217,6 +217,41 @@ Acceptance criteria:
 - Given a user has a required role, when they access a protected resource, then access is allowed.
 - Given a user does not have a required role, when they access a protected resource, then access is denied.
 
+## Admin Role Management
+
+Priority: Should Have
+
+- The system shall allow administrators to list roles.
+- The system shall allow administrators to create roles.
+- The system shall allow administrators to assign existing roles to users.
+- The system shall allow administrators to remove assigned roles from users.
+- The system shall preserve last-administrator protection for the `Administrator` role.
+- The system shall keep role storage on ASP.NET Core Identity role infrastructure.
+
+Acceptance criteria:
+
+- Given an administrator creates a unique role name, when the form is submitted, then the role is persisted through Identity.
+- Given a duplicate role name, when the form is submitted, then the system rejects the request.
+- Given an administrator assigns an existing role to a user, when the form is submitted, then the user has that role.
+- Given an administrator removes a non-last-admin role from a user, when the form is submitted, then the user no longer has that role.
+- Given the target user is the last administrator, when administrator role removal is attempted, then the system rejects the request.
+
+## AuthNet UI Permissions
+
+Priority: Should Have
+
+- The system shall define a bounded permission catalog for built-in AuthNet UI operations.
+- The system shall store role permissions as ASP.NET Core Identity role claims.
+- The system shall authorize built-in admin pages by `Administrator` superuser access or the required AuthNet permission.
+- The system shall allow administrators to assign and remove built-in permissions on roles.
+
+Acceptance criteria:
+
+- Given a role has a permission claim, when a user in that role accesses a matching permission-protected page, then access is allowed.
+- Given a user lacks both `Administrator` role and the required permission claim, when the user accesses the page, then access is denied.
+- Given an administrator assigns a built-in permission to a role, when the form is submitted, then the role claim is persisted.
+- Given an unknown permission is submitted, when the form is submitted, then the system rejects the request.
+
 ## Account Invitations
 
 Priority: Should Have

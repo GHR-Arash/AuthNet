@@ -51,6 +51,54 @@
     }
 </form>
 
+<h2>Role assignment</h2>
+
+@if (Model.UserDetail.Roles.Count == 0)
+{
+    <p>No roles assigned.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Role</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model.UserDetail.Roles)
+            {
+                <tr>
+                    <td>@role</td>
+                    <td>
+                        <form method="post" asp-page-handler="RemoveRole" asp-route-roleName="@role">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (Model.AvailableRoles.Count > 0)
+{
+    <form method="post" asp-page-handler="AddRole" class="mb-2">
+        <div class="mb-3">
+            <label asp-for="Input.RoleName" class="form-label">Add role</label>
+            <select asp-for="Input.RoleName" class="form-select">
+                @foreach (var role in Model.AvailableRoles)
+                {
+                    <option value="@role">@role</option>
+                }
+            </select>
+            <span asp-validation-for="Input.RoleName" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Add role</button>
+    </form>
+}
+
 <form method="post" class="mb-2">
     <button asp-page-handler="ConfirmEmail" class="btn btn-outline-primary">Confirm email</button>
     <button asp-page-handler="UnconfirmEmail" class="btn btn-outline-secondary">Unconfirm email</button>

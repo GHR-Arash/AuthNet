@@ -1,3 +1,4 @@
+using AuthNet.Core;
 using AuthNet.Persistence.Postgres;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthNetRazor.Areas.AuthNet.Pages.Admin.Invitations;
 
-[Authorize(Roles = "Administrator")]
+[Authorize(Policy = AuthNetPermissions.InvitationsManage)]
 public sealed class IndexModel(AuthNetDbContext dbContext) : PageModel
 {
     private const int PageSize = 20;

@@ -47,9 +47,9 @@ The following are deferred beyond the first MVP slice:
 - API/JWT authentication.
 - Refresh tokens.
 - SPA-specific authentication flows.
-- Arbitrary role management, invitation resend/cancel, bulk invitations, deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
+- Invitation resend/cancel, bulk invitations, deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
 - SMS/email OTP, passkeys, required-MFA policy, and admin-managed MFA reset.
-- Fine-grained permissions.
+- Fine-grained permissions beyond the bounded AuthNet built-in UI permission catalog planned for Slice 13.
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google and Microsoft helper packages.

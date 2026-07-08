@@ -64,6 +64,18 @@ Focused admin user tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
 ```
 
+Focused role tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetRoleTests
+```
+
+Focused permission tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetPermissionTests
+```
+
 Focused audit tests:
 
 ```powershell
@@ -182,7 +194,7 @@ Open the admin UI:
 http://127.0.0.1:5127/auth/admin/users
 ```
 
-Use a user's detail page to grant or remove the fixed `Administrator` role for other users. The UI prevents removing the last remaining administrator.
+Use the role pages to create roles and assign built-in AuthNet permissions. Use a user's detail page to assign or remove roles. The UI prevents removing the last remaining administrator.
 
 If the user already exists, the bootstrap can assign the `Administrator` role without a password:
 
@@ -234,7 +246,10 @@ Useful routes:
 - `/auth/mfa`
 - `/auth/admin/users` after signing in as a user in the `Administrator` role
 - `/auth/admin/users/new` to directly create a local user
-- `/auth/admin/users/{id}` to view user state and manage fixed administrator access
+- `/auth/admin/users/{id}` to view user state and manage role assignment
+- `/auth/admin/roles` to list roles
+- `/auth/admin/roles/new` to create a role
+- `/auth/admin/roles/{id}` to manage built-in AuthNet permissions on a role
 - `/auth/admin/audit` to review admin audit events
 - `/auth/admin/invitations` to list account invitations
 - `/auth/admin/invitations/new` to invite a user

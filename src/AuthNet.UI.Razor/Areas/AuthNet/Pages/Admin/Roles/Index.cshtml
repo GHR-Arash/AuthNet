@@ -1,0 +1,36 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Admin.Roles.IndexModel
+@{
+    ViewData["Title"] = "Roles";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Roles</h1>
+
+<p><a asp-page="./Create" class="btn btn-primary">Create role</a></p>
+
+@if (Model.Roles.Count == 0)
+{
+    <p>No roles found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model.Roles)
+            {
+                <tr>
+                    <td>@role.Name</td>
+                    <td><a asp-page="./Detail" asp-route-id="@role.Id">Details</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

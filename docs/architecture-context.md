@@ -24,7 +24,9 @@ Build first:
 - Email sender contract, with production sender required and development logging/fake sender allowed.
 - Role infrastructure using ASP.NET Core Identity roles.
 - Built-in admin user-management UI under the AuthNet route prefix, protected by the `Administrator` role.
-- Fixed `Administrator` role assignment from the built-in admin user detail page, with last-admin removal protection.
+- Role assignment from the built-in admin user detail page, with `Administrator` last-admin removal protection.
+- Bounded built-in AuthNet UI permission policies backed by ASP.NET Core Identity role claims.
+- Built-in admin role list/create/detail UI.
 - Direct admin local user creation from the built-in admin user-management UI.
 - Persisted admin audit events with a built-in admin audit list page.
 - Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
@@ -41,8 +43,8 @@ Deferred:
 
 - API/JWT and refresh tokens.
 - SPA authentication flows.
-- Fine-grained permissions.
-- Arbitrary role management, deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
+- Fine-grained permissions outside the bounded AuthNet built-in UI permission catalog.
+- Role deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google/Microsoft helpers.
@@ -146,6 +148,8 @@ Host app should be able to configure:
 - Admin invitation routes under the account route prefix, guarded by the `Administrator` role.
 - Invitation acceptance route under the account route prefix.
 - Invitation expiration through `AuthNetOptions.Invitations.Expiration`.
+- Role management routes under the account route prefix.
+- Bounded AuthNet UI permissions backed by Identity role claims.
 
 Sample-host-only development persistence:
 
@@ -203,6 +207,8 @@ app.MapAuthNet();
 - Slice 09 account invitation todo: `tasks/slice-09-todo.md`
 - Slice 12 real email sender sample plan: `tasks/slice-12-plan.md`
 - Slice 12 real email sender sample todo: `tasks/slice-12-todo.md`
+- Slice 13 role management and permission enhancement plan: `tasks/slice-13-plan.md`
+- Slice 13 role management and permission enhancement todo: `tasks/slice-13-todo.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`

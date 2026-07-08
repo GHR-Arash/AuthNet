@@ -15,8 +15,8 @@ After AuthNet is registered in your app, it provides:
 - Profile management.
 - Change password.
 - Authenticator-app MFA with recovery codes.
-- Admin user management UI for users in the `Administrator` role.
-- Fixed administrator role assignment UI.
+- Admin user management UI protected by `Administrator` or AuthNet permissions.
+- Role creation, role assignment, and built-in AuthNet permission assignment.
 - Account invitation flow.
 - Cookie authentication.
 - ASP.NET Core Identity roles.
@@ -28,7 +28,7 @@ Not included in this MVP:
 - JWT/API authentication.
 - Refresh tokens.
 - SPA flows.
-- Arbitrary role management, invitation resend/cancel, and bulk invitation workflows.
+- Role deletion, custom permission catalogs, invitation resend/cancel, and bulk invitation workflows.
 - SMS/email OTP, passkeys, and global required-MFA policy.
 - Multi-tenancy.
 
@@ -187,11 +187,14 @@ Admin routes are mapped under the same prefix:
 - `/auth/admin/users`
 - `/auth/admin/users/new`
 - `/auth/admin/users/{id}`
+- `/auth/admin/roles`
+- `/auth/admin/roles/new`
+- `/auth/admin/roles/{id}`
 - `/auth/admin/audit`
 - `/auth/admin/invitations`
 - `/auth/admin/invitations/new`
 
-These routes require a signed-in user in the `Administrator` role. AuthNet packages do not create a default admin user or default development password.
+These routes require a signed-in user in the `Administrator` role or a role with the matching AuthNet permission. AuthNet packages do not create a default admin user or default development password.
 
 The login page accepts either the user's email address or username.
 
@@ -219,11 +222,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 public sealed class AdminModel : PageModel;
 ```
 
-AuthNet does not introduce a custom permission model in MVP slice 1.
+AuthNet also registers built-in permission policies for its admin UI. Permissions are stored as ASP.NET Core Identity role claims with claim type `authnet.permission`, and `Administrator` satisfies every AuthNet permission.
 
 ## Admin User Management
 
-The built-in admin UI uses the standard `Administrator` role:
+The built-in admin UI uses the standard `Administrator` role as the superuser role:
 
 ```csharp
 using AuthNet.Persistence.Postgres;
@@ -247,11 +250,22 @@ if (user is not null)
 
 Use your own bootstrap policy for creating the first administrator. Do not ship a hardcoded admin password.
 
-After the first administrator exists, the built-in user detail page can grant or remove the fixed `Administrator` role for other users. AuthNet prevents removing the last remaining administrator.
+After the first administrator exists, administrators can create roles, assign built-in AuthNet permissions to roles, and assign roles to users. AuthNet prevents removing the last remaining administrator.
+
+Built-in AuthNet permissions:
+
+- `authnet.users.view`
+- `authnet.users.manage`
+- `authnet.roles.view`
+- `authnet.roles.manage`
+- `authnet.invitations.manage`
+- `authnet.audit.view`
+
+Permission changes apply through the normal ASP.NET Core Identity claims principal. A signed-in user may need to sign out and sign in again before newly assigned role permissions are reflected in their current session.
 
 Administrators can also directly create local users at `/auth/admin/users/new`. The form creates the account through ASP.NET Core Identity with username, email, optional display name, password, email confirmation state, and optional fixed administrator access. Use invitations when the user should set their own password.
 
-Administrators can review successful admin mutation events at `/auth/admin/audit`. Audit coverage includes direct user creation, invitation creation, fixed administrator role grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
+Administrators can review successful admin mutation events at `/auth/admin/audit`. Audit coverage includes direct user creation, invitation creation, role creation, role assignment/removal, role permission assignment/removal, administrator role grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
 
 The repository sample host includes an explicit admin bootstrap that uses the same configuration in Development and Production:
 
@@ -266,7 +280,7 @@ $env:AuthNet__AdminBootstrap__Password='Password1!'
 
 With that configuration, sign in at `/auth/login` using username `admin` and password `Password1!`.
 
-In the repository sample host, the home page, navbar, and protected `/Admin` page link to the user list, direct user creation, and invitation pages so the admin workflows are discoverable after sign-in.
+In the repository sample host, the home page, navbar, and protected `/Admin` page link to the user list, direct user creation, role management, audit, and invitation pages so the admin workflows are discoverable after sign-in.
 
 This sample-host bootstrap is not package behavior and does not provide default credentials.
 

@@ -13,6 +13,7 @@
         <a class="btn btn-outline-secondary" href="/auth/register">Register</a>
         <a class="btn btn-outline-secondary" href="/auth/profile">Profile</a>
         <a class="btn btn-outline-dark" asp-page="/Admin">Admin dashboard</a>
+        <a class="btn btn-outline-dark" href="/auth/admin/roles">Roles</a>
         <a class="btn btn-outline-dark" href="/auth/admin/audit">Audit events</a>
     </div>
 
@@ -22,10 +23,12 @@
         <div class="col-md-6">
             <div class="border rounded p-3 h-100">
                 <h2 class="h5">Admin users</h2>
-                <p>List users, inspect account state, and manage fixed administrator access.</p>
+                <p>List users, inspect account state, and manage role assignment.</p>
                 <a href="/auth/admin/users">Open user list</a>
                 <span> · </span>
                 <a href="/auth/admin/users/new">Create user</a>
+                <span> · </span>
+                <a href="/auth/admin/roles">Roles</a>
                 <span> · </span>
                 <a href="/auth/admin/audit">Audit events</a>
             </div>

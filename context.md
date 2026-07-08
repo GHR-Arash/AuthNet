@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 13 role management and permission enhancement is implemented and tracked in:
+
+- `tasks/slice-13-plan.md`
+- `tasks/slice-13-todo.md`
+
 Slice 12 real email sender sample is implemented and tracked in:
 
 - `tasks/slice-12-plan.md`
@@ -80,7 +85,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 99 passing tests.
+Latest full verification: 115 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -223,4 +228,24 @@ Out of scope:
 
 Likely product slice after Slice 12:
 
-- Role creation, role assignment, and permission-system enhancement.
+- Execute Slice 13 role management and permission enhancement.
+
+## Current Role and Permission Scope
+
+Implemented Slice 13 scope:
+
+- Role list/create/detail admin pages at `/auth/admin/roles`, `/auth/admin/roles/new`, and `/auth/admin/roles/{id}`.
+- Arbitrary user role assignment on user detail while preserving last-administrator protection.
+- Bounded AuthNet permission catalog for built-in UI operations.
+- Permissions stored as ASP.NET Core Identity role claims with claim type `authnet.permission`.
+- `Administrator` remains the superuser role and satisfies every AuthNet permission policy.
+- Audit events for role creation, role assignment/removal, and role permission assignment/removal.
+- Sample host home, navbar, and `/Admin` page link to role management.
+
+Out of scope:
+
+- Custom role or permission store.
+- Role deletion.
+- Tenant-scoped authorization.
+- Host-defined custom permission catalog.
+- API/JWT permission flows.

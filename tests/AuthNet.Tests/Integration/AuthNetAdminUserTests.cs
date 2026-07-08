@@ -335,6 +335,47 @@ public sealed class AuthNetAdminUserTests
     }
 
     [Fact]
+    public async Task Admin_user_can_assign_arbitrary_role()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.assign.role@example.test");
+        await host.AddRoleAsync("Support");
+        var target = await host.CreateUserAsync("assign.role.target@example.test");
+        await host.SignInAsync("admin.assign.role@example.test");
+
+        var form = await host.GetFormAsync($"/auth/admin/users/{target.Id}");
+        var response = await host.PostFormAsync($"/auth/admin/users/{target.Id}?handler=AddRole", form,
+            ("Input.RoleName", "Support"));
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+        Assert.Contains("Role assigned.", body);
+        Assert.Contains("Support", body);
+        await AssertInRoleAsync(host, target.Id, "Support", expected: true);
+    }
+
+    [Fact]
+    public async Task Admin_user_can_remove_arbitrary_role()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.remove.role@example.test");
+        await host.AddRoleAsync("Operations");
+        var target = await host.CreateUserAsync("remove.role.target@example.test");
+        await host.AddUserToRoleAsync(target.Id, "Operations");
+        await host.SignInAsync("admin.remove.role@example.test");
+
+        var form = await host.GetFormAsync($"/auth/admin/users/{target.Id}");
+        var response = await host.PostFormAsync(
+            $"/auth/admin/users/{target.Id}?handler=RemoveRole&roleName=Operations",
+            form);
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+        Assert.Contains("Role removed.", body);
+        await AssertInRoleAsync(host, target.Id, "Operations", expected: false);
+    }
+
+    [Fact]
     public async Task Admin_user_cannot_remove_last_administrator()
     {
         await using var host = await AuthNetTestHost.CreateAsync();
