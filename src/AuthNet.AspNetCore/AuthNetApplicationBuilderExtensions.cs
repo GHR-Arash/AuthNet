@@ -1,3 +1,4 @@
+using AuthNet.Api;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Routing;
@@ -9,6 +10,7 @@ public static class AuthNetApplicationBuilderExtensions
     public static IEndpointConventionBuilder MapAuthNet(this IEndpointRouteBuilder endpoints)
     {
         endpoints.ServiceProvider.GetRequiredService<AuthNetConfigurationValidator>().Validate();
+        endpoints.MapAuthNetApi();
         return endpoints.MapRazorPages();
     }
 

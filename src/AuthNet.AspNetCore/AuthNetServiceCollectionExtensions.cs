@@ -1,3 +1,4 @@
+using AuthNet.Api;
 using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.ExternalProviders;
@@ -91,6 +92,7 @@ public static class AuthNetServiceCollectionExtensions
         services.TryAddScoped<IAuthNetAuditWriter, AuthNetAuditWriter>();
         services.AddSingleton<IAuthorizationHandler, AuthNetPermissionAuthorizationHandler>();
         services.TryAddSingleton<AuthNetConfigurationValidator>();
+        services.AddAuthNetApi();
         services.AddAuthorization(authorization =>
         {
             foreach (var permission in AuthNetPermissions.All)

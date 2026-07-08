@@ -12,6 +12,7 @@
         <a class="btn btn-primary" href="/auth/login">Sign in</a>
         <a class="btn btn-outline-secondary" href="/auth/register">Register</a>
         <a class="btn btn-outline-secondary" href="/auth/profile">Profile</a>
+        <a class="btn btn-outline-dark" asp-page="/Spa">SPA workflow</a>
         <a class="btn btn-outline-dark" asp-page="/Admin">Admin dashboard</a>
         <a class="btn btn-outline-dark" href="/auth/admin/roles">Roles</a>
         <a class="btn btn-outline-dark" href="/auth/admin/audit">Audit events</a>
@@ -31,6 +32,15 @@
                 <a href="/auth/admin/roles">Roles</a>
                 <span> · </span>
                 <a href="/auth/admin/audit">Audit events</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="border rounded p-3 h-100">
+                <h2 class="h5">SPA API</h2>
+                <p>Exercise the same-origin JSON endpoints used by single-page app shells.</p>
+                <a asp-page="/Spa">Open SPA smoke page</a>
+                <span> · </span>
+                <a href="/auth/api/session">Session JSON</a>
             </div>
         </div>
         <div class="col-md-6">

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\AuthNet.Api\AuthNet.Api.csproj" />
     <ProjectReference Include="..\AuthNet.Core\AuthNet.Core.csproj" />
     <ProjectReference Include="..\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj" />
     <ProjectReference Include="..\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj" />

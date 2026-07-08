@@ -10,8 +10,9 @@ AuthNet shall support:
 
 - ASP.NET Core MVC applications.
 - ASP.NET Core Razor Pages applications.
+- Same-origin browser SPA shells using cookie-backed JSON account endpoints.
 
-API-only applications and SPA authentication are future scope.
+API-only token-authenticated applications remain future scope.
 
 ## Middleware Integration
 
@@ -38,7 +39,7 @@ AuthNet shall support:
 
 - Cookie-only mode.
 
-Cookie mode is intended for MVC/Razor applications.
+Cookie mode is intended for MVC/Razor applications and same-origin browser SPA shells.
 
 JWT and mixed modes are future scope.
 
@@ -70,26 +71,33 @@ Required default UI routes:
 
 ## API Integration
 
-API integration is future scope.
+Same-origin browser SPA integration is supported through JSON endpoints backed by the existing Identity application cookie.
 
-Expected future API groups:
+Implemented initial API groups:
 
 - Registration
 - Authentication
-- Token refresh
 - Logout
-- Email verification
 - Password recovery
+- Email confirmation resend
 - Profile
+
+Future API groups:
+
+- Token refresh
+- Email verification completion
+- Password reset completion
 - Password change
 - External login
+- MFA
+- Admin APIs
 
-The host application shall be able to configure the API route prefix.
+The API routes use the configured AuthNet account route prefix plus `/api`.
 
-Example route prefix:
+Example route root:
 
 ```text
-/auth
+/auth/api
 ```
 
 ## External Provider Integration
@@ -153,17 +161,12 @@ AuthNet.AspNetCore
 AuthNet.UI.Razor
 AuthNet.Persistence.Postgres
 AuthNet.ExternalProviders
+AuthNet.Api
 ```
 
 `AuthNet.AspNetCore` is the primary package a host app references for the current MVP. It depends on the UI, persistence, external provider, and core packages.
 
-Deferred package:
-
-```text
-AuthNet.Api
-```
-
-`AuthNet.Api` should not be implemented for MVP slice 1 because API/JWT is deferred.
+`AuthNet.Api` provides same-origin SPA JSON endpoints. JWT and refresh-token support remain deferred beyond that first SPA workflow.
 
 ## Non-Functional Integration Requirements
 

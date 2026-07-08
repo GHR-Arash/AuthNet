@@ -10,7 +10,7 @@ AuthNet is a reusable Identity and Access Management component for ASP.NET appli
 
 It is installed into a host ASP.NET application and configured as middleware. Once enabled, it provides common identity capabilities such as registration, login, logout, password recovery, email verification, profile management, role infrastructure, generic OpenID Connect login, built-in Razor Pages account UI, account invitations, and a minimal admin user-management UI.
 
-The first MVP slice targets .NET 10 server-rendered ASP.NET applications using Razor Pages UI and cookie authentication. API/JWT and SPA flows are planned after the first slice.
+The first MVP slice targets .NET 10 server-rendered ASP.NET applications using Razor Pages UI and cookie authentication. It also includes same-origin SPA JSON workflows backed by the existing Identity application cookie. API/JWT token authentication remains later scope.
 
 ## Problem
 
@@ -95,6 +95,7 @@ AuthNet shall provide:
 - Built-in Razor/MVC account UI.
 - Built-in admin user-management UI.
 - Cookie authentication for MVC/Razor apps.
+- Same-origin SPA JSON account endpoints using the existing application cookie.
 - External identity provider support.
 - PostgreSQL as the default persistence provider.
 - Replaceable persistence abstraction.
@@ -102,7 +103,7 @@ AuthNet shall provide:
 - Role-based authorization.
 - Configurable identity policies.
 
-API endpoints, JWT authentication, refresh tokens, and SPA flows are future scope.
+JWT authentication and refresh tokens remain future scope.
 
 ## MVP Scope
 
@@ -140,9 +141,9 @@ AuthNet MVP slice 1 shall provide:
 - Passkey/WebAuthn login.
 - Advanced risk-based authentication.
 - Billing or subscription management.
-- API/JWT authentication.
+- API/JWT token authentication.
 - Refresh tokens.
-- SPA-specific authentication flows.
+- SPA token authentication flows beyond the same-origin cookie-based SPA workflow.
 - Fine-grained permissions.
 - Full Razor Page override.
 - Custom Identity stores.

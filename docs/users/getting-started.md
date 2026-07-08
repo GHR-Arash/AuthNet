@@ -2,7 +2,7 @@
 
 This guide is for application developers who want to use AuthNet in an ASP.NET application.
 
-AuthNet MVP slice 1 supports server-rendered ASP.NET applications using Razor Pages, cookie authentication, ASP.NET Core Identity, EF Core, PostgreSQL, email-based account flows, role authorization, and generic OpenID Connect login.
+AuthNet MVP slice 1 supports server-rendered ASP.NET applications and same-origin SPA shells using Razor Pages, JSON account endpoints, cookie authentication, ASP.NET Core Identity, EF Core, PostgreSQL, email-based account flows, role authorization, and generic OpenID Connect login.
 
 ## What You Get
 
@@ -18,6 +18,7 @@ After AuthNet is registered in your app, it provides:
 - Admin user management UI protected by `Administrator` or AuthNet permissions.
 - Role creation, role assignment, and built-in AuthNet permission assignment.
 - Account invitation flow.
+- Same-origin SPA JSON account endpoints.
 - Cookie authentication.
 - ASP.NET Core Identity roles.
 - PostgreSQL-backed Identity persistence.
@@ -27,7 +28,7 @@ Not included in this MVP:
 
 - JWT/API authentication.
 - Refresh tokens.
-- SPA flows.
+- Cross-origin SPA token flows.
 - Role deletion, custom permission catalogs, invitation resend/cancel, and bulk invitation workflows.
 - SMS/email OTP, passkeys, and global required-MFA policy.
 - Multi-tenancy.
@@ -46,6 +47,7 @@ dotnet add package AuthNet.AspNetCore
 AuthNet.UI.Razor
 AuthNet.Persistence.Postgres
 AuthNet.ExternalProviders
+AuthNet.Api
 ```
 
 If you are consuming local packages produced from this repository, add the local package source:
@@ -198,6 +200,18 @@ These routes require a signed-in user in the `Administrator` role or a role with
 
 The login page accepts either the user's email address or username.
 
+SPA JSON routes are mapped under `{AccountRoutePrefix}/api`. With the default prefix, AuthNet maps:
+
+- `GET /auth/api/session`
+- `GET /auth/api/profile`
+- `POST /auth/api/login`
+- `POST /auth/api/logout`
+- `POST /auth/api/register`
+- `POST /auth/api/forgot-password`
+- `POST /auth/api/resend-confirmation`
+
+These endpoints are intended for same-origin browser clients using the existing Identity application cookie. JWT access tokens, refresh tokens, cross-origin CORS policy management, MFA JSON endpoints, and admin JSON APIs are still deferred.
+
 ## Protecting Pages or Endpoints
 
 Use standard ASP.NET Core authorization.
@@ -329,4 +343,4 @@ For security, automatic external account provisioning requires the provider to r
 - Keep `UseDevelopmentEmailSender` set to `false`.
 - Keep `EnablePublicRegistration` set to `false` unless public signup is intended.
 - Review cookie, password, lockout, and email-confirmation settings before launch.
-- `AuthNet.Api` is not available in the MVP package set; API/JWT and SPA authentication remain future scope.
+- `AuthNet.Api` uses the existing application cookie for same-origin SPA workflows. JWT and refresh-token authentication remain future scope.

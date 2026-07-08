@@ -30,6 +30,7 @@ Build first:
 - Direct admin local user creation from the built-in admin user-management UI.
 - Persisted admin audit events with a built-in admin audit list page.
 - Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
+- Same-origin SPA workflow foundation through JSON account endpoints and the existing Identity application cookie.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
@@ -42,7 +43,7 @@ Build first:
 Deferred:
 
 - API/JWT and refresh tokens.
-- SPA authentication flows.
+- SPA token authentication flows beyond the same-origin cookie-based SPA workflow.
 - Fine-grained permissions outside the bounded AuthNet built-in UI permission catalog.
 - Role deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
 - Full Razor Page override.
@@ -68,6 +69,7 @@ Current MVP package/project names:
 - `AuthNet.UI.Razor`: Razor Pages account and admin user-management UI.
 - `AuthNet.Persistence.Postgres`: EF Core/Npgsql Identity store setup.
 - `AuthNet.ExternalProviders`: generic OpenID Connect integration.
+- `AuthNet.Api`: same-origin SPA JSON account endpoints.
 - `AuthNet.SampleHost`: sample Razor Pages host app.
 - `AuthNet.Tests`: configuration and development seam tests.
 
@@ -78,15 +80,12 @@ Packable packages:
 - `AuthNet.UI.Razor`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.ExternalProviders`
+- `AuthNet.Api`
 
 Non-packable projects:
 
 - `AuthNet.SampleHost`
 - `AuthNet.Tests`
-
-Future package:
-
-- `AuthNet.Api`: API/JWT/SPA flows after MVP slice 1.
 
 ## Canonical Commands
 
@@ -112,6 +111,7 @@ Pack local package artifacts:
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
 ```
 
@@ -150,6 +150,7 @@ Host app should be able to configure:
 - Invitation expiration through `AuthNetOptions.Invitations.Expiration`.
 - Role management routes under the account route prefix.
 - Bounded AuthNet UI permissions backed by Identity role claims.
+- Same-origin SPA JSON routes under `{AccountRoutePrefix}/api` for session, login, logout, registration, forgot-password, resend-confirmation, and profile read.
 
 Sample-host-only development persistence:
 
@@ -209,6 +210,8 @@ app.MapAuthNet();
 - Slice 12 real email sender sample todo: `tasks/slice-12-todo.md`
 - Slice 13 role management and permission enhancement plan: `tasks/slice-13-plan.md`
 - Slice 13 role management and permission enhancement todo: `tasks/slice-13-todo.md`
+- Slice 14 SPA workflow foundation plan: `tasks/slice-14-plan.md`
+- Slice 14 SPA workflow foundation todo: `tasks/slice-14-todo.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`

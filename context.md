@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 14 SPA workflow foundation is implemented and tracked in:
+
+- `tasks/slice-14-plan.md`
+- `tasks/slice-14-todo.md`
+
 Slice 13 role management and permission enhancement is implemented and tracked in:
 
 - `tasks/slice-13-plan.md`
@@ -43,21 +48,26 @@ Packable:
 - `AuthNet.UI.Razor`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.ExternalProviders`
+- `AuthNet.Api`
 
 Not packable:
 
 - `AuthNet.SampleHost`
 - `AuthNet.Tests`
 
-Deferred:
-
-- `AuthNet.Api`
+JWT and refresh-token authentication remain deferred.
 
 ## Current Verification
 
 Latest known package verification uses Release build plus per-project pack commands into ignored `artifacts/packages`.
 
 Latest package-consumer smoke app is ignored at `artifacts/package-smoke` and compiles against `AuthNet.AspNetCore` `0.1.0` from the local package source.
+
+Focused SPA API verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetSpaApiTests
+```
 
 Focused sample email sender verification:
 
@@ -85,7 +95,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 115 passing tests.
+Latest full verification: 126 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -208,6 +218,17 @@ Out of scope:
 - Invitation resend/cancel.
 - Organization/team membership.
 - API/JWT/SPA invitation endpoints.
+
+## Current SPA Workflow Scope
+
+Implemented Slice 14 scope:
+
+- `AuthNet.Api` package/project for JSON browser account endpoints.
+- Same-origin SPA/BFF-style cookie workflow using the existing Identity application cookie.
+- JSON routes under the configured account route prefix, `/auth/api` by default.
+- Session, login, logout, registration, forgot-password, resend-confirmation, and profile-read JSON endpoints.
+- Minimal sample SPA smoke page in the sample host at `/Spa`.
+- Keep JWT access tokens and refresh tokens deferred to a separate token-authentication slice.
 
 ## Current Sample Email Scope
 

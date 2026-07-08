@@ -6,13 +6,11 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current work: unify sample host admin bootstrap across environments
-  - `1c3571a Add admin user management UI`
-  - `d04e077 Add verify-only CI workflow`
-  - `2527dbd Add development InMemory sample persistence`
-  - `e50dadf Add Slice 03 package readiness`
-  - `7afcf99 Add Slice 02 integration hardening`
-  - `364f22a Harden account verification flows`
+  - Current HEAD: Add SPA API workflow foundation
+  - `2e70e6f Add role management and permissions`
+  - `28870a1 Add sample SMTP email sender`
+  - `aab30ad Add admin audit events`
+  - `865a9d9 Add admin direct user creation`
 - Slice 01/MVP account flows are implemented and `docs/tasks.md` is checked off.
 - Slice 02 integration hardening is implemented and tracked in `tasks/slice-02-plan.md` and `tasks/slice-02-todo.md`.
 - Slice 03 package readiness is implemented and tracked in `tasks/slice-03-plan.md`, `tasks/slice-03-todo.md`, and `docs/slice-03/`.
@@ -26,6 +24,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 11 admin audit events are implemented and tracked in `tasks/slice-11-plan.md` and `tasks/slice-11-todo.md`.
 - Slice 12 real email sender sample is implemented and tracked in `tasks/slice-12-plan.md` and `tasks/slice-12-todo.md`.
 - Slice 13 role management and permission enhancement is implemented and tracked in `tasks/slice-13-plan.md` and `tasks/slice-13-todo.md`.
+- Slice 14 SPA workflow foundation is implemented and tracked in `tasks/slice-14-plan.md` and `tasks/slice-14-todo.md`.
 
 ## Implemented Product Surface
 
@@ -37,6 +36,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `src/AuthNet.Persistence.Postgres`
   - `src/AuthNet.UI.Razor`
   - `src/AuthNet.ExternalProviders`
+  - `src/AuthNet.Api`
   - `samples/AuthNet.SampleHost`
   - `tests/AuthNet.Tests`
 - Built-in Razor Pages account UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Account`.
@@ -47,6 +47,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Built-in Razor Pages admin invitation UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Invitations`.
 - Admin user routes are `/auth/admin/users`, `/auth/admin/users/new`, and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet user permissions.
 - Admin role routes are `/auth/admin/roles`, `/auth/admin/roles/new`, and `/auth/admin/roles/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet role permissions.
+- Same-origin SPA JSON routes are mapped under `/auth/api` by default: session, profile, login, logout, register, forgot-password, and resend-confirmation.
 - Admin audit route is `/auth/admin/audit` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.audit.view`.
 - Admin invitation routes are `/auth/admin/invitations` and `/auth/admin/invitations/new` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.invitations.manage`.
 - Invitation acceptance route is `/auth/invitations/accept`.
@@ -63,14 +64,14 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
-- Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user list, direct user creation, role management, and invitation pages.
+- Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user list, direct user creation, role management, invitation pages, and SPA smoke page.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin audit page.
 - `UseAuthNet()` remains as a compatibility wrapper.
 - AuthNet UI ships fallback shared `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml`, and `_AuthNetBrand.cshtml` so built-in pages render in a bare host.
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot password, profile update, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
 - `AuthNet.Tests` covers authenticator-app MFA setup, MFA login challenge, recovery-code login, and disable flows.
 - `AuthNet.Tests` covers invitation creation, email delivery, acceptance, expired invitations, reused invitations, invalid tokens, duplicate pending invitations, existing-user rejection, and route protection.
-- MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, and `AuthNet.ExternalProviders`.
+- MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
 - Sample host supports explicit admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
@@ -90,7 +91,13 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 115 passing tests.
+Latest full test count: 126 passing tests.
+
+Slice 14 focused SPA API tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetSpaApiTests
+```
 
 Login regression focused tests:
 
@@ -166,6 +173,7 @@ Known passing package commands:
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
 ```
 
@@ -192,7 +200,7 @@ Application started.
 ## Important Constraints
 
 - Keep MVP slice 1 server-rendered and cookie-based.
-- Do not add API/JWT/refresh-token/SPA flows unless explicitly re-scoped.
+- Do not add JWT or refresh-token flows unless explicitly re-scoped.
 - Do not replace ASP.NET Core Identity primitives.
 - PostgreSQL/EF Core is the only persistence path for now.
 - PostgreSQL/EF Core is the production/default persistence path.
@@ -246,6 +254,8 @@ For product/architecture:
 - `tasks/slice-12-todo.md`
 - `tasks/slice-13-plan.md`
 - `tasks/slice-13-todo.md`
+- `tasks/slice-14-plan.md`
+- `tasks/slice-14-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
@@ -263,7 +273,7 @@ Publication decisions are intentionally paused for now.
 
 Recommended next product slice:
 
-- Improve invitation operations with resend/cancel, or add package-consumer sample permanence.
+- Add the next SPA workflow endpoints: password reset completion, email confirmation completion, profile update, change password, and MFA JSON flows.
 
 Other candidates:
 

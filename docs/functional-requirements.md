@@ -188,21 +188,21 @@ Acceptance criteria:
 
 ## API Endpoints
 
-Priority: Future
+Priority: Should Have
 
-- The system shall expose API endpoints for registration.
-- The system shall expose API endpoints for login.
-- The system shall expose API endpoints for logout.
-- The system shall expose API endpoints for token refresh.
-- The system shall expose API endpoints for email verification.
-- The system shall expose API endpoints for password recovery.
-- The system shall expose API endpoints for profile management.
-- The system shall expose API endpoints for external login initiation and callback handling.
+- The system shall expose JSON endpoints for same-origin browser SPA workflows.
+- The system shall expose a current-session endpoint.
+- The system shall expose JSON endpoints for registration, login, logout, password recovery initiation, email confirmation resend, and profile read.
+- The system shall use the existing ASP.NET Core Identity application cookie for the first SPA workflow slice.
+- The system shall return consistent JSON success and error responses.
+- The system shall keep JWT access tokens and refresh tokens as a separate future token-authentication slice.
 
 Acceptance criteria:
 
-- Given API mode is enabled, when a client calls the login endpoint with valid credentials, then the system returns the configured authentication result.
-- Given an unauthenticated request to a protected endpoint, when authentication is required, then the system returns an unauthorized response.
+- Given a same-origin SPA client calls the login endpoint with valid credentials, when the request succeeds, then the system issues the existing application cookie.
+- Given a SPA client calls the current-session endpoint, when the user is authenticated, then the system returns user identity and role state as JSON.
+- Given a SPA client calls the current-session endpoint anonymously, then the system returns anonymous session state as JSON.
+- Given invalid input is submitted to a JSON account endpoint, then the system returns field-addressable JSON validation errors where possible.
 
 ## Role Authorization
 

@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/AuthNet.AspNetCore/AuthNet.AspNetCore.csproj" />
+    <Project Path="src/AuthNet.Api/AuthNet.Api.csproj" />
     <Project Path="src/AuthNet.Core/AuthNet.Core.csproj" />
     <Project Path="src/AuthNet.ExternalProviders/AuthNet.ExternalProviders.csproj" />
     <Project Path="src/AuthNet.Persistence.Postgres/AuthNet.Persistence.Postgres.csproj" />

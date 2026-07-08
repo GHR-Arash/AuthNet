@@ -1,0 +1,91 @@
+@page
+@{
+    ViewData["Title"] = "SPA";
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <h1 class="h3">SPA workflow</h1>
+        <form id="loginForm" class="vstack gap-3 mb-4">
+            <div>
+                <label class="form-label" for="identifier">Email or user name</label>
+                <input class="form-control" id="identifier" name="identifier" autocomplete="username" />
+            </div>
+            <div>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-control" id="password" name="password" type="password" autocomplete="current-password" />
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" id="rememberMe" name="rememberMe" type="checkbox" />
+                <label class="form-check-label" for="rememberMe">Remember me</label>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-primary" type="submit">Sign in</button>
+                <button class="btn btn-outline-secondary" id="logoutButton" type="button">Sign out</button>
+            </div>
+        </form>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-dark" id="sessionButton" type="button">Load session</button>
+            <button class="btn btn-outline-dark" id="profileButton" type="button">Load profile</button>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <h2 class="h5">JSON response</h2>
+        <pre id="output" class="border rounded p-3 bg-light text-break" style="min-height: 18rem;"></pre>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const output = document.getElementById('output');
+
+        async function api(path, options = {}) {
+            const response = await fetch(path, {
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                },
+                ...options
+            });
+            const contentType = response.headers.get('content-type') || '';
+            const body = contentType.includes('application/json')
+                ? await response.json()
+                : await response.text();
+            output.textContent = JSON.stringify({
+                status: response.status,
+                body
+            }, null, 2);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            await api('/auth/api/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    identifier: document.getElementById('identifier').value,
+                    password: document.getElementById('password').value,
+                    rememberMe: document.getElementById('rememberMe').checked
+                })
+            });
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            await api('/auth/api/logout', {
+                method: 'POST',
+                body: '{}'
+            });
+        });
+
+        document.getElementById('sessionButton').addEventListener('click', async () => {
+            await api('/auth/api/session');
+        });
+
+        document.getElementById('profileButton').addEventListener('click', async () => {
+            await api('/auth/api/profile');
+        });
+
+        api('/auth/api/session');
+    </script>
+}

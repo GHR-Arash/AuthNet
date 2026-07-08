@@ -46,7 +46,7 @@ The following are deferred beyond the first MVP slice:
 
 - API/JWT authentication.
 - Refresh tokens.
-- SPA-specific authentication flows.
+- SPA token authentication flows beyond the same-origin cookie-based SPA workflow.
 - Invitation resend/cancel, bulk invitations, deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
 - SMS/email OTP, passkeys, required-MFA policy, and admin-managed MFA reset.
 - Fine-grained permissions beyond the bounded AuthNet built-in UI permission catalog planned for Slice 13.

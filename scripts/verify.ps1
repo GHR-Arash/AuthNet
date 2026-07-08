@@ -15,6 +15,7 @@ $expectedPackages = @(
     'AuthNet.ExternalProviders.0.1.0.nupkg',
     'AuthNet.Persistence.Postgres.0.1.0.nupkg',
     'AuthNet.UI.Razor.0.1.0.nupkg',
+    'AuthNet.Api.0.1.0.nupkg',
     'AuthNet.AspNetCore.0.1.0.nupkg'
 )
 
@@ -65,6 +66,7 @@ $packProjects = @(
     'src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj',
     'src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj',
     'src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj',
+    'src\AuthNet.Api\AuthNet.Api.csproj',
     'src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj'
 )
 

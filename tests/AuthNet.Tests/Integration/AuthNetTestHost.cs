@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using AuthNet.AspNetCore;
 using AuthNet.Core;
@@ -278,6 +279,16 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
         {
             Content = AuthNetTestHtml.Form(
                 [.. fields, ("__RequestVerificationToken", form.RequestVerificationToken)])
+        };
+
+        return await SendAsync(request);
+    }
+
+    public async Task<HttpResponseMessage> PostJsonAsync<TRequest>(string path, TRequest body)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, path)
+        {
+            Content = JsonContent.Create(body)
         };
 
         return await SendAsync(request);

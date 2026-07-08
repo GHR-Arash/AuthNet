@@ -82,6 +82,12 @@ Focused audit tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAuditTests
 ```
 
+Focused SPA API tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetSpaApiTests
+```
+
 Focused sample email sender tests:
 
 ```powershell
@@ -98,6 +104,7 @@ Build Release first, then pack the intended package projects into ignored local 
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
 ```
 
@@ -107,6 +114,7 @@ Expected packages:
 - `AuthNet.ExternalProviders`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.UI.Razor`
+- `AuthNet.Api`
 - `AuthNet.AspNetCore`
 
 `AuthNet.SampleHost` and `AuthNet.Tests` are not package artifacts.
@@ -253,6 +261,9 @@ Useful routes:
 - `/auth/admin/audit` to review admin audit events
 - `/auth/admin/invitations` to list account invitations
 - `/auth/admin/invitations/new` to invite a user
+- `/auth/api/session` to inspect same-origin SPA session JSON
+- `/auth/api/profile` to inspect authenticated SPA profile JSON
+- `/Spa` to exercise the sample same-origin SPA workflow
 - `/Admin`
 
 The integration test suite uses isolated EF Core InMemory databases through the AuthNet test host. The sample host also supports Development-only InMemory mode for local manual account-flow smoke testing.
