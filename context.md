@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 16 SPA account workflow completion is implemented and tracked in:
+
+- `tasks/slice-16-plan.md`
+- `tasks/slice-16-todo.md`
+
 Slice 15 OpenAPI document endpoint is implemented and tracked in:
 
 - `tasks/slice-15-plan.md`
@@ -80,6 +85,12 @@ Focused OpenAPI verification:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetOpenApiTests
 ```
 
+Focused SPA account workflow verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaAccountWorkflowTests
+```
+
 Focused sample email sender verification:
 
 ```powershell
@@ -106,7 +117,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 131 passing tests.
+Latest full verification: 139 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -232,15 +243,15 @@ Out of scope:
 
 ## Current SPA Workflow Scope
 
-Implemented Slice 14 scope:
+Implemented Slice 14 through Slice 16 scope:
 
 - `AuthNet.Api` package/project for JSON browser account endpoints.
 - Same-origin SPA/BFF-style cookie workflow using the existing Identity application cookie.
 - JSON routes under the configured account route prefix, `/auth/api` by default.
-- Session, login, logout, registration, forgot-password, resend-confirmation, and profile-read JSON endpoints.
+- Session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, and change-password JSON endpoints.
 - OpenAPI document endpoint at `/auth/api/openapi.json`, scoped to AuthNet SPA JSON endpoints.
-- Minimal sample SPA smoke page in the sample host at `/Spa`.
-- Keep JWT access tokens and refresh tokens deferred to a separate token-authentication slice.
+- Sample SPA smoke page in the sample host at `/Spa` exercises session, login/logout, profile update, password change, reset completion, confirm-email completion, and OpenAPI discovery.
+- Keep JWT access tokens, refresh tokens, MFA JSON, admin JSON, invitation acceptance JSON, and external-login JSON deferred to separate slices.
 
 ## Current Sample Email Scope
 

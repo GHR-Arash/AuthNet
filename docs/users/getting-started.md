@@ -205,11 +205,15 @@ SPA JSON routes are mapped under `{AccountRoutePrefix}/api`. With the default pr
 
 - `GET /auth/api/session`
 - `GET /auth/api/profile`
+- `PUT /auth/api/profile`
 - `POST /auth/api/login`
 - `POST /auth/api/logout`
 - `POST /auth/api/register`
 - `POST /auth/api/forgot-password`
+- `POST /auth/api/reset-password`
 - `POST /auth/api/resend-confirmation`
+- `POST /auth/api/confirm-email`
+- `POST /auth/api/change-password`
 - `GET /auth/api/openapi.json`
 
 These endpoints are intended for same-origin browser clients using the existing Identity application cookie. The OpenAPI document describes only AuthNet-owned SPA JSON routes. JWT access tokens, refresh tokens, cross-origin CORS policy management, MFA JSON endpoints, admin JSON APIs, and bundled Swagger/Scalar UI are still deferred.

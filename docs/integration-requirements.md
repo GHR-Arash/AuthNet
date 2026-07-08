@@ -80,14 +80,13 @@ Implemented initial API groups:
 - Logout
 - Password recovery
 - Email confirmation resend
+- Email verification completion
 - Profile
+- Password change
 
 Future API groups:
 
 - Token refresh
-- Email verification completion
-- Password reset completion
-- Password change
 - External login
 - MFA
 - Admin APIs

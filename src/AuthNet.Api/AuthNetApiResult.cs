@@ -23,6 +23,11 @@ public sealed record AuthNetApiError(
     string? Field,
     string Description);
 
+/// <summary>Represents a profile update operation result and updated profile when successful.</summary>
+public sealed record AuthNetProfileUpdateResult(
+    AuthNetApiResult Result,
+    AuthNetProfileResponse? Profile);
+
 /// <summary>Represents the current browser session state.</summary>
 public sealed record AuthNetSessionResponse(
     bool IsAuthenticated,

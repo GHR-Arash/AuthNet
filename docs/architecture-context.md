@@ -30,7 +30,7 @@ Build first:
 - Direct admin local user creation from the built-in admin user-management UI.
 - Persisted admin audit events with a built-in admin audit list page.
 - Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
-- Same-origin SPA workflow foundation through JSON account endpoints and the existing Identity application cookie.
+- Same-origin SPA account workflows through JSON account endpoints and the existing Identity application cookie.
 - OpenAPI document endpoint for the same-origin SPA JSON endpoints.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
@@ -151,7 +151,7 @@ Host app should be able to configure:
 - Invitation expiration through `AuthNetOptions.Invitations.Expiration`.
 - Role management routes under the account route prefix.
 - Bounded AuthNet UI permissions backed by Identity role claims.
-- Same-origin SPA JSON routes under `{AccountRoutePrefix}/api` for session, login, logout, registration, forgot-password, resend-confirmation, and profile read.
+- Same-origin SPA JSON routes under `{AccountRoutePrefix}/api` for session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, and password change.
 - AuthNet-owned OpenAPI JSON document under `{AccountRoutePrefix}/api/openapi.json`, scoped to AuthNet SPA API routes.
 
 Sample-host-only development persistence:
@@ -216,6 +216,8 @@ app.MapAuthNet();
 - Slice 14 SPA workflow foundation todo: `tasks/slice-14-todo.md`
 - Slice 15 OpenAPI document endpoint plan: `tasks/slice-15-plan.md`
 - Slice 15 OpenAPI document endpoint todo: `tasks/slice-15-todo.md`
+- Slice 16 SPA account workflow completion plan: `tasks/slice-16-plan.md`
+- Slice 16 SPA account workflow completion todo: `tasks/slice-16-todo.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`

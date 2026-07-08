@@ -48,7 +48,7 @@ AuthNet
 
 Route prefix for built-in account pages.
 
-The same prefix is also used for SPA JSON account endpoints under `{AccountRoutePrefix}/api`. With the default `/auth` prefix, the API root is `/auth/api` and the OpenAPI document is `/auth/api/openapi.json`.
+The same prefix is also used for SPA JSON account endpoints under `{AccountRoutePrefix}/api`. With the default `/auth` prefix, the API root is `/auth/api`, account workflow routes stay under that root, and the OpenAPI document is `/auth/api/openapi.json`.
 
 Default:
 

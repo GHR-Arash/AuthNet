@@ -192,7 +192,7 @@ Priority: Should Have
 
 - The system shall expose JSON endpoints for same-origin browser SPA workflows.
 - The system shall expose a current-session endpoint.
-- The system shall expose JSON endpoints for registration, login, logout, password recovery initiation, email confirmation resend, and profile read.
+- The system shall expose JSON endpoints for registration, login, logout, password recovery initiation and completion, email confirmation resend and completion, profile read and update, and password change.
 - The system shall expose an OpenAPI JSON document for the same-origin browser SPA endpoints.
 - The system shall use the existing ASP.NET Core Identity application cookie for the first SPA workflow slice.
 - The system shall return consistent JSON success and error responses.
@@ -205,6 +205,10 @@ Acceptance criteria:
 - Given a SPA client calls the current-session endpoint anonymously, then the system returns anonymous session state as JSON.
 - Given invalid input is submitted to a JSON account endpoint, then the system returns field-addressable JSON validation errors where possible.
 - Given a client requests the OpenAPI document, then the system returns a document that describes AuthNet-owned SPA JSON endpoints and cookie-session security.
+- Given a same-origin SPA client submits a valid reset code and new password, then the system changes the password.
+- Given a same-origin SPA client submits a valid email confirmation code, then the system confirms the user's email.
+- Given an authenticated same-origin SPA client submits allowed profile changes, then the system returns the updated profile as JSON.
+- Given an authenticated same-origin SPA client submits a correct current password and valid new password, then the system changes the password.
 
 ## Role Authorization
 

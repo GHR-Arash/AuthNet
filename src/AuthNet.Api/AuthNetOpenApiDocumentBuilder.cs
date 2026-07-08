@@ -61,6 +61,17 @@ internal static class AuthNetOpenApiDocumentBuilder
                         ["200"] = JsonResponse("Current user profile.", "AuthNetProfileResponse"),
                         ["401"] = Response("Authentication is required.")
                     },
+                    requiresCookie: true),
+                ["put"] = Operation(
+                    "AuthNetApiUpdateProfile",
+                    "Update the current authenticated user's profile.",
+                    requestSchema: "AuthNetUpdateProfileRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Updated user profile.", "AuthNetProfileResponse"),
+                        ["400"] = JsonResponse("Validation or profile update failed.", "AuthNetApiResult"),
+                        ["401"] = Response("Authentication is required.")
+                    },
                     requiresCookie: true)
             },
             [$"{apiRoot}/login"] = new Dictionary<string, object?>
@@ -113,6 +124,18 @@ internal static class AuthNetOpenApiDocumentBuilder
                         ["400"] = JsonResponse("Validation failed.", "AuthNetApiResult")
                     })
             },
+            [$"{apiRoot}/reset-password"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiResetPassword",
+                    "Complete password recovery with a reset code.",
+                    requestSchema: "AuthNetResetPasswordRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Password reset.", "AuthNetApiResult"),
+                        ["400"] = JsonResponse("Validation or password reset failed.", "AuthNetApiResult")
+                    })
+            },
             [$"{apiRoot}/resend-confirmation"] = new Dictionary<string, object?>
             {
                 ["post"] = Operation(
@@ -124,6 +147,32 @@ internal static class AuthNetOpenApiDocumentBuilder
                         ["200"] = JsonResponse("Confirmation instructions response.", "AuthNetApiResult"),
                         ["400"] = JsonResponse("Validation failed.", "AuthNetApiResult")
                     })
+            },
+            [$"{apiRoot}/confirm-email"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiConfirmEmail",
+                    "Complete email confirmation with a confirmation code.",
+                    requestSchema: "AuthNetConfirmEmailRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Email confirmed.", "AuthNetApiResult"),
+                        ["400"] = JsonResponse("Validation or email confirmation failed.", "AuthNetApiResult")
+                    })
+            },
+            [$"{apiRoot}/change-password"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiChangePassword",
+                    "Change the current authenticated user's password.",
+                    requestSchema: "AuthNetChangePasswordRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Password changed.", "AuthNetApiResult"),
+                        ["400"] = JsonResponse("Validation or password change failed.", "AuthNetApiResult"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
             }
         };
     }
@@ -271,11 +320,40 @@ internal static class AuthNetOpenApiDocumentBuilder
                 {
                     ["email"] = StringSchema("Email address for password recovery.", format: "email")
                 }),
+            ["AuthNetResetPasswordRequest"] = ObjectSchema(
+                required: ["email", "code", "password"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["email"] = StringSchema("Email address for password recovery.", format: "email"),
+                    ["code"] = StringSchema("Base64Url-encoded password reset token."),
+                    ["password"] = StringSchema("New local account password.", format: "password")
+                }),
             ["AuthNetResendConfirmationRequest"] = ObjectSchema(
                 required: ["email"],
                 properties: new Dictionary<string, object?>
                 {
                     ["email"] = StringSchema("Email address that needs confirmation.", format: "email")
+                }),
+            ["AuthNetConfirmEmailRequest"] = ObjectSchema(
+                required: ["userId", "code"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["userId"] = StringSchema("User identifier from the confirmation link."),
+                    ["code"] = StringSchema("Base64Url-encoded email confirmation token.")
+                }),
+            ["AuthNetUpdateProfileRequest"] = ObjectSchema(
+                required: [],
+                properties: new Dictionary<string, object?>
+                {
+                    ["displayName"] = NullableStringSchema("Optional display name.", maxLength: 200),
+                    ["phoneNumber"] = NullableStringSchema("Optional phone number.")
+                }),
+            ["AuthNetChangePasswordRequest"] = ObjectSchema(
+                required: ["currentPassword", "newPassword"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["currentPassword"] = StringSchema("Current local account password.", format: "password"),
+                    ["newPassword"] = StringSchema("New local account password.", format: "password")
                 })
         };
     }

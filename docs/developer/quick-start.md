@@ -88,6 +88,12 @@ Focused SPA API tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetSpaApiTests
 ```
 
+Focused SPA account workflow tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaAccountWorkflowTests
+```
+
 Focused OpenAPI tests:
 
 ```powershell
@@ -269,6 +275,9 @@ Useful routes:
 - `/auth/admin/invitations/new` to invite a user
 - `/auth/api/session` to inspect same-origin SPA session JSON
 - `/auth/api/profile` to inspect authenticated SPA profile JSON
+- `/auth/api/reset-password` to complete password reset from a reset email code
+- `/auth/api/confirm-email` to complete email confirmation from a confirmation email code
+- `/auth/api/change-password` to change the signed-in user's password
 - `/auth/api/openapi.json` to inspect the AuthNet SPA API OpenAPI document
 - `/Spa` to exercise the sample same-origin SPA workflow
 - `/Admin`

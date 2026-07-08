@@ -50,6 +50,28 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
             .Produces<AuthNetProfileResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized);
 
+        group.MapPut("/profile", async Task<IResult> (
+            AuthNetUpdateProfileRequest request,
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.UpdateProfileAsync(request, httpContext, cancellationToken);
+            if (result is null)
+            {
+                return TypedResults.Unauthorized();
+            }
+
+            return result.Result.Succeeded
+                ? TypedResults.Ok(result.Profile)
+                : TypedResults.BadRequest(result.Result);
+        })
+            .WithName("AuthNetApiUpdateProfile")
+            .WithSummary("Update the current authenticated user's profile.")
+            .Produces<AuthNetProfileResponse>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
+
         group.MapPost("/login", async Task<IResult> (
             AuthNetLoginRequest request,
             IAuthNetSpaAccountService accountService,
@@ -102,6 +124,19 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
             .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
             .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest);
 
+        group.MapPost("/reset-password", async Task<IResult> (
+            AuthNetResetPasswordRequest request,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.ResetPasswordAsync(request, cancellationToken);
+            return ToWriteResult(result);
+        })
+            .WithName("AuthNetApiResetPassword")
+            .WithSummary("Complete password recovery with a reset code.")
+            .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest);
+
         group.MapPost("/resend-confirmation", async Task<IResult> (
             AuthNetResendConfirmationRequest request,
             HttpContext httpContext,
@@ -115,6 +150,36 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
             .WithSummary("Send email confirmation instructions when the account needs them.")
             .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
             .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/confirm-email", async Task<IResult> (
+            AuthNetConfirmEmailRequest request,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.ConfirmEmailAsync(request, cancellationToken);
+            return ToWriteResult(result);
+        })
+            .WithName("AuthNetApiConfirmEmail")
+            .WithSummary("Complete email confirmation with a confirmation code.")
+            .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/change-password", async Task<IResult> (
+            AuthNetChangePasswordRequest request,
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.ChangePasswordAsync(request, httpContext, cancellationToken);
+            return result is null
+                ? TypedResults.Unauthorized()
+                : ToWriteResult(result);
+        })
+            .WithName("AuthNetApiChangePassword")
+            .WithSummary("Change the current authenticated user's password.")
+            .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
 
         return group;
     }

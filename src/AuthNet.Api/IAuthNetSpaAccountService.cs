@@ -16,5 +16,13 @@ public interface IAuthNetSpaAccountService
 
     Task<AuthNetApiResult> ForgotPasswordAsync(AuthNetForgotPasswordRequest request, HttpRequest httpRequest, CancellationToken cancellationToken);
 
+    Task<AuthNetApiResult> ResetPasswordAsync(AuthNetResetPasswordRequest request, CancellationToken cancellationToken);
+
     Task<AuthNetApiResult> ResendConfirmationAsync(AuthNetResendConfirmationRequest request, HttpRequest httpRequest, CancellationToken cancellationToken);
+
+    Task<AuthNetApiResult> ConfirmEmailAsync(AuthNetConfirmEmailRequest request, CancellationToken cancellationToken);
+
+    Task<AuthNetProfileUpdateResult?> UpdateProfileAsync(AuthNetUpdateProfileRequest request, HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetApiResult?> ChangePasswordAsync(AuthNetChangePasswordRequest request, HttpContext httpContext, CancellationToken cancellationToken);
 }

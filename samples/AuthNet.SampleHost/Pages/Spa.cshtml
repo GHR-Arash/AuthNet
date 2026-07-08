@@ -30,10 +30,73 @@
             <button class="btn btn-outline-dark" id="profileButton" type="button">Load profile</button>
             <a class="btn btn-outline-dark" href="/auth/api/openapi.json">OpenAPI</a>
         </div>
+
+        <hr class="my-4" />
+
+        <form id="profileForm" class="vstack gap-3 mb-4">
+            <h2 class="h5 mb-0">Profile</h2>
+            <div>
+                <label class="form-label" for="displayName">Display name</label>
+                <input class="form-control" id="displayName" name="displayName" autocomplete="name" />
+            </div>
+            <div>
+                <label class="form-label" for="phoneNumber">Phone number</label>
+                <input class="form-control" id="phoneNumber" name="phoneNumber" autocomplete="tel" />
+            </div>
+            <button class="btn btn-outline-primary align-self-start" type="submit">Update profile</button>
+        </form>
+
+        <form id="changePasswordForm" class="vstack gap-3">
+            <h2 class="h5 mb-0">Change password</h2>
+            <div>
+                <label class="form-label" for="currentPassword">Current password</label>
+                <input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" />
+            </div>
+            <div>
+                <label class="form-label" for="newPassword">New password</label>
+                <input class="form-control" id="newPassword" name="newPassword" type="password" autocomplete="new-password" />
+            </div>
+            <button class="btn btn-outline-primary align-self-start" type="submit">Change password</button>
+        </form>
     </div>
     <div class="col-lg-7">
         <h2 class="h5">JSON response</h2>
         <pre id="output" class="border rounded p-3 bg-light text-break" style="min-height: 18rem;"></pre>
+
+        <div class="row g-4 mt-1">
+            <div class="col-md-6">
+                <form id="resetPasswordForm" class="vstack gap-3">
+                    <h2 class="h5 mb-0">Reset password</h2>
+                    <div>
+                        <label class="form-label" for="resetEmail">Email</label>
+                        <input class="form-control" id="resetEmail" name="resetEmail" autocomplete="email" />
+                    </div>
+                    <div>
+                        <label class="form-label" for="resetCode">Code</label>
+                        <input class="form-control" id="resetCode" name="resetCode" />
+                    </div>
+                    <div>
+                        <label class="form-label" for="resetPassword">New password</label>
+                        <input class="form-control" id="resetPassword" name="resetPassword" type="password" autocomplete="new-password" />
+                    </div>
+                    <button class="btn btn-outline-primary align-self-start" type="submit">Reset password</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form id="confirmEmailForm" class="vstack gap-3">
+                    <h2 class="h5 mb-0">Confirm email</h2>
+                    <div>
+                        <label class="form-label" for="confirmUserId">User ID</label>
+                        <input class="form-control" id="confirmUserId" name="confirmUserId" />
+                    </div>
+                    <div>
+                        <label class="form-label" for="confirmCode">Code</label>
+                        <input class="form-control" id="confirmCode" name="confirmCode" />
+                    </div>
+                    <button class="btn btn-outline-primary align-self-start" type="submit">Confirm email</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -85,6 +148,51 @@
 
         document.getElementById('profileButton').addEventListener('click', async () => {
             await api('/auth/api/profile');
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            await api('/auth/api/profile', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    displayName: document.getElementById('displayName').value || null,
+                    phoneNumber: document.getElementById('phoneNumber').value || null
+                })
+            });
+        });
+
+        document.getElementById('changePasswordForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            await api('/auth/api/change-password', {
+                method: 'POST',
+                body: JSON.stringify({
+                    currentPassword: document.getElementById('currentPassword').value,
+                    newPassword: document.getElementById('newPassword').value
+                })
+            });
+        });
+
+        document.getElementById('resetPasswordForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            await api('/auth/api/reset-password', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: document.getElementById('resetEmail').value,
+                    code: document.getElementById('resetCode').value,
+                    password: document.getElementById('resetPassword').value
+                })
+            });
+        });
+
+        document.getElementById('confirmEmailForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            await api('/auth/api/confirm-email', {
+                method: 'POST',
+                body: JSON.stringify({
+                    userId: document.getElementById('confirmUserId').value,
+                    code: document.getElementById('confirmCode').value
+                })
+            });
         });
 
         api('/auth/api/session');

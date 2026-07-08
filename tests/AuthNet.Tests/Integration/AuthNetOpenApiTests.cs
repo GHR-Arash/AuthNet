@@ -44,11 +44,15 @@ public sealed class AuthNetOpenApiTests
 
         AssertOperation(paths, "/auth/api/session", "get", "AuthNetApiSession");
         AssertOperation(paths, "/auth/api/profile", "get", "AuthNetApiProfile");
+        AssertOperation(paths, "/auth/api/profile", "put", "AuthNetApiUpdateProfile");
         AssertOperation(paths, "/auth/api/login", "post", "AuthNetApiLogin");
         AssertOperation(paths, "/auth/api/logout", "post", "AuthNetApiLogout");
         AssertOperation(paths, "/auth/api/register", "post", "AuthNetApiRegister");
         AssertOperation(paths, "/auth/api/forgot-password", "post", "AuthNetApiForgotPassword");
+        AssertOperation(paths, "/auth/api/reset-password", "post", "AuthNetApiResetPassword");
         AssertOperation(paths, "/auth/api/resend-confirmation", "post", "AuthNetApiResendConfirmation");
+        AssertOperation(paths, "/auth/api/confirm-email", "post", "AuthNetApiConfirmEmail");
+        AssertOperation(paths, "/auth/api/change-password", "post", "AuthNetApiChangePassword");
         Assert.False(paths.TryGetProperty("/auth/login", out _));
         Assert.False(paths.TryGetProperty("/auth/admin/users", out _));
         Assert.False(paths.TryGetProperty("/Spa", out _));
@@ -71,7 +75,11 @@ public sealed class AuthNetOpenApiTests
         AssertSchema(schemas, "AuthNetLoginRequest");
         AssertSchema(schemas, "AuthNetRegisterRequest");
         AssertSchema(schemas, "AuthNetForgotPasswordRequest");
+        AssertSchema(schemas, "AuthNetResetPasswordRequest");
         AssertSchema(schemas, "AuthNetResendConfirmationRequest");
+        AssertSchema(schemas, "AuthNetConfirmEmailRequest");
+        AssertSchema(schemas, "AuthNetUpdateProfileRequest");
+        AssertSchema(schemas, "AuthNetChangePasswordRequest");
 
         var loginRequestRef = document.RootElement
             .GetProperty("paths")
@@ -84,6 +92,18 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("$ref")
             .GetString();
         Assert.Equal("#/components/schemas/AuthNetLoginRequest", loginRequestRef);
+
+        var profileUpdateRequestRef = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/profile")
+            .GetProperty("put")
+            .GetProperty("requestBody")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema")
+            .GetProperty("$ref")
+            .GetString();
+        Assert.Equal("#/components/schemas/AuthNetUpdateProfileRequest", profileUpdateRequestRef);
     }
 
     [Fact]
@@ -107,6 +127,13 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("get")
             .GetProperty("security")[0];
         Assert.True(profileSecurity.TryGetProperty("AuthNetApplicationCookie", out _));
+
+        var changePasswordSecurity = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/change-password")
+            .GetProperty("post")
+            .GetProperty("security")[0];
+        Assert.True(changePasswordSecurity.TryGetProperty("AuthNetApplicationCookie", out _));
     }
 
     private static async Task<JsonDocument> GetOpenApiDocumentAsync(AuthNetTestHost host)

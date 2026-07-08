@@ -34,9 +34,52 @@ public sealed record AuthNetForgotPasswordRequest
     public string Email { get; init; } = string.Empty;
 }
 
+/// <summary>Payload for completing password recovery.</summary>
+public sealed record AuthNetResetPasswordRequest
+{
+    [Required, EmailAddress]
+    public string Email { get; init; } = string.Empty;
+
+    [Required]
+    public string Code { get; init; } = string.Empty;
+
+    [Required]
+    public string Password { get; init; } = string.Empty;
+}
+
 /// <summary>Payload for resending an email confirmation message.</summary>
 public sealed record AuthNetResendConfirmationRequest
 {
     [Required, EmailAddress]
     public string Email { get; init; } = string.Empty;
+}
+
+/// <summary>Payload for completing email confirmation.</summary>
+public sealed record AuthNetConfirmEmailRequest
+{
+    [Required]
+    public string UserId { get; init; } = string.Empty;
+
+    [Required]
+    public string Code { get; init; } = string.Empty;
+}
+
+/// <summary>Payload for updating the current user's profile.</summary>
+public sealed record AuthNetUpdateProfileRequest
+{
+    [MaxLength(200)]
+    public string? DisplayName { get; init; }
+
+    [Phone]
+    public string? PhoneNumber { get; init; }
+}
+
+/// <summary>Payload for changing the current user's password.</summary>
+public sealed record AuthNetChangePasswordRequest
+{
+    [Required]
+    public string CurrentPassword { get; init; } = string.Empty;
+
+    [Required]
+    public string NewPassword { get; init; } = string.Empty;
 }
