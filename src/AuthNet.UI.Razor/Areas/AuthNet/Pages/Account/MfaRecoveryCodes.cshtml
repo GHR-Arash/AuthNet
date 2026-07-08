@@ -1,0 +1,14 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Account.MfaRecoveryCodesModel
+@{
+    ViewData["Title"] = "Recovery codes";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Recovery codes</h1>
+
+<p>Recovery codes remaining: @Model.RecoveryCodesLeft</p>
+<p>Recovery codes are shown when multi-factor authentication is enabled. Save them somewhere safe.</p>
+
+<p><a asp-page="./Mfa">Back to MFA</a></p>

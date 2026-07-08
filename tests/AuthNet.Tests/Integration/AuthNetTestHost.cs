@@ -186,6 +186,11 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
             ("Input.RememberMe", "false"));
     }
 
+    public void ClearCookies()
+    {
+        cookies.Clear();
+    }
+
     public async Task SetExternalLoginAsync(
         string email,
         string providerKey = "external-key",

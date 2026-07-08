@@ -36,6 +36,7 @@ The first MVP slice shall provide:
 - Role infrastructure.
 - Server-rendered admin user-management UI protected by the `Administrator` role.
 - Server-rendered fixed administrator role assignment UI with last-admin protection.
+- Authenticator-app MFA for local password sign-in, using ASP.NET Core Identity primitives.
 
 ### Deferred Scope
 
@@ -45,11 +46,11 @@ The following are deferred beyond the first MVP slice:
 - Refresh tokens.
 - SPA-specific authentication flows.
 - Arbitrary role management, invitation, deletion, impersonation, and audit events.
+- SMS/email OTP, passkeys, required-MFA policy, and admin-managed MFA reset.
 - Fine-grained permissions.
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google and Microsoft helper packages.
-- MFA.
 - Multi-tenancy.
 
 ### Registration Default

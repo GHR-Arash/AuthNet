@@ -20,6 +20,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 05 CI and publication metadata readiness is implemented and tracked in `tasks/slice-05-plan.md`, `tasks/slice-05-todo.md`, and `docs/slice-05/`.
 - Slice 06 admin user management UI is implemented and tracked in `tasks/slice-06-plan.md`, `tasks/slice-06-todo.md`, and `docs/slice-06/`.
 - Slice 07 admin role assignment UI is implemented and tracked in `tasks/slice-07-plan.md`, `tasks/slice-07-todo.md`, and `docs/slice-07/`.
+- Slice 08 MFA foundation is implemented and tracked in `tasks/slice-08-plan.md`, `tasks/slice-08-todo.md`, and `docs/slice-08/`.
 
 ## Implemented Product Surface
 
@@ -35,6 +36,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `tests/AuthNet.Tests`
 - Built-in Razor Pages account UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Account`.
 - Account UI includes login/logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
+- Account UI includes authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count display, and user-owned MFA disable.
 - Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
 - Admin UI routes are `/auth/admin/users` and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role.
 - Admin UI supports user list/search, user detail, confirm/unconfirm email, lock/unlock, reset access failed count, and fixed `Administrator` role grant/remove with last-admin protection.
@@ -47,6 +49,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - `UseAuthNet()` remains as a compatibility wrapper.
 - AuthNet UI ships fallback shared `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml`, and `_AuthNetBrand.cshtml` so built-in pages render in a bare host.
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot password, profile update, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
+- `AuthNet.Tests` covers authenticator-app MFA setup, MFA login challenge, recovery-code login, and disable flows.
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, and `AuthNet.ExternalProviders`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
@@ -65,7 +68,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 55 passing tests.
+Latest full test count: 70 passing tests.
 
 Slice 04 focused tests:
 
@@ -83,6 +86,12 @@ Slice 07 focused tests are covered by the same admin test class:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
+```
+
+Slice 08 focused tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetMfaTests
 ```
 
 Sample host admin bootstrap focused tests:
@@ -166,12 +175,15 @@ For product/architecture:
 - `tasks/slice-06-todo.md`
 - `tasks/slice-07-plan.md`
 - `tasks/slice-07-todo.md`
+- `tasks/slice-08-plan.md`
+- `tasks/slice-08-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
 - `docs/slice-05/ci-and-publication-readiness.md`
 - `docs/slice-06/admin-user-management.md`
 - `docs/slice-07/admin-role-assignment.md`
+- `docs/slice-08/mfa-foundation.md`
 - `docs/tasks.md`
 - `docs/prd.md`
 
@@ -181,7 +193,7 @@ Publication decisions are intentionally paused for now.
 
 Recommended next product slice:
 
-- Add account invitation flow, if admin management remains the priority.
+- Add account invitation flow.
 - Or add audit events for admin actions.
 
 Other candidates:

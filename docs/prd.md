@@ -121,6 +121,7 @@ AuthNet MVP slice 1 shall provide:
 - Profile management.
 - Change password.
 - Role infrastructure.
+- Authenticator-app MFA with recovery codes.
 - Generic OpenID Connect external login.
 - Email sender integration contract.
 - Development fake/logging email sender.
@@ -143,7 +144,7 @@ AuthNet MVP slice 1 shall provide:
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google and Microsoft helper packages.
-- MFA.
+- SMS/email OTP, passkeys, and advanced MFA policy.
 
 ## Success Criteria
 

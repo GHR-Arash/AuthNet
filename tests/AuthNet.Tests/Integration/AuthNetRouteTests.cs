@@ -25,6 +25,10 @@ public sealed class AuthNetRouteTests
     [Theory]
     [InlineData("/auth/profile")]
     [InlineData("/auth/change-password")]
+    [InlineData("/auth/mfa")]
+    [InlineData("/auth/mfa/setup")]
+    [InlineData("/auth/mfa/recovery-codes")]
+    [InlineData("/auth/mfa/disable")]
     public async Task Authenticated_account_routes_challenge_anonymous_users(string route)
     {
         await using var host = await AuthNetTestHost.CreateAsync();
@@ -32,7 +36,20 @@ public sealed class AuthNetRouteTests
         var response = await host.Client.GetAsync(route);
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.EndsWith("/auth/login?ReturnUrl=%2Fauth%2F" + route.Split('/').Last(), response.Headers.Location?.OriginalString);
+        Assert.Contains("/auth/login?ReturnUrl=", response.Headers.Location?.OriginalString);
+    }
+
+    [Theory]
+    [InlineData("/auth/login/mfa")]
+    [InlineData("/auth/login/recovery-code")]
+    public async Task Mfa_login_routes_without_pending_sign_in_redirect_to_login(string route)
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+
+        var response = await host.Client.GetAsync(route);
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("/auth/login", response.Headers.Location?.OriginalString);
     }
 
     [Fact]

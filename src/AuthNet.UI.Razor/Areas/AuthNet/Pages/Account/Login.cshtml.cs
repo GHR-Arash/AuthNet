@@ -51,6 +51,15 @@ public sealed class LoginModel(
             return LocalRedirect(ReturnUrl ?? "~/");
         }
 
+        if (result.RequiresTwoFactor)
+        {
+            return RedirectToPage("./LoginWithMfa", new
+            {
+                ReturnUrl,
+                Input.RememberMe
+            });
+        }
+
         if (result.IsLockedOut)
         {
             ModelState.AddModelError(string.Empty, "This account is locked. Try again later.");

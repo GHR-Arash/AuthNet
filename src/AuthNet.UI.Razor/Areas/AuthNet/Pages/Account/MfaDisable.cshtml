@@ -1,0 +1,16 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Account.MfaDisableModel
+@{
+    ViewData["Title"] = "Disable MFA";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Disable MFA</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <p>Disabling multi-factor authentication will allow password-only sign-in for this account.</p>
+    <button type="submit" class="btn btn-danger">Disable MFA</button>
+    <a asp-page="./Mfa" class="btn btn-outline-secondary">Cancel</a>
+</form>

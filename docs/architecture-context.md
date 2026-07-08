@@ -20,6 +20,7 @@ Build first:
 - Cookie authentication.
 - Registration disabled by default.
 - Login, logout, email verification/resend, forgot/reset password, profile, verified email change, change password.
+- Authenticator-app MFA for local password sign-in, with recovery codes and user-owned disable flow.
 - Email sender contract, with production sender required and development logging/fake sender allowed.
 - Role infrastructure using ASP.NET Core Identity roles.
 - Built-in admin user-management UI under the AuthNet route prefix, protected by the `Administrator` role.
@@ -40,7 +41,7 @@ Deferred:
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google/Microsoft helpers.
-- MFA, multi-tenancy, SAML, passkeys/passwordless.
+- SMS/email OTP, remember-this-browser, admin MFA reset, required-MFA policy, multi-tenancy, SAML, passkeys/passwordless.
 
 ## Architecture Principles
 
@@ -132,6 +133,7 @@ Host app should be able to configure:
 - Email sender implementation.
 - Generic OIDC provider settings.
 - Account route prefix and basic UI branding/layout.
+- Authenticator-app MFA account routes under the account route prefix.
 - Admin user-management routes under the account route prefix, guarded by the `Administrator` role.
 - Fixed `Administrator` role assignment on the admin user detail page.
 
@@ -175,6 +177,7 @@ app.MapAuthNet();
 - Slice 05 CI and publication readiness: `docs/slice-05/ci-and-publication-readiness.md`
 - Slice 06 admin user management: `docs/slice-06/admin-user-management.md`
 - Slice 07 admin role assignment: `docs/slice-07/admin-role-assignment.md`
+- Slice 08 MFA foundation: `docs/slice-08/mfa-foundation.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`
 

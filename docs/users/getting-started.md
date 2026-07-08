@@ -14,6 +14,7 @@ After AuthNet is registered in your app, it provides:
 - Forgot password and reset password.
 - Profile management.
 - Change password.
+- Authenticator-app MFA with recovery codes.
 - Admin user management UI for users in the `Administrator` role.
 - Fixed administrator role assignment UI.
 - Cookie authentication.
@@ -27,7 +28,7 @@ Not included in this MVP:
 - Refresh tokens.
 - SPA flows.
 - Arbitrary role management and user invitation workflows.
-- MFA.
+- SMS/email OTP, passkeys, and global required-MFA policy.
 - Multi-tenancy.
 
 ## Required Packages
@@ -168,6 +169,12 @@ With `AccountRoutePrefix` set to `/auth`, AuthNet maps:
 - `/auth/resend-confirmation`
 - `/auth/profile`
 - `/auth/change-password`
+- `/auth/mfa`
+- `/auth/mfa/setup`
+- `/auth/mfa/recovery-codes`
+- `/auth/mfa/disable`
+- `/auth/login/mfa`
+- `/auth/login/recovery-code`
 - `/auth/access-denied`
 - `/auth/external-login`
 

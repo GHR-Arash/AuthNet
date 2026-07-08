@@ -1,0 +1,29 @@
+@page
+@model AuthNetRazor.Areas.AuthNet.Pages.Account.MfaModel
+@{
+    ViewData["Title"] = "Multi-factor authentication";
+}
+
+<partial name="_AuthNetBrand" />
+
+<h1>Multi-factor authentication</h1>
+
+<dl>
+    <dt>Status</dt>
+    <dd>@(Model.IsMfaEnabled ? "Enabled" : "Disabled")</dd>
+    <dt>Authenticator app</dt>
+    <dd>@(Model.HasAuthenticator ? "Configured" : "Not configured")</dd>
+    <dt>Recovery codes remaining</dt>
+    <dd>@Model.RecoveryCodesLeft</dd>
+</dl>
+
+<p>
+    <a asp-page="./MfaSetup" class="btn btn-primary">Set up authenticator app</a>
+    @if (Model.IsMfaEnabled)
+    {
+        <a asp-page="./MfaRecoveryCodes" class="btn btn-outline-secondary">Recovery codes</a>
+        <a asp-page="./MfaDisable" class="btn btn-outline-danger">Disable MFA</a>
+    }
+</p>
+
+<p><a asp-page="./Profile">Back to profile</a></p>

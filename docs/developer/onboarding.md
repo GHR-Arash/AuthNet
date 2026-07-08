@@ -16,16 +16,17 @@ MVP slice 1 is server-rendered and cookie-based:
 - Email verification and password reset.
 - Role infrastructure.
 - Admin user-management UI protected by the `Administrator` role.
+- Authenticator-app MFA with recovery codes.
 - Generic OpenID Connect external login.
 
 Deferred work:
 
 - API/JWT and refresh tokens.
 - SPA authentication.
-- Admin role assignment, invitation, deletion, impersonation, and audit events.
+- Invitation, deletion, impersonation, and audit events.
 - Fine-grained permissions.
 - Custom stores.
-- MFA and multi-tenancy.
+- SMS/email OTP, passkeys, advanced MFA policy, and multi-tenancy.
 
 ## Repository Map
 

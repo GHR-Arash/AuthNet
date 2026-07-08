@@ -46,6 +46,12 @@ Expected result:
 - Build: `0 Warning(s)`, `0 Error(s)`.
 - Tests: all tests pass.
 
+Focused MFA tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetMfaTests
+```
+
 ## Pack Local NuGet Artifacts
 
 Build Release first, then pack the intended package projects into ignored local artifacts:
@@ -181,6 +187,7 @@ Useful routes:
 - `/auth/forgot-password`
 - `/auth/resend-confirmation`
 - `/auth/profile`
+- `/auth/mfa`
 - `/auth/admin/users` after signing in as a user in the `Administrator` role
 - `/auth/admin/users/{id}` to view user state and manage fixed administrator access
 - `/Admin`

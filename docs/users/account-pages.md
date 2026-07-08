@@ -27,6 +27,12 @@ With the default `/auth` prefix, routes are:
 | `/auth/change-password` | Change password for signed-in users. |
 | `/auth/access-denied` | Access denied page. |
 | `/auth/external-login` | External login callback flow. |
+| `/auth/mfa` | View MFA status. Requires authentication. |
+| `/auth/mfa/setup` | Set up authenticator-app MFA. Requires authentication. |
+| `/auth/mfa/recovery-codes` | View recovery-code remaining count. Requires authentication. |
+| `/auth/mfa/disable` | Disable MFA. Requires authentication. |
+| `/auth/login/mfa` | Complete sign-in with an authenticator code. |
+| `/auth/login/recovery-code` | Complete sign-in with a recovery code. |
 
 Admin routes are also mapped under the same prefix:
 
@@ -81,6 +87,7 @@ The following routes require authentication:
 
 - `/auth/profile`
 - `/auth/change-password`
+- `/auth/mfa`
 
 Profile editing currently supports:
 
@@ -89,6 +96,32 @@ Profile editing currently supports:
 - Phone number.
 
 The stored email address is not changed until the user opens the confirmation link sent to the new address.
+
+## Multi-Factor Authentication
+
+AuthNet supports authenticator-app MFA for local password sign-in.
+
+Users can set up MFA from:
+
+```text
+/auth/mfa
+```
+
+The setup page shows a manual authenticator key and otpauth URI. After a valid authenticator code is submitted, AuthNet enables MFA through ASP.NET Core Identity and shows recovery codes.
+
+When MFA is enabled, password sign-in redirects to:
+
+```text
+/auth/login/mfa
+```
+
+Users can sign in with a recovery code at:
+
+```text
+/auth/login/recovery-code
+```
+
+This slice does not include SMS OTP, email OTP, passkeys, generated QR-code images, remember-this-browser, admin-managed MFA reset, or a global required-MFA policy.
 
 ## Admin User Management
 

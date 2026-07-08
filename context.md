@@ -2,11 +2,11 @@
 
 ## Current Iteration
 
-Slice 07 admin role assignment UI is implemented and tracked in:
+Slice 08 MFA foundation is implemented and tracked in:
 
-- `tasks/slice-07-plan.md`
-- `tasks/slice-07-todo.md`
-- `docs/slice-07/admin-role-assignment.md`
+- `tasks/slice-08-plan.md`
+- `tasks/slice-08-todo.md`
+- `docs/slice-08/mfa-foundation.md`
 
 ## Current Package Shape
 
@@ -105,6 +105,16 @@ Slice 07 files:
 - `tasks/slice-07-plan.md`
 - `tasks/slice-07-todo.md`
 - `docs/slice-07/admin-role-assignment.md`
+
+## Current MFA Scope
+
+Implemented Slice 08 scope:
+
+- Authenticator-app TOTP setup and verification using ASP.NET Core Identity.
+- MFA login challenge for local password sign-in.
+- Recovery-code display and recovery-code login.
+- User-owned MFA disable flow.
+- No SMS/email OTP, passkeys, API/JWT, SPA, or global required-MFA policy.
 
 Likely next product slice:
 

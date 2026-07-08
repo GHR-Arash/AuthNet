@@ -159,7 +159,7 @@ The MVP is usable by developers outside the core team.
 Should Have:
 
 - Admin user management UI. Implemented in Slice 06 as list/detail plus reversible account-state actions.
-- MFA.
+- MFA. Implemented in Slice 08 as authenticator-app TOTP plus recovery codes.
 - Account invitation flow.
 - Audit events.
 - Session and device management.

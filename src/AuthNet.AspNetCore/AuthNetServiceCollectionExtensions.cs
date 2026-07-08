@@ -104,6 +104,12 @@ public static class AuthNetServiceCollectionExtensions
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ChangePassword", $"{prefix}/change-password");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/AccessDenied", $"{prefix}/access-denied");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/ExternalLogin", $"{prefix}/external-login");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/Mfa", $"{prefix}/mfa");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/MfaSetup", $"{prefix}/mfa/setup");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/MfaRecoveryCodes", $"{prefix}/mfa/recovery-codes");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/MfaDisable", $"{prefix}/mfa/disable");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/LoginWithMfa", $"{prefix}/login/mfa");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/LoginWithRecoveryCode", $"{prefix}/login/recovery-code");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Index", $"{prefix}/admin/users");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Detail", $"{prefix}/admin/users/{{id}}");
             })
