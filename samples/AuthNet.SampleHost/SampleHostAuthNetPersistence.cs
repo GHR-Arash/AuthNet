@@ -1,5 +1,7 @@
 using AuthNet.AspNetCore;
+using AuthNet.Core.Email;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AuthNet.SampleHost;
 
@@ -28,6 +30,8 @@ public static class SampleHostAuthNetPersistence
         IConfiguration configuration,
         IHostEnvironment environment)
     {
+        ConfigureEmailSender(services, configuration);
+
         var useInMemoryDatabase = ShouldUseInMemoryDatabase(environment, configuration);
         if (useInMemoryDatabase)
         {
@@ -42,5 +46,17 @@ public static class SampleHostAuthNetPersistence
             configuration.GetSection("AuthNet").Bind(options);
             options.PostgresConnectionString = configuration.GetConnectionString("AuthNet");
         });
+    }
+
+    public static void ConfigureEmailSender(IServiceCollection services, IConfiguration configuration)
+    {
+        if (configuration.GetValue<bool>("AuthNet:UseDevelopmentEmailSender"))
+        {
+            return;
+        }
+
+        var smtpOptions = SampleHostSmtpEmailOptionsValidator.GetAndValidate(configuration);
+        services.TryAddSingleton(smtpOptions);
+        services.TryAddSingleton<IAuthNetEmailSender, SampleHostSmtpEmailSender>();
     }
 }

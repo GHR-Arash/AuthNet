@@ -34,6 +34,7 @@ Build first:
 - Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
 - The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
 - The sample host can explicitly bootstrap an admin user via `AuthNet:AdminBootstrap` in any environment; this is local sample behavior, not package behavior.
+- The sample host can register a sample SMTP email sender via `AuthNet:Email:Smtp` when `UseDevelopmentEmailSender=false`; this is local sample behavior, not package behavior.
 - The sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user and invitation pages for manual verification.
 
 Deferred:
@@ -163,6 +164,14 @@ Sample-host-only admin bootstrap:
 - The same sample pages expose `/auth/admin/users/new` for direct local user creation.
 - The same sample pages expose `/auth/admin/audit` for admin audit review.
 
+Sample-host-only SMTP email sender:
+
+- `AuthNet:UseDevelopmentEmailSender=true` keeps the development email sender path.
+- `AuthNet:UseDevelopmentEmailSender=false` with `AuthNet:Email:Smtp:Enabled=true` registers the sample SMTP sender.
+- Required SMTP settings are `Host`, `Port`, `FromEmail`, and `FromName`.
+- `UserName` and `Password` are optional for SMTP servers that do not require credentials.
+- Keep SMTP passwords in environment variables or another secret provider; do not commit them to JSON.
+
 Conceptual setup:
 
 ```csharp
@@ -192,6 +201,8 @@ app.MapAuthNet();
 - Slice 08 MFA foundation: `docs/slice-08/mfa-foundation.md`
 - Slice 09 account invitation plan: `tasks/slice-09-plan.md`
 - Slice 09 account invitation todo: `tasks/slice-09-todo.md`
+- Slice 12 real email sender sample plan: `tasks/slice-12-plan.md`
+- Slice 12 real email sender sample todo: `tasks/slice-12-todo.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`

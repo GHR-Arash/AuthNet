@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 12 real email sender sample is implemented and tracked in:
+
+- `tasks/slice-12-plan.md`
+- `tasks/slice-12-todo.md`
+
 Slice 11 admin audit events are implemented and tracked in:
 
 - `tasks/slice-11-plan.md`
@@ -49,6 +54,12 @@ Latest known package verification uses Release build plus per-project pack comma
 
 Latest package-consumer smoke app is ignored at `artifacts/package-smoke` and compiles against `AuthNet.AspNetCore` `0.1.0` from the local package source.
 
+Focused sample email sender verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostEmailSenderTests
+```
+
 ## Current Persistence Modes
 
 PostgreSQL remains the default production/package persistence path.
@@ -69,7 +80,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 95 passing tests.
+Latest full verification: 99 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -193,6 +204,23 @@ Out of scope:
 - Organization/team membership.
 - API/JWT/SPA invitation endpoints.
 
-Likely product slice after audit events:
+## Current Sample Email Scope
 
-- Real email sender sample implementation.
+Implemented Slice 12 scope:
+
+- Sample-host-only SMTP email sender implementing `IAuthNetEmailSender`.
+- SMTP settings bind from `AuthNet:Email:Smtp`.
+- Development sample path keeps `UseDevelopmentEmailSender=true`.
+- Production-like sample path sets `UseDevelopmentEmailSender=false` and requires valid SMTP settings.
+- Sample SMTP configuration is documented in `samples/AuthNet.SampleHost/appsettings.SmtpSample.json`.
+- SMTP passwords are not committed; docs use environment variables for secret values.
+
+Out of scope:
+
+- Provider-specific email packages.
+- Background queueing, retries, or delivery audit.
+- Changing AuthNet package email abstractions.
+
+Likely product slice after Slice 12:
+
+- Role creation, role assignment, and permission-system enhancement.

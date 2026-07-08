@@ -135,6 +135,8 @@ For development, `UseDevelopmentEmailSender` can be `true`.
 
 For production, register a real `IAuthNetEmailSender` and set `UseDevelopmentEmailSender` to `false`.
 
+The repository sample host includes a sample SMTP sender for production-like manual testing. Configure it with `AuthNet:Email:Smtp` or environment variables such as `AuthNet__Email__Smtp__Password`; do not commit SMTP passwords to JSON.
+
 ## Database Setup
 
 AuthNet uses EF Core migrations in `AuthNet.Persistence.Postgres`.
@@ -309,6 +311,7 @@ For security, automatic external account provisioning requires the provider to r
 - Use HTTPS.
 - Use a real PostgreSQL connection string.
 - Register a production `IAuthNetEmailSender`.
+- For the repository sample host, configure `AuthNet:Email:Smtp` when `UseDevelopmentEmailSender=false`.
 - Keep `UseDevelopmentEmailSender` set to `false`.
 - Keep `EnablePublicRegistration` set to `false` unless public signup is intended.
 - Review cookie, password, lockout, and email-confirmation settings before launch.

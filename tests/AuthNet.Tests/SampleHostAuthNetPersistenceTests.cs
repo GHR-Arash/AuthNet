@@ -85,7 +85,8 @@ public sealed class SampleHostAuthNetPersistenceTests
     public void Sample_host_postgres_registration_requires_connection_string()
     {
         var services = new ServiceCollection();
-        var configuration = Configuration();
+        var configuration = Configuration(
+            ("AuthNet:UseDevelopmentEmailSender", "true"));
         var environment = new TestHostEnvironment(Environments.Development);
 
         var exception = Assert.Throws<AuthNetConfigurationException>(() =>

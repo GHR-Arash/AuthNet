@@ -226,3 +226,27 @@ Development can use:
 ```json
 "UseDevelopmentEmailSender": true
 ```
+
+The repository sample host also includes a sample SMTP implementation under `AuthNet:Email:Smtp` for production-like manual testing:
+
+```json
+"AuthNet": {
+  "UseDevelopmentEmailSender": false,
+  "Email": {
+    "Smtp": {
+      "Enabled": true,
+      "Host": "smtp.example.com",
+      "Port": 587,
+      "UserName": "",
+      "Password": "",
+      "FromEmail": "no-reply@example.com",
+      "FromName": "AuthNet Sample",
+      "EnableSsl": true
+    }
+  }
+}
+```
+
+Keep SMTP passwords out of committed JSON. In local testing, prefer environment variables such as `AuthNet__Email__Smtp__Password`.
+
+This SMTP sender is sample-host behavior. Package consumers still own their production `IAuthNetEmailSender` implementation.

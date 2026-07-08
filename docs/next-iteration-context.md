@@ -24,6 +24,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 09 account invitation flow is implemented and tracked in `tasks/slice-09-plan.md`, `tasks/slice-09-todo.md`, and `docs/slice-09/`.
 - Slice 10 admin direct user creation is implemented and tracked in `tasks/slice-10-plan.md` and `tasks/slice-10-todo.md`.
 - Slice 11 admin audit events are implemented and tracked in `tasks/slice-11-plan.md` and `tasks/slice-11-todo.md`.
+- Slice 12 real email sender sample is implemented and tracked in `tasks/slice-12-plan.md` and `tasks/slice-12-todo.md`.
 
 ## Implemented Product Surface
 
@@ -70,6 +71,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
 - Sample host supports explicit admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
+- Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
+- `samples/AuthNet.SampleHost/appsettings.SmtpSample.json` shows SMTP settings without committed secrets.
 - Local verification is centralized in `scripts/verify.ps1`.
 - GitHub Actions verify-only CI exists at `.github/workflows/ci.yml`; it does not publish or upload packages.
 
@@ -84,7 +87,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 95 passing tests.
+Latest full test count: 99 passing tests.
 
 Login regression focused tests:
 
@@ -134,6 +137,12 @@ Sample host admin bootstrap focused tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAdminBootstrapTests
 ```
 
+Slice 12 focused sample email sender tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostEmailSenderTests
+```
+
 Known passing package commands:
 
 ```powershell
@@ -175,7 +184,7 @@ Application started.
 - Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
 - Admin UI uses the fixed `Administrator` role for now; do not add custom permission scope unless explicitly re-scoped.
 - AuthNet packages must not ship hardcoded default admin credentials; sample-host admin bootstrap requires explicit config.
-- Production must use a real `IAuthNetEmailSender`; development sender is rejected in production.
+- Production must use a real `IAuthNetEmailSender`; development sender is rejected in production. The repository sample host can demonstrate this with its SMTP sender, but package consumers still own their production sender.
 - Public registration remains disabled by default.
 - External auto-provisioning requires a verified provider email claim.
 - Keep `docs/architecture-context.md` compact and synchronized when architecture changes.
@@ -217,6 +226,8 @@ For product/architecture:
 - `tasks/slice-10-todo.md`
 - `tasks/slice-11-plan.md`
 - `tasks/slice-11-todo.md`
+- `tasks/slice-12-plan.md`
+- `tasks/slice-12-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
@@ -234,7 +245,7 @@ Publication decisions are intentionally paused for now.
 
 Recommended next product slice:
 
-- Add a real email sender sample implementation.
+- Role creation, role assignment, and permission-system enhancement.
 
 Other candidates:
 

@@ -70,6 +70,12 @@ Focused audit tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAuditTests
 ```
 
+Focused sample email sender tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostEmailSenderTests
+```
+
 ## Pack Local NuGet Artifacts
 
 Build Release first, then pack the intended package projects into ignored local artifacts:
@@ -129,6 +135,24 @@ $env:ASPNETCORE_ENVIRONMENT='Development'
 ```
 
 Use PostgreSQL for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
+
+## Sample SMTP Email Sender
+
+The sample host keeps the development email sender enabled by default for local smoke testing. For production-like email testing, disable it and enable the sample SMTP sender:
+
+```powershell
+$env:AuthNet__UseDevelopmentEmailSender='false'
+$env:AuthNet__Email__Smtp__Enabled='true'
+$env:AuthNet__Email__Smtp__Host='smtp.example.com'
+$env:AuthNet__Email__Smtp__Port='587'
+$env:AuthNet__Email__Smtp__UserName='smtp-user'
+$env:AuthNet__Email__Smtp__Password='smtp-password'
+$env:AuthNet__Email__Smtp__FromEmail='no-reply@example.com'
+$env:AuthNet__Email__Smtp__FromName='AuthNet Sample'
+$env:AuthNet__Email__Smtp__EnableSsl='true'
+```
+
+The same configuration shape is shown in `samples/AuthNet.SampleHost/appsettings.SmtpSample.json`. Keep the password empty in committed JSON and provide it through environment variables or another secret provider.
 
 ## Admin Bootstrap
 
@@ -230,6 +254,18 @@ The sample host does not seed a default admin username or password unless the ex
   "UseDevelopmentEmailSender": true,
   "RequireConfirmedEmail": true,
   "ApplyMigrations": false,
+  "Email": {
+    "Smtp": {
+      "Enabled": false,
+      "Host": "",
+      "Port": 587,
+      "UserName": "",
+      "Password": "",
+      "FromEmail": "",
+      "FromName": "",
+      "EnableSsl": true
+    }
+  },
   "Invitations": {
     "Expiration": "7.00:00:00"
   },
@@ -250,4 +286,4 @@ The sample host does not seed a default admin username or password unless the ex
 }
 ```
 
-For production-like testing, set `UseDevelopmentEmailSender` to `false` and register a real `IAuthNetEmailSender`.
+For production-like sample testing, set `UseDevelopmentEmailSender` to `false` and configure `AuthNet:Email:Smtp`. Package consumers should register their own real `IAuthNetEmailSender`.
