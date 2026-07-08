@@ -181,7 +181,139 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
             .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized);
 
+        group.MapGet("/mfa", async Task<IResult> (
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.GetMfaStatusAsync(httpContext, cancellationToken);
+            return result is null
+                ? TypedResults.Unauthorized()
+                : TypedResults.Ok(result);
+        })
+            .WithName("AuthNetApiMfaStatus")
+            .WithSummary("Get the current authenticated user's MFA state.")
+            .Produces<AuthNetMfaStatusResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/mfa/setup/start", async Task<IResult> (
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.StartMfaSetupAsync(httpContext, cancellationToken);
+            return result is null
+                ? TypedResults.Unauthorized()
+                : TypedResults.Ok(result);
+        })
+            .WithName("AuthNetApiMfaSetupStart")
+            .WithSummary("Start authenticator-app MFA setup for the current user.")
+            .Produces<AuthNetMfaSetupStartResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/mfa/setup/verify", async Task<IResult> (
+            AuthNetMfaSetupVerifyRequest request,
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.VerifyMfaSetupAsync(request, httpContext, cancellationToken);
+            return ToDataResult(result);
+        })
+            .WithName("AuthNetApiMfaSetupVerify")
+            .WithSummary("Verify an authenticator code and enable MFA for the current user.")
+            .Produces<AuthNetMfaSetupVerifyResponse>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/mfa/disable", async Task<IResult> (
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.DisableMfaAsync(httpContext, cancellationToken);
+            return result is null
+                ? TypedResults.Unauthorized()
+                : ToWriteResult(result);
+        })
+            .WithName("AuthNetApiMfaDisable")
+            .WithSummary("Disable authenticator-app MFA for the current user.")
+            .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapGet("/mfa/recovery-codes", async Task<IResult> (
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.GetRecoveryCodesAsync(httpContext, cancellationToken);
+            return result is null
+                ? TypedResults.Unauthorized()
+                : TypedResults.Ok(result);
+        })
+            .WithName("AuthNetApiMfaRecoveryCodes")
+            .WithSummary("Get the current user's recovery-code count.")
+            .Produces<AuthNetRecoveryCodesResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/mfa/recovery-codes/regenerate", async Task<IResult> (
+            HttpContext httpContext,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.RegenerateRecoveryCodesAsync(httpContext, cancellationToken);
+            return ToDataResult(result);
+        })
+            .WithName("AuthNetApiMfaRecoveryCodesRegenerate")
+            .WithSummary("Regenerate recovery codes for the current MFA-enabled user.")
+            .Produces<AuthNetRecoveryCodesRegenerateResponse>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/login/mfa", async Task<IResult> (
+            AuthNetMfaChallengeRequest request,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.LoginWithMfaAsync(request, cancellationToken);
+            return ToMfaLoginResult(result);
+        })
+            .WithName("AuthNetApiLoginMfa")
+            .WithSummary("Complete a pending sign-in with an authenticator code.")
+            .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces<AuthNetApiResult>(StatusCodes.Status401Unauthorized)
+            .Produces<AuthNetApiResult>(StatusCodes.Status409Conflict);
+
+        group.MapPost("/login/recovery-code", async Task<IResult> (
+            AuthNetRecoveryCodeLoginRequest request,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.LoginWithRecoveryCodeAsync(request, cancellationToken);
+            return ToMfaLoginResult(result);
+        })
+            .WithName("AuthNetApiLoginRecoveryCode")
+            .WithSummary("Complete a pending sign-in with a recovery code.")
+            .Produces<AuthNetApiResult>(StatusCodes.Status200OK)
+            .Produces<AuthNetApiResult>(StatusCodes.Status400BadRequest)
+            .Produces<AuthNetApiResult>(StatusCodes.Status401Unauthorized)
+            .Produces<AuthNetApiResult>(StatusCodes.Status409Conflict);
+
         return group;
+    }
+
+    private static IResult ToDataResult<T>(AuthNetApiResponse<T>? result)
+    {
+        if (result is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        return result.Result.Succeeded
+            ? TypedResults.Ok(result.Value)
+            : TypedResults.BadRequest(result.Result);
     }
 
     private static IResult ToWriteResult(AuthNetApiResult result)
@@ -204,6 +336,26 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
         }
 
         if (result.Errors.Any(error => error.Code is "LockedOut" or "NotAllowed" or "RequiresTwoFactor"))
+        {
+            return TypedResults.Conflict(result);
+        }
+
+        return TypedResults.BadRequest(result);
+    }
+
+    private static IResult ToMfaLoginResult(AuthNetApiResult result)
+    {
+        if (result.Succeeded)
+        {
+            return TypedResults.Ok(result);
+        }
+
+        if (result.Errors.Any(error => error.Code is "NoTwoFactorChallenge" or "InvalidAuthenticatorCode" or "InvalidRecoveryCode"))
+        {
+            return Results.Json(result, statusCode: StatusCodes.Status401Unauthorized);
+        }
+
+        if (result.Errors.Any(error => error.Code == "LockedOut"))
         {
             return TypedResults.Conflict(result);
         }

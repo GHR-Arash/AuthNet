@@ -83,12 +83,12 @@ Implemented initial API groups:
 - Email verification completion
 - Profile
 - Password change
+- MFA setup, challenge completion, recovery-code login, recovery-code status, and user-owned disable
 
 Future API groups:
 
 - Token refresh
 - External login
-- MFA
 - Admin APIs
 
 The API routes use the configured AuthNet account route prefix plus `/api`.

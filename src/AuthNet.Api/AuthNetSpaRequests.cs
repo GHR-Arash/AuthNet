@@ -83,3 +83,26 @@ public sealed record AuthNetChangePasswordRequest
     [Required]
     public string NewPassword { get; init; } = string.Empty;
 }
+
+/// <summary>Payload for verifying authenticator-app setup.</summary>
+public sealed record AuthNetMfaSetupVerifyRequest
+{
+    [Required]
+    public string Code { get; init; } = string.Empty;
+}
+
+/// <summary>Payload for completing an MFA challenge with an authenticator code.</summary>
+public sealed record AuthNetMfaChallengeRequest
+{
+    [Required]
+    public string Code { get; init; } = string.Empty;
+
+    public bool RememberMe { get; init; }
+}
+
+/// <summary>Payload for completing an MFA challenge with a recovery code.</summary>
+public sealed record AuthNetRecoveryCodeLoginRequest
+{
+    [Required]
+    public string RecoveryCode { get; init; } = string.Empty;
+}

@@ -94,6 +94,12 @@ Focused SPA account workflow tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaAccountWorkflowTests
 ```
 
+Focused SPA MFA API tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaMfaApiTests
+```
+
 Focused OpenAPI tests:
 
 ```powershell
@@ -278,6 +284,11 @@ Useful routes:
 - `/auth/api/reset-password` to complete password reset from a reset email code
 - `/auth/api/confirm-email` to complete email confirmation from a confirmation email code
 - `/auth/api/change-password` to change the signed-in user's password
+- `/auth/api/mfa` to inspect authenticated SPA MFA state
+- `/auth/api/mfa/setup/start` to start authenticator-app setup
+- `/auth/api/mfa/setup/verify` to enable MFA with an authenticator code
+- `/auth/api/login/mfa` to complete an MFA challenge after password login
+- `/auth/api/login/recovery-code` to complete sign-in with a recovery code
 - `/auth/api/openapi.json` to inspect the AuthNet SPA API OpenAPI document
 - `/Spa` to exercise the sample same-origin SPA workflow
 - `/Admin`

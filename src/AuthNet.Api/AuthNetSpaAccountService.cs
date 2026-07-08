@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text;
 using AuthNet.Core;
 using AuthNet.Core.Email;
@@ -316,6 +317,203 @@ internal sealed class AuthNetSpaAccountService(
         return AuthNetApiResult.Success("Password changed.");
     }
 
+    public async Task<AuthNetMfaStatusResponse?> GetMfaStatusAsync(
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await userManager.GetUserAsync(httpContext.User);
+        return user is null
+            ? null
+            : await CreateMfaStatusResponseAsync(user);
+    }
+
+    public async Task<AuthNetMfaSetupStartResponse?> StartMfaSetupAsync(
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await userManager.GetUserAsync(httpContext.User);
+        if (user is null)
+        {
+            return null;
+        }
+
+        var unformattedKey = await EnsureAuthenticatorKeyAsync(user);
+        return new AuthNetMfaSetupStartResponse(
+            FormatAuthenticatorKey(unformattedKey),
+            BuildAuthenticatorUri(user, unformattedKey));
+    }
+
+    public async Task<AuthNetApiResponse<AuthNetMfaSetupVerifyResponse>?> VerifyMfaSetupAsync(
+        AuthNetMfaSetupVerifyRequest request,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await userManager.GetUserAsync(httpContext.User);
+        if (user is null)
+        {
+            return null;
+        }
+
+        var validationErrors = Validate(request);
+        if (validationErrors.Count > 0)
+        {
+            return Failure<AuthNetMfaSetupVerifyResponse>("Validation failed.", validationErrors);
+        }
+
+        await EnsureAuthenticatorKeyAsync(user);
+        var verificationCode = NormalizeAuthenticatorCode(request.Code);
+        var isValid = await userManager.VerifyTwoFactorTokenAsync(
+            user,
+            TokenOptions.DefaultAuthenticatorProvider,
+            verificationCode);
+        if (!isValid)
+        {
+            return Failure<AuthNetMfaSetupVerifyResponse>(
+                "Authenticator code is invalid.",
+                [new("InvalidAuthenticatorCode", null, "Authenticator code is invalid.")]);
+        }
+
+        var enableResult = await userManager.SetTwoFactorEnabledAsync(user, true);
+        if (!enableResult.Succeeded)
+        {
+            return new AuthNetApiResponse<AuthNetMfaSetupVerifyResponse>(
+                IdentityFailure("MFA setup failed.", enableResult),
+                null);
+        }
+
+        var recoveryCodes = await userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+        return new AuthNetApiResponse<AuthNetMfaSetupVerifyResponse>(
+            AuthNetApiResult.Success("Multi-factor authentication is enabled."),
+            new AuthNetMfaSetupVerifyResponse(true, [.. recoveryCodes ?? []]));
+    }
+
+    public async Task<AuthNetApiResult?> DisableMfaAsync(
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await userManager.GetUserAsync(httpContext.User);
+        if (user is null)
+        {
+            return null;
+        }
+
+        var result = await userManager.SetTwoFactorEnabledAsync(user, false);
+        if (!result.Succeeded)
+        {
+            return IdentityFailure("MFA disable failed.", result);
+        }
+
+        await userManager.ResetAuthenticatorKeyAsync(user);
+        return AuthNetApiResult.Success("Multi-factor authentication disabled.");
+    }
+
+    public async Task<AuthNetRecoveryCodesResponse?> GetRecoveryCodesAsync(
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await userManager.GetUserAsync(httpContext.User);
+        return user is null
+            ? null
+            : new AuthNetRecoveryCodesResponse(await userManager.CountRecoveryCodesAsync(user));
+    }
+
+    public async Task<AuthNetApiResponse<AuthNetRecoveryCodesRegenerateResponse>?> RegenerateRecoveryCodesAsync(
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var user = await userManager.GetUserAsync(httpContext.User);
+        if (user is null)
+        {
+            return null;
+        }
+
+        if (!await userManager.GetTwoFactorEnabledAsync(user))
+        {
+            return Failure<AuthNetRecoveryCodesRegenerateResponse>(
+                "Multi-factor authentication is not enabled.",
+                [new("MfaNotEnabled", null, "Multi-factor authentication is not enabled.")]);
+        }
+
+        var recoveryCodes = await userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+        return new AuthNetApiResponse<AuthNetRecoveryCodesRegenerateResponse>(
+            AuthNetApiResult.Success("Recovery codes regenerated."),
+            new AuthNetRecoveryCodesRegenerateResponse([.. recoveryCodes ?? []]));
+    }
+
+    public async Task<AuthNetApiResult> LoginWithMfaAsync(
+        AuthNetMfaChallengeRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var validationErrors = Validate(request);
+        if (validationErrors.Count > 0)
+        {
+            return AuthNetApiResult.Failure("Validation failed.", validationErrors);
+        }
+
+        var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
+        if (user is null)
+        {
+            return AuthNetApiResult.Failure("No two-factor sign-in is pending.", [new("NoTwoFactorChallenge", null, "No two-factor sign-in is pending.")]);
+        }
+
+        var result = await signInManager.TwoFactorAuthenticatorSignInAsync(
+            NormalizeAuthenticatorCode(request.Code),
+            request.RememberMe,
+            rememberClient: false);
+
+        if (result.Succeeded)
+        {
+            return AuthNetApiResult.Success("Signed in.");
+        }
+
+        if (result.IsLockedOut)
+        {
+            return AuthNetApiResult.Failure("This account is locked. Try again later.", [new("LockedOut", null, "This account is locked. Try again later.")]);
+        }
+
+        return AuthNetApiResult.Failure("Invalid authenticator code.", [new("InvalidAuthenticatorCode", null, "Invalid authenticator code.")]);
+    }
+
+    public async Task<AuthNetApiResult> LoginWithRecoveryCodeAsync(
+        AuthNetRecoveryCodeLoginRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var validationErrors = Validate(request);
+        if (validationErrors.Count > 0)
+        {
+            return AuthNetApiResult.Failure("Validation failed.", validationErrors);
+        }
+
+        var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
+        if (user is null)
+        {
+            return AuthNetApiResult.Failure("No two-factor sign-in is pending.", [new("NoTwoFactorChallenge", null, "No two-factor sign-in is pending.")]);
+        }
+
+        var result = await signInManager.TwoFactorRecoveryCodeSignInAsync(
+            request.RecoveryCode.Replace(" ", string.Empty));
+
+        if (result.Succeeded)
+        {
+            return AuthNetApiResult.Success("Signed in.");
+        }
+
+        if (result.IsLockedOut)
+        {
+            return AuthNetApiResult.Failure("This account is locked. Try again later.", [new("LockedOut", null, "This account is locked. Try again later.")]);
+        }
+
+        return AuthNetApiResult.Failure("Invalid recovery code.", [new("InvalidRecoveryCode", null, "Invalid recovery code.")]);
+    }
+
     private async Task<AuthNetUser?> FindUserAsync(string identifier)
     {
         var trimmedIdentifier = identifier.Trim();
@@ -341,6 +539,59 @@ internal sealed class AuthNetSpaAccountService(
             await userManager.IsEmailConfirmedAsync(user),
             await userManager.GetTwoFactorEnabledAsync(user),
             [.. await userManager.GetRolesAsync(user)]);
+    }
+
+    private async Task<AuthNetMfaStatusResponse> CreateMfaStatusResponseAsync(AuthNetUser user)
+    {
+        return new AuthNetMfaStatusResponse(
+            await userManager.GetTwoFactorEnabledAsync(user),
+            !string.IsNullOrWhiteSpace(await userManager.GetAuthenticatorKeyAsync(user)),
+            await userManager.CountRecoveryCodesAsync(user));
+    }
+
+    private async Task<string> EnsureAuthenticatorKeyAsync(AuthNetUser user)
+    {
+        var unformattedKey = await userManager.GetAuthenticatorKeyAsync(user);
+        if (!string.IsNullOrWhiteSpace(unformattedKey))
+        {
+            return unformattedKey;
+        }
+
+        await userManager.ResetAuthenticatorKeyAsync(user);
+        return await userManager.GetAuthenticatorKeyAsync(user) ?? string.Empty;
+    }
+
+    private string BuildAuthenticatorUri(AuthNetUser user, string unformattedKey)
+    {
+        var issuer = string.IsNullOrWhiteSpace(authNetOptions.ApplicationName)
+            ? "AuthNet"
+            : authNetOptions.ApplicationName;
+        var email = user.Email ?? user.UserName ?? user.Id;
+
+        return "otpauth://totp/"
+            + WebUtility.UrlEncode(issuer)
+            + ":"
+            + WebUtility.UrlEncode(email)
+            + "?secret="
+            + WebUtility.UrlEncode(unformattedKey)
+            + "&issuer="
+            + WebUtility.UrlEncode(issuer)
+            + "&digits=6";
+    }
+
+    private static AuthNetApiResponse<T> Failure<T>(string message, IReadOnlyList<AuthNetApiError> errors)
+    {
+        return new AuthNetApiResponse<T>(AuthNetApiResult.Failure(message, errors), default);
+    }
+
+    private static string NormalizeAuthenticatorCode(string code)
+    {
+        return code.Replace(" ", string.Empty).Replace("-", string.Empty);
+    }
+
+    private static string FormatAuthenticatorKey(string unformattedKey)
+    {
+        return string.Join(" ", unformattedKey.Chunk(4).Select(chunk => new string(chunk))).ToLowerInvariant();
     }
 
     private static bool TryDecodeCode(string encodedCode, out string code)

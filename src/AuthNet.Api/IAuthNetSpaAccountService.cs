@@ -25,4 +25,20 @@ public interface IAuthNetSpaAccountService
     Task<AuthNetProfileUpdateResult?> UpdateProfileAsync(AuthNetUpdateProfileRequest request, HttpContext httpContext, CancellationToken cancellationToken);
 
     Task<AuthNetApiResult?> ChangePasswordAsync(AuthNetChangePasswordRequest request, HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetMfaStatusResponse?> GetMfaStatusAsync(HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetMfaSetupStartResponse?> StartMfaSetupAsync(HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetApiResponse<AuthNetMfaSetupVerifyResponse>?> VerifyMfaSetupAsync(AuthNetMfaSetupVerifyRequest request, HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetApiResult?> DisableMfaAsync(HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetRecoveryCodesResponse?> GetRecoveryCodesAsync(HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetApiResponse<AuthNetRecoveryCodesRegenerateResponse>?> RegenerateRecoveryCodesAsync(HttpContext httpContext, CancellationToken cancellationToken);
+
+    Task<AuthNetApiResult> LoginWithMfaAsync(AuthNetMfaChallengeRequest request, CancellationToken cancellationToken);
+
+    Task<AuthNetApiResult> LoginWithRecoveryCodeAsync(AuthNetRecoveryCodeLoginRequest request, CancellationToken cancellationToken);
 }

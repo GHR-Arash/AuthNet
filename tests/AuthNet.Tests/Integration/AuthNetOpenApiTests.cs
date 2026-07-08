@@ -53,6 +53,14 @@ public sealed class AuthNetOpenApiTests
         AssertOperation(paths, "/auth/api/resend-confirmation", "post", "AuthNetApiResendConfirmation");
         AssertOperation(paths, "/auth/api/confirm-email", "post", "AuthNetApiConfirmEmail");
         AssertOperation(paths, "/auth/api/change-password", "post", "AuthNetApiChangePassword");
+        AssertOperation(paths, "/auth/api/mfa", "get", "AuthNetApiMfaStatus");
+        AssertOperation(paths, "/auth/api/mfa/setup/start", "post", "AuthNetApiMfaSetupStart");
+        AssertOperation(paths, "/auth/api/mfa/setup/verify", "post", "AuthNetApiMfaSetupVerify");
+        AssertOperation(paths, "/auth/api/mfa/disable", "post", "AuthNetApiMfaDisable");
+        AssertOperation(paths, "/auth/api/mfa/recovery-codes", "get", "AuthNetApiMfaRecoveryCodes");
+        AssertOperation(paths, "/auth/api/mfa/recovery-codes/regenerate", "post", "AuthNetApiMfaRecoveryCodesRegenerate");
+        AssertOperation(paths, "/auth/api/login/mfa", "post", "AuthNetApiLoginMfa");
+        AssertOperation(paths, "/auth/api/login/recovery-code", "post", "AuthNetApiLoginRecoveryCode");
         Assert.False(paths.TryGetProperty("/auth/login", out _));
         Assert.False(paths.TryGetProperty("/auth/admin/users", out _));
         Assert.False(paths.TryGetProperty("/Spa", out _));
@@ -80,6 +88,14 @@ public sealed class AuthNetOpenApiTests
         AssertSchema(schemas, "AuthNetConfirmEmailRequest");
         AssertSchema(schemas, "AuthNetUpdateProfileRequest");
         AssertSchema(schemas, "AuthNetChangePasswordRequest");
+        AssertSchema(schemas, "AuthNetMfaStatusResponse");
+        AssertSchema(schemas, "AuthNetMfaSetupStartResponse");
+        AssertSchema(schemas, "AuthNetMfaSetupVerifyRequest");
+        AssertSchema(schemas, "AuthNetMfaSetupVerifyResponse");
+        AssertSchema(schemas, "AuthNetRecoveryCodesResponse");
+        AssertSchema(schemas, "AuthNetRecoveryCodesRegenerateResponse");
+        AssertSchema(schemas, "AuthNetMfaChallengeRequest");
+        AssertSchema(schemas, "AuthNetRecoveryCodeLoginRequest");
 
         var loginRequestRef = document.RootElement
             .GetProperty("paths")
@@ -104,6 +120,18 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("$ref")
             .GetString();
         Assert.Equal("#/components/schemas/AuthNetUpdateProfileRequest", profileUpdateRequestRef);
+
+        var mfaChallengeRequestRef = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/login/mfa")
+            .GetProperty("post")
+            .GetProperty("requestBody")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema")
+            .GetProperty("$ref")
+            .GetString();
+        Assert.Equal("#/components/schemas/AuthNetMfaChallengeRequest", mfaChallengeRequestRef);
     }
 
     [Fact]
@@ -134,6 +162,13 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("post")
             .GetProperty("security")[0];
         Assert.True(changePasswordSecurity.TryGetProperty("AuthNetApplicationCookie", out _));
+
+        var mfaSecurity = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/mfa/setup/verify")
+            .GetProperty("post")
+            .GetProperty("security")[0];
+        Assert.True(mfaSecurity.TryGetProperty("AuthNetApplicationCookie", out _));
     }
 
     private static async Task<JsonDocument> GetOpenApiDocumentAsync(AuthNetTestHost host)

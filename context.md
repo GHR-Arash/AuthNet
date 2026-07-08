@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 17 SPA MFA JSON workflows are implemented and tracked in:
+
+- `tasks/slice-17-plan.md`
+- `tasks/slice-17-todo.md`
+
 Slice 16 SPA account workflow completion is implemented and tracked in:
 
 - `tasks/slice-16-plan.md`
@@ -91,6 +96,12 @@ Focused SPA account workflow verification:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaAccountWorkflowTests
 ```
 
+Focused SPA MFA API verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaMfaApiTests
+```
+
 Focused sample email sender verification:
 
 ```powershell
@@ -117,7 +128,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 139 passing tests.
+Latest full verification: 146 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -208,7 +219,8 @@ Implemented Slice 08 scope:
 - MFA login challenge for local password sign-in.
 - Recovery-code display and recovery-code login.
 - User-owned MFA disable flow.
-- No SMS/email OTP, passkeys, API/JWT, SPA, or global required-MFA policy.
+- Same-origin SPA JSON endpoints for MFA status, setup start/verify, MFA disable, recovery-code count/regeneration, MFA challenge sign-in, and recovery-code sign-in.
+- No SMS/email OTP, passkeys, API/JWT, admin MFA reset, or global required-MFA policy.
 
 ## Current Login Scope
 
@@ -243,15 +255,15 @@ Out of scope:
 
 ## Current SPA Workflow Scope
 
-Implemented Slice 14 through Slice 16 scope:
+Implemented Slice 14 through Slice 17 scope:
 
 - `AuthNet.Api` package/project for JSON browser account endpoints.
 - Same-origin SPA/BFF-style cookie workflow using the existing Identity application cookie.
 - JSON routes under the configured account route prefix, `/auth/api` by default.
-- Session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, and change-password JSON endpoints.
+- Session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, and recovery-code sign-in JSON endpoints.
 - OpenAPI document endpoint at `/auth/api/openapi.json`, scoped to AuthNet SPA JSON endpoints.
-- Sample SPA smoke page in the sample host at `/Spa` exercises session, login/logout, profile update, password change, reset completion, confirm-email completion, and OpenAPI discovery.
-- Keep JWT access tokens, refresh tokens, MFA JSON, admin JSON, invitation acceptance JSON, and external-login JSON deferred to separate slices.
+- Sample SPA smoke page in the sample host at `/Spa` exercises session, login/logout, profile update, password change, reset completion, confirm-email completion, MFA workflows, and OpenAPI discovery.
+- Keep JWT access tokens, refresh tokens, admin JSON, invitation acceptance JSON, and external-login JSON deferred to separate slices.
 
 ## Current Sample Email Scope
 

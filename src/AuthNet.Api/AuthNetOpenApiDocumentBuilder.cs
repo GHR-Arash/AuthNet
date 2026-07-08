@@ -173,6 +173,110 @@ internal static class AuthNetOpenApiDocumentBuilder
                         ["401"] = Response("Authentication is required.")
                     },
                     requiresCookie: true)
+            },
+            [$"{apiRoot}/mfa"] = new Dictionary<string, object?>
+            {
+                ["get"] = Operation(
+                    "AuthNetApiMfaStatus",
+                    "Get the current authenticated user's MFA state.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Current MFA state.", "AuthNetMfaStatusResponse"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
+            },
+            [$"{apiRoot}/mfa/setup/start"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiMfaSetupStart",
+                    "Start authenticator-app MFA setup for the current user.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Authenticator setup data.", "AuthNetMfaSetupStartResponse"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
+            },
+            [$"{apiRoot}/mfa/setup/verify"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiMfaSetupVerify",
+                    "Verify an authenticator code and enable MFA for the current user.",
+                    requestSchema: "AuthNetMfaSetupVerifyRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("MFA setup completed.", "AuthNetMfaSetupVerifyResponse"),
+                        ["400"] = JsonResponse("Validation or MFA setup failed.", "AuthNetApiResult"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
+            },
+            [$"{apiRoot}/mfa/disable"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiMfaDisable",
+                    "Disable authenticator-app MFA for the current user.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("MFA disabled.", "AuthNetApiResult"),
+                        ["400"] = JsonResponse("MFA disable failed.", "AuthNetApiResult"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
+            },
+            [$"{apiRoot}/mfa/recovery-codes"] = new Dictionary<string, object?>
+            {
+                ["get"] = Operation(
+                    "AuthNetApiMfaRecoveryCodes",
+                    "Get the current user's recovery-code count.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Recovery-code count.", "AuthNetRecoveryCodesResponse"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
+            },
+            [$"{apiRoot}/mfa/recovery-codes/regenerate"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiMfaRecoveryCodesRegenerate",
+                    "Regenerate recovery codes for the current MFA-enabled user.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("New recovery codes.", "AuthNetRecoveryCodesRegenerateResponse"),
+                        ["400"] = JsonResponse("Recovery-code regeneration failed.", "AuthNetApiResult"),
+                        ["401"] = Response("Authentication is required.")
+                    },
+                    requiresCookie: true)
+            },
+            [$"{apiRoot}/login/mfa"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiLoginMfa",
+                    "Complete a pending sign-in with an authenticator code.",
+                    requestSchema: "AuthNetMfaChallengeRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Signed in.", "AuthNetApiResult"),
+                        ["400"] = JsonResponse("Validation failed.", "AuthNetApiResult"),
+                        ["401"] = JsonResponse("No pending challenge or invalid code.", "AuthNetApiResult"),
+                        ["409"] = JsonResponse("Account cannot complete sign-in.", "AuthNetApiResult")
+                    })
+            },
+            [$"{apiRoot}/login/recovery-code"] = new Dictionary<string, object?>
+            {
+                ["post"] = Operation(
+                    "AuthNetApiLoginRecoveryCode",
+                    "Complete a pending sign-in with a recovery code.",
+                    requestSchema: "AuthNetRecoveryCodeLoginRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Signed in.", "AuthNetApiResult"),
+                        ["400"] = JsonResponse("Validation failed.", "AuthNetApiResult"),
+                        ["401"] = JsonResponse("No pending challenge or invalid recovery code.", "AuthNetApiResult"),
+                        ["409"] = JsonResponse("Account cannot complete sign-in.", "AuthNetApiResult")
+                    })
             }
         };
     }
@@ -354,6 +458,59 @@ internal static class AuthNetOpenApiDocumentBuilder
                 {
                     ["currentPassword"] = StringSchema("Current local account password.", format: "password"),
                     ["newPassword"] = StringSchema("New local account password.", format: "password")
+                }),
+            ["AuthNetMfaStatusResponse"] = ObjectSchema(
+                required: ["isMfaEnabled", "hasAuthenticator", "recoveryCodesLeft"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["isMfaEnabled"] = BooleanSchema("Whether authenticator-app MFA is enabled."),
+                    ["hasAuthenticator"] = BooleanSchema("Whether an authenticator key is configured."),
+                    ["recoveryCodesLeft"] = IntegerSchema("Number of remaining recovery codes.")
+                }),
+            ["AuthNetMfaSetupStartResponse"] = ObjectSchema(
+                required: ["sharedKey", "authenticatorUri"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["sharedKey"] = StringSchema("Formatted authenticator shared key."),
+                    ["authenticatorUri"] = StringSchema("otpauth URI for authenticator-app setup.")
+                }),
+            ["AuthNetMfaSetupVerifyRequest"] = ObjectSchema(
+                required: ["code"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["code"] = StringSchema("Authenticator-app verification code.")
+                }),
+            ["AuthNetMfaSetupVerifyResponse"] = ObjectSchema(
+                required: ["isMfaEnabled", "recoveryCodes"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["isMfaEnabled"] = BooleanSchema("Whether MFA is enabled after verification."),
+                    ["recoveryCodes"] = StringArraySchema("One-time recovery codes generated during setup.")
+                }),
+            ["AuthNetRecoveryCodesResponse"] = ObjectSchema(
+                required: ["recoveryCodesLeft"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["recoveryCodesLeft"] = IntegerSchema("Number of remaining recovery codes.")
+                }),
+            ["AuthNetRecoveryCodesRegenerateResponse"] = ObjectSchema(
+                required: ["recoveryCodes"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["recoveryCodes"] = StringArraySchema("New one-time recovery codes.")
+                }),
+            ["AuthNetMfaChallengeRequest"] = ObjectSchema(
+                required: ["code"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["code"] = StringSchema("Authenticator-app code for the pending sign-in."),
+                    ["rememberMe"] = BooleanSchema("Whether the sign-in cookie should be persistent.")
+                }),
+            ["AuthNetRecoveryCodeLoginRequest"] = ObjectSchema(
+                required: ["recoveryCode"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["recoveryCode"] = StringSchema("Recovery code for the pending sign-in.")
                 })
         };
     }
@@ -418,6 +575,16 @@ internal static class AuthNetOpenApiDocumentBuilder
         return new Dictionary<string, object?>
         {
             ["type"] = "boolean",
+            ["description"] = description
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> IntegerSchema(string description)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["type"] = "integer",
+            ["format"] = "int32",
             ["description"] = description
         };
     }
