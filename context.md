@@ -122,6 +122,11 @@ Implemented Slice 08 scope:
 - User-owned MFA disable flow.
 - No SMS/email OTP, passkeys, API/JWT, SPA, or global required-MFA policy.
 
+## Current Login Scope
+
+- Local password sign-in accepts either email address or username.
+- Sample-host admin bootstrap can create `UserName=admin` and `Email=admin@admin.com`; the user can sign in with username `admin`.
+
 ## Current Invitation Scope
 
 Implemented Slice 09 scope:

@@ -10,6 +10,7 @@ namespace AuthNetRazor.Areas.AuthNet.Pages.Account;
 
 public sealed class LoginModel(
     SignInManager<AuthNetUser> signInManager,
+    UserManager<AuthNetUser> userManager,
     AuthNetOptions authNetOptions)
     : PageModel
 {
@@ -40,8 +41,15 @@ public sealed class LoginModel(
             return Page();
         }
 
+        var user = await FindUserAsync(Input.Email);
+        if (user is null)
+        {
+            ModelState.AddModelError(string.Empty, "Invalid sign-in attempt.");
+            return Page();
+        }
+
         var result = await signInManager.PasswordSignInAsync(
-            Input.Email,
+            user,
             Input.Password,
             Input.RememberMe,
             lockoutOnFailure: true);
@@ -75,11 +83,18 @@ public sealed class LoginModel(
         ModelState.AddModelError(string.Empty, "Invalid sign-in attempt.");
         return Page();
     }
+
+    private async Task<AuthNetUser?> FindUserAsync(string identifier)
+    {
+        var trimmedIdentifier = identifier.Trim();
+        return await userManager.FindByEmailAsync(trimmedIdentifier)
+            ?? await userManager.FindByNameAsync(trimmedIdentifier);
+    }
 }
 
 public sealed class LoginInput
 {
-    [Required, EmailAddress]
+    [Required, Display(Name = "Email or username")]
     public string Email { get; set; } = string.Empty;
 
     [Required, DataType(DataType.Password)]

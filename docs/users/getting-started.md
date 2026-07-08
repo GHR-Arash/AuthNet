@@ -189,6 +189,8 @@ Admin routes are mapped under the same prefix:
 
 These routes require a signed-in user in the `Administrator` role. AuthNet packages do not create a default admin user or default development password.
 
+The login page accepts either the user's email address or username.
+
 ## Protecting Pages or Endpoints
 
 Use standard ASP.NET Core authorization.
@@ -253,6 +255,8 @@ $env:AuthNet__AdminBootstrap__Email='admin@example.test'
 $env:AuthNet__AdminBootstrap__Password='Password1!'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
+
+With that configuration, sign in at `/auth/login` using username `admin` and password `Password1!`.
 
 This sample-host bootstrap is not package behavior and does not provide default credentials.
 

@@ -54,6 +54,7 @@ Acceptance criteria:
 Priority: Must Have
 
 - The system shall authenticate users using local credentials.
+- The system shall allow local password sign-in by email address or username.
 - The system shall reject invalid credentials.
 - The system shall enforce account lockout policy.
 - The system shall enforce email verification policy.
@@ -62,7 +63,7 @@ Priority: Must Have
 
 Acceptance criteria:
 
-- Given valid credentials, when a user signs in, then the system authenticates the user.
+- Given valid email or username credentials, when a user signs in, then the system authenticates the user.
 - Given invalid credentials, when sign in is attempted, then the system rejects the request.
 - Given a locked account, when sign in is attempted, then the system denies access.
 

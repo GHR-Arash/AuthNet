@@ -36,7 +36,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `samples/AuthNet.SampleHost`
   - `tests/AuthNet.Tests`
 - Built-in Razor Pages account UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Account`.
-- Account UI includes login/logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
+- Account UI includes login by email or username, logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
 - Account UI includes authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count display, and user-owned MFA disable.
 - Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
 - Built-in Razor Pages admin invitation UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Invitations`.
@@ -76,7 +76,13 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 81 passing tests.
+Latest full test count: 82 passing tests.
+
+Login regression focused tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetLoginTests
+```
 
 Slice 04 focused tests:
 

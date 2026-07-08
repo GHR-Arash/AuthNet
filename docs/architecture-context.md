@@ -19,7 +19,7 @@ Build first:
 - Razor Pages account UI.
 - Cookie authentication.
 - Registration disabled by default.
-- Login, logout, email verification/resend, forgot/reset password, profile, verified email change, change password.
+- Login by email or username, logout, email verification/resend, forgot/reset password, profile, verified email change, change password.
 - Authenticator-app MFA for local password sign-in, with recovery codes and user-owned disable flow.
 - Email sender contract, with production sender required and development logging/fake sender allowed.
 - Role infrastructure using ASP.NET Core Identity roles.

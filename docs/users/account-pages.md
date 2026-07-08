@@ -16,7 +16,7 @@ With the default `/auth` prefix, routes are:
 
 | Route | Purpose |
 |---|---|
-| `/auth/login` | Sign in with email/password or external provider. |
+| `/auth/login` | Sign in with email or username plus password, or use an external provider. |
 | `/auth/logout` | Sign out. |
 | `/auth/register` | Create account when public registration is enabled. |
 | `/auth/forgot-password` | Request password reset email. |
