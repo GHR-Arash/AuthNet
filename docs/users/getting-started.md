@@ -185,6 +185,7 @@ Admin routes are mapped under the same prefix:
 - `/auth/admin/users`
 - `/auth/admin/users/new`
 - `/auth/admin/users/{id}`
+- `/auth/admin/audit`
 - `/auth/admin/invitations`
 - `/auth/admin/invitations/new`
 
@@ -247,6 +248,8 @@ Use your own bootstrap policy for creating the first administrator. Do not ship 
 After the first administrator exists, the built-in user detail page can grant or remove the fixed `Administrator` role for other users. AuthNet prevents removing the last remaining administrator.
 
 Administrators can also directly create local users at `/auth/admin/users/new`. The form creates the account through ASP.NET Core Identity with username, email, optional display name, password, email confirmation state, and optional fixed administrator access. Use invitations when the user should set their own password.
+
+Administrators can review successful admin mutation events at `/auth/admin/audit`. Audit coverage includes direct user creation, invitation creation, fixed administrator role grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
 
 The repository sample host includes an explicit admin bootstrap that uses the same configuration in Development and Production:
 

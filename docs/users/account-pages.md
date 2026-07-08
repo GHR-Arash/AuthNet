@@ -42,6 +42,7 @@ Admin routes are also mapped under the same prefix:
 | `/auth/admin/users` | List and search users. Requires the `Administrator` role. |
 | `/auth/admin/users/new` | Directly create a local user. Requires the `Administrator` role. |
 | `/auth/admin/users/{id}` | View user state, run safe account-state actions, and manage fixed administrator access. Requires the `Administrator` role. |
+| `/auth/admin/audit` | Review admin audit events. Requires the `Administrator` role. |
 | `/auth/admin/invitations` | List account invitations. Requires the `Administrator` role. |
 | `/auth/admin/invitations/new` | Create and send an account invitation. Requires the `Administrator` role. |
 
@@ -143,6 +144,19 @@ The first admin slice supports:
 - Confirm or unconfirm email.
 - Lock or unlock users.
 - Reset access failed count.
+- Review admin audit events for successful admin mutations.
+
+## Admin Audit Events
+
+AuthNet records successful administrator mutations in a persisted audit table.
+
+The audit flow uses:
+
+- `/auth/admin/audit` to review recent audit events.
+
+Current audit coverage includes direct user creation, invitation creation, fixed administrator grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
+
+Audit events include timestamp, action, outcome, actor, target, and compact metadata. AuthNet does not store passwords, raw invitation tokens, or invitation acceptance URLs in audit metadata.
 
 ## Account Invitations
 
@@ -160,7 +174,7 @@ Invitation links are sent through `IAuthNetEmailSender`. AuthNet stores only a h
 
 When an invitation is accepted, AuthNet creates a local Identity user, marks the invited email confirmed, marks the invitation accepted, and signs in the new user. Invitations are single-use and expire after the configured invitation lifetime.
 
-Deferred admin features include arbitrary role management, deletion, impersonation, audit events, invitation resend/cancel, bulk invitations, API endpoints, and fine-grained permissions.
+Deferred admin features include arbitrary role management, deletion, impersonation, audit export, audit retention policy, tamper-proof audit signing, invitation resend/cancel, bulk invitations, API endpoints, and fine-grained permissions.
 
 ## External Login
 

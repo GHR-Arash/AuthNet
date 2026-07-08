@@ -26,6 +26,7 @@ Build first:
 - Built-in admin user-management UI under the AuthNet route prefix, protected by the `Administrator` role.
 - Fixed `Administrator` role assignment from the built-in admin user detail page, with last-admin removal protection.
 - Direct admin local user creation from the built-in admin user-management UI.
+- Persisted admin audit events with a built-in admin audit list page.
 - Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
@@ -40,7 +41,7 @@ Deferred:
 - API/JWT and refresh tokens.
 - SPA authentication flows.
 - Fine-grained permissions.
-- Arbitrary role management, deletion, impersonation, and audit events.
+- Arbitrary role management, deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
 - Full Razor Page override.
 - Custom Identity stores.
 - Provider-specific Google/Microsoft helpers.
@@ -140,6 +141,7 @@ Host app should be able to configure:
 - Admin user-management routes under the account route prefix, guarded by the `Administrator` role.
 - Direct admin user creation route under the account route prefix.
 - Fixed `Administrator` role assignment on the admin user detail page.
+- Admin audit event route under the account route prefix, guarded by the `Administrator` role.
 - Admin invitation routes under the account route prefix, guarded by the `Administrator` role.
 - Invitation acceptance route under the account route prefix.
 - Invitation expiration through `AuthNetOptions.Invitations.Expiration`.
@@ -159,6 +161,7 @@ Sample-host-only admin bootstrap:
 - The bootstrap uses the same explicit configuration in Development and Production and does not change package behavior.
 - The sample home page, shared navigation, and protected `/Admin` page expose links to `/auth/admin/users`, `/auth/admin/invitations`, and `/auth/admin/invitations/new`.
 - The same sample pages expose `/auth/admin/users/new` for direct local user creation.
+- The same sample pages expose `/auth/admin/audit` for admin audit review.
 
 Conceptual setup:
 

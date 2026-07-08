@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using AuthNet.Persistence.Postgres;
+using AuthNetRazor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,8 @@ namespace AuthNetRazor.Areas.AuthNet.Pages.Admin.Users;
 [Authorize(Roles = "Administrator")]
 public sealed class CreateModel(
     UserManager<AuthNetUser> userManager,
-    RoleManager<IdentityRole> roleManager) : PageModel
+    RoleManager<IdentityRole> roleManager,
+    IAuthNetAuditWriter auditWriter) : PageModel
 {
     private const string AdministratorRoleName = "Administrator";
 
@@ -84,6 +86,13 @@ public sealed class CreateModel(
                 return Page();
             }
         }
+
+        await auditWriter.RecordAsync(
+            User,
+            "UserCreated",
+            user,
+            metadata: $"EmailConfirmed={Input.EmailConfirmed};GrantAdministrator={Input.GrantAdministrator}",
+            cancellationToken: HttpContext.RequestAborted);
 
         return RedirectToPage("./Detail", new { id = user.Id });
     }

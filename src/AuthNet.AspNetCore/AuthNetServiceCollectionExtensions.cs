@@ -2,6 +2,7 @@ using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.ExternalProviders;
 using AuthNet.Persistence.Postgres;
+using AuthNetRazor;
 using AuthNetRazor.Areas.AuthNet.Pages.Account;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -86,6 +87,7 @@ public static class AuthNetServiceCollectionExtensions
             services.TryAddSingleton<IAuthNetEmailSender, DevelopmentAuthNetEmailSender>();
         }
 
+        services.TryAddScoped<IAuthNetAuditWriter, AuthNetAuditWriter>();
         services.TryAddSingleton<AuthNetConfigurationValidator>();
         services.AddAuthorization();
 
@@ -113,6 +115,7 @@ public static class AuthNetServiceCollectionExtensions
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Index", $"{prefix}/admin/users");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Create", $"{prefix}/admin/users/new");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Users/Detail", $"{prefix}/admin/users/{{id}}");
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Audit/Index", $"{prefix}/admin/audit");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Invitations/Index", $"{prefix}/admin/invitations");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Admin/Invitations/Create", $"{prefix}/admin/invitations/new");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/AcceptInvitation", $"{prefix}/invitations/accept");

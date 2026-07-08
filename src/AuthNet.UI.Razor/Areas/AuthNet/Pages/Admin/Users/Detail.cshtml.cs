@@ -1,4 +1,5 @@
 using AuthNet.Persistence.Postgres;
+using AuthNetRazor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,8 @@ namespace AuthNetRazor.Areas.AuthNet.Pages.Admin.Users;
 [Authorize(Roles = "Administrator")]
 public sealed class DetailModel(
     UserManager<AuthNetUser> userManager,
-    RoleManager<IdentityRole> roleManager) : PageModel
+    RoleManager<IdentityRole> roleManager,
+    IAuthNetAuditWriter auditWriter) : PageModel
 {
     private const string AdministratorRoleName = "Administrator";
 
@@ -38,6 +40,7 @@ public sealed class DetailModel(
             return await LoadPageAsync(id);
         }
 
+        await auditWriter.RecordAsync(User, "UserEmailConfirmed", user, metadata: "EmailConfirmed=true", cancellationToken: HttpContext.RequestAborted);
         StatusMessage = "Email confirmed.";
         return await LoadPageAsync(id);
     }
@@ -58,6 +61,7 @@ public sealed class DetailModel(
             return await LoadPageAsync(id);
         }
 
+        await auditWriter.RecordAsync(User, "UserEmailUnconfirmed", user, metadata: "EmailConfirmed=false", cancellationToken: HttpContext.RequestAborted);
         StatusMessage = "Email unconfirmed.";
         return await LoadPageAsync(id);
     }
@@ -77,6 +81,7 @@ public sealed class DetailModel(
             return await LoadPageAsync(id);
         }
 
+        await auditWriter.RecordAsync(User, "UserLocked", user, metadata: "LockoutEnd=100years", cancellationToken: HttpContext.RequestAborted);
         StatusMessage = "User locked.";
         return await LoadPageAsync(id);
     }
@@ -96,6 +101,7 @@ public sealed class DetailModel(
             return await LoadPageAsync(id);
         }
 
+        await auditWriter.RecordAsync(User, "UserUnlocked", user, metadata: "LockoutEnd=null", cancellationToken: HttpContext.RequestAborted);
         StatusMessage = "User unlocked.";
         return await LoadPageAsync(id);
     }
@@ -115,6 +121,7 @@ public sealed class DetailModel(
             return await LoadPageAsync(id);
         }
 
+        await auditWriter.RecordAsync(User, "UserAccessFailuresReset", user, metadata: "AccessFailedCount=0", cancellationToken: HttpContext.RequestAborted);
         StatusMessage = "Access failed count reset.";
         return await LoadPageAsync(id);
     }
@@ -147,6 +154,7 @@ public sealed class DetailModel(
             }
         }
 
+        await auditWriter.RecordAsync(User, "AdministratorGranted", user, metadata: "Role=Administrator", cancellationToken: HttpContext.RequestAborted);
         StatusMessage = "Administrator access granted.";
         return await LoadPageAsync(id);
     }
@@ -179,6 +187,7 @@ public sealed class DetailModel(
             return await LoadPageAsync(id);
         }
 
+        await auditWriter.RecordAsync(User, "AdministratorRemoved", user, metadata: "Role=Administrator", cancellationToken: HttpContext.RequestAborted);
         StatusMessage = "Administrator access removed.";
         return await LoadPageAsync(id);
     }

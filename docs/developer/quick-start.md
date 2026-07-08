@@ -64,6 +64,12 @@ Focused admin user tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAdminUserTests
 ```
 
+Focused audit tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAuditTests
+```
+
 ## Pack Local NuGet Artifacts
 
 Build Release first, then pack the intended package projects into ignored local artifacts:
@@ -205,6 +211,7 @@ Useful routes:
 - `/auth/admin/users` after signing in as a user in the `Administrator` role
 - `/auth/admin/users/new` to directly create a local user
 - `/auth/admin/users/{id}` to view user state and manage fixed administrator access
+- `/auth/admin/audit` to review admin audit events
 - `/auth/admin/invitations` to list account invitations
 - `/auth/admin/invitations/new` to invite a user
 - `/Admin`

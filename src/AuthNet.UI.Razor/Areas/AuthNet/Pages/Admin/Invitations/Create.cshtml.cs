@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.Persistence.Postgres;
+using AuthNetRazor;
 using AuthNetRazor.Areas.AuthNet.Pages.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,7 +17,8 @@ public sealed class CreateModel(
     AuthNetDbContext dbContext,
     UserManager<AuthNetUser> userManager,
     IAuthNetEmailSender emailSender,
-    AuthNetOptions authNetOptions) : PageModel
+    AuthNetOptions authNetOptions,
+    IAuthNetAuditWriter auditWriter) : PageModel
 {
     [BindProperty]
     public InvitationInput Input { get; set; } = new();
@@ -69,6 +71,13 @@ public sealed class CreateModel(
         await emailSender.SendAsync(
             AccountEmailMessages.CreateInvitationMessage(email, acceptUrl),
             HttpContext.RequestAborted);
+
+        await auditWriter.RecordAsync(
+            User,
+            "InvitationCreated",
+            targetEmail: email,
+            metadata: $"InvitationId={invitation.Id};ExpiresAtUtc={invitation.ExpiresAtUtc:O}",
+            cancellationToken: HttpContext.RequestAborted);
 
         return RedirectToPage("./Index");
     }

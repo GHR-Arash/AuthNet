@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 11 admin audit events are implemented and tracked in:
+
+- `tasks/slice-11-plan.md`
+- `tasks/slice-11-todo.md`
+
 Slice 10 admin direct user creation is implemented and tracked in:
 
 - `tasks/slice-10-plan.md`
@@ -64,7 +69,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 89 passing tests.
+Latest full verification: 95 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -101,6 +106,7 @@ The sample host exposes admin workflow links from the home page, shared navigati
 
 - `/auth/admin/users`
 - `/auth/admin/users/new`
+- `/auth/admin/audit`
 - `/auth/admin/invitations`
 - `/auth/admin/invitations/new`
 
@@ -114,6 +120,25 @@ Implemented actions:
 - Reset access failed count.
 - Grant/remove the fixed `Administrator` role.
 - Prevent removing the last administrator.
+- Review persisted audit events for successful admin mutations.
+
+## Current Audit Scope
+
+Implemented Slice 11 scope:
+
+- Persisted audit events in `AuthNet.Persistence.Postgres`.
+- Admin-only audit list page at `/auth/admin/audit`.
+- Filters by action, actor, target, and date range.
+- Successful admin mutation coverage for direct user creation, invitation creation, fixed administrator grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
+- Audit metadata excludes passwords, raw invitation tokens, and invitation acceptance URLs.
+
+Out of scope:
+
+- Audit export.
+- Audit retention policy.
+- Tamper-proof audit signing.
+- SIEM/webhook integration.
+- Failed admin attempts.
 
 Slice 06 files:
 
@@ -168,6 +193,6 @@ Out of scope:
 - Organization/team membership.
 - API/JWT/SPA invitation endpoints.
 
-Likely product slice after invitations:
+Likely product slice after audit events:
 
-- Audit events for admin actions.
+- Real email sender sample implementation.

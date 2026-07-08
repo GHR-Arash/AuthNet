@@ -253,6 +253,22 @@ Acceptance criteria:
 - Given duplicate username, duplicate email, or invalid password input, when the form is submitted, then the system rejects the request without creating a user.
 - Given the administrator role option is selected, when the user is created, then the system grants the fixed `Administrator` role.
 
+## Admin Audit Events
+
+Priority: Should Have
+
+- The system shall record successful administrator mutations.
+- The system shall persist audit events through the AuthNet EF Core persistence model.
+- The system shall record actor, target, action, outcome, timestamp, and compact metadata.
+- The system shall allow administrators to review audit events.
+- The system shall avoid storing passwords, raw invitation tokens, and invitation acceptance URLs in audit metadata.
+
+Acceptance criteria:
+
+- Given an administrator completes a covered admin mutation, when the action succeeds, then the system persists an audit event.
+- Given an administrator opens the audit page, when events exist, then the system lists timestamp, action, outcome, actor, target, and metadata.
+- Given filters are supplied, when the audit page loads, then the system filters by action, actor, target, and date range.
+
 ## Persistence
 
 Priority: Must Have

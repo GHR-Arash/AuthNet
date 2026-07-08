@@ -23,6 +23,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 08 MFA foundation is implemented and tracked in `tasks/slice-08-plan.md`, `tasks/slice-08-todo.md`, and `docs/slice-08/`.
 - Slice 09 account invitation flow is implemented and tracked in `tasks/slice-09-plan.md`, `tasks/slice-09-todo.md`, and `docs/slice-09/`.
 - Slice 10 admin direct user creation is implemented and tracked in `tasks/slice-10-plan.md` and `tasks/slice-10-todo.md`.
+- Slice 11 admin audit events are implemented and tracked in `tasks/slice-11-plan.md` and `tasks/slice-11-todo.md`.
 
 ## Implemented Product Surface
 
@@ -40,21 +41,26 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Account UI includes login by email or username, logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
 - Account UI includes authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count display, and user-owned MFA disable.
 - Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
+- Built-in Razor Pages admin audit UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Audit`.
 - Built-in Razor Pages admin invitation UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Invitations`.
 - Admin UI routes are `/auth/admin/users`, `/auth/admin/users/new`, and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role.
+- Admin audit route is `/auth/admin/audit` by default, protected by the ASP.NET Core Identity `Administrator` role.
 - Admin invitation routes are `/auth/admin/invitations` and `/auth/admin/invitations/new` by default, protected by the ASP.NET Core Identity `Administrator` role.
 - Invitation acceptance route is `/auth/invitations/accept`.
 - Admin UI supports user list/search, direct user creation, user detail, confirm/unconfirm email, lock/unlock, reset access failed count, and fixed `Administrator` role grant/remove with last-admin protection.
+- Admin audit UI supports recent audit event listing and filters by action, actor, target, and date range.
 - Admin invitation UI supports invitation list/create, duplicate pending invite rejection, existing-user rejection, and email-delivered single-use acceptance links.
 - Invitation acceptance creates a local Identity user, confirms the invited email, marks the invitation accepted, and signs in the user.
 - AuthNet packages do not seed a default admin username or password; host applications own first-admin bootstrap.
 - ASP.NET Core Identity user/context in `AuthNet.Persistence.Postgres`.
 - Persisted account invitations in `AuthNet.Persistence.Postgres`.
+- Persisted admin audit events in `AuthNet.Persistence.Postgres`.
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user list, direct user creation, and invitation pages.
+- Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin audit page.
 - `UseAuthNet()` remains as a compatibility wrapper.
 - AuthNet UI ships fallback shared `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml`, and `_AuthNetBrand.cshtml` so built-in pages render in a bare host.
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot password, profile update, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
@@ -78,7 +84,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 89 passing tests.
+Latest full test count: 95 passing tests.
 
 Login regression focused tests:
 
@@ -114,6 +120,12 @@ Slice 09 focused tests:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetInvitationTests
+```
+
+Slice 11 focused tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetAuditTests
 ```
 
 Sample host admin bootstrap focused tests:
@@ -203,6 +215,8 @@ For product/architecture:
 - `tasks/slice-09-todo.md`
 - `tasks/slice-10-plan.md`
 - `tasks/slice-10-todo.md`
+- `tasks/slice-11-plan.md`
+- `tasks/slice-11-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
@@ -220,11 +234,10 @@ Publication decisions are intentionally paused for now.
 
 Recommended next product slice:
 
-- Add audit events for admin actions.
+- Add a real email sender sample implementation.
 
 Other candidates:
 
-- Add a real email sender sample implementation.
 - Add a committed package-consumer sample if local smoke coverage should be permanent.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.
