@@ -72,6 +72,7 @@ Current MVP package/project names:
 - `AuthNet.ExternalProviders`: generic OpenID Connect integration.
 - `AuthNet.Api`: same-origin SPA JSON account endpoints.
 - `AuthNet.SampleHost`: sample Razor Pages host app.
+- `AuthNet.PackageConsumer`: committed package-consumer sample that restores `AuthNet.AspNetCore` from local package artifacts.
 - `AuthNet.Tests`: configuration and development seam tests.
 
 Packable packages:
@@ -86,6 +87,7 @@ Packable packages:
 Non-packable projects:
 
 - `AuthNet.SampleHost`
+- `AuthNet.PackageConsumer`
 - `AuthNet.Tests`
 
 ## Canonical Commands
@@ -102,6 +104,12 @@ Canonical local verification:
 
 ```powershell
 .\scripts\verify.ps1
+```
+
+Focused package-consumer verification after packages exist:
+
+```powershell
+.\scripts\verify-package-consumer.ps1
 ```
 
 Pack local package artifacts:
@@ -224,6 +232,8 @@ app.MapAuthNet();
 - Slice 18 SPA external-login JSON orchestration todo: `tasks/slice-18-todo.md`
 - Slice 19 SPA invitation acceptance JSON plan: `tasks/slice-19-plan.md`
 - Slice 19 SPA invitation acceptance JSON todo: `tasks/slice-19-todo.md`
+- Slice 20 committed package-consumer sample plan: `tasks/slice-20-plan.md`
+- Slice 20 committed package-consumer sample todo: `tasks/slice-20-todo.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`

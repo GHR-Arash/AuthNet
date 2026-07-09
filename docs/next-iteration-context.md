@@ -6,7 +6,9 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current HEAD: Add SPA external login JSON orchestration
+  - Current HEAD: Add package consumer sample
+  - `453b0d1 Add SPA invitation acceptance JSON`
+  - Add SPA external login JSON orchestration
   - `7d2d823 Add SPA MFA JSON workflows`
   - `69766bd Add SPA account workflow completion`
   - `d398cb7 Add OpenAPI document endpoint`
@@ -34,6 +36,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 17 SPA MFA JSON workflows are implemented and tracked in `tasks/slice-17-plan.md` and `tasks/slice-17-todo.md`.
 - Slice 18 SPA external-login JSON orchestration is implemented and tracked in `tasks/slice-18-plan.md` and `tasks/slice-18-todo.md`.
 - Slice 19 SPA invitation acceptance JSON is implemented and tracked in `tasks/slice-19-plan.md` and `tasks/slice-19-todo.md`.
+- Slice 20 committed package-consumer sample is implemented and tracked in `tasks/slice-20-plan.md` and `tasks/slice-20-todo.md`.
 
 ## Implemented Product Surface
 
@@ -47,6 +50,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `src/AuthNet.ExternalProviders`
   - `src/AuthNet.Api`
   - `samples/AuthNet.SampleHost`
+  - `samples/AuthNet.PackageConsumer`
   - `tests/AuthNet.Tests`
 - Built-in Razor Pages account UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Account`.
 - Account UI includes login by email or username, logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
@@ -84,6 +88,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - `AuthNet.Tests` covers Razor and SPA invitation creation, email delivery, acceptance, expired invitations, reused invitations, invalid tokens, duplicate pending invitations, existing-user rejection, and route protection.
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
+- Committed package-consumer sample at `samples/AuthNet.PackageConsumer` references `AuthNet.AspNetCore` `0.1.0` from local package artifacts and is intentionally outside `AuthNet.slnx`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
 - Sample host supports explicit admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
 - Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
@@ -97,6 +102,7 @@ Known passing commands:
 
 ```powershell
 .\scripts\verify.ps1
+.\scripts\verify-package-consumer.ps1
 .\.dotnet\dotnet.exe restore AuthNet.slnx
 .\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
@@ -218,10 +224,10 @@ Known passing package commands:
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
 ```
 
-Known passing package-consumer smoke:
+Known passing committed package-consumer smoke:
 
 ```powershell
-.\.dotnet\dotnet.exe build artifacts\package-smoke\AuthNet.PackageSmoke.csproj --no-restore
+.\scripts\verify-package-consumer.ps1
 ```
 
 Known passing sample startup:
@@ -307,6 +313,8 @@ For product/architecture:
 - `tasks/slice-18-todo.md`
 - `tasks/slice-19-plan.md`
 - `tasks/slice-19-todo.md`
+- `tasks/slice-20-plan.md`
+- `tasks/slice-20-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
@@ -320,14 +328,11 @@ For product/architecture:
 
 ## Likely Next Work
 
-Publication decisions are intentionally paused for now.
-
-Recommended next product slice:
-
-- Add admin JSON APIs if admin automation is the higher priority.
+Publication decisions and admin JSON APIs are intentionally paused for now.
 
 Other candidates:
 
-- Add a committed package-consumer sample if local smoke coverage should be permanent.
+- Decide whether package publication metadata is ready to finalize.
+- Pick up the future admin JSON API plan only if admin automation becomes the priority.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

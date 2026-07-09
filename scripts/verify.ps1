@@ -99,3 +99,10 @@ Invoke-Step 'Verify package output' {
 
     Write-Host "Verified packages: $($actualPackages -join ', ')"
 }
+
+Invoke-Step 'Verify package consumer sample' {
+    & (Join-Path $repoRoot 'scripts\verify-package-consumer.ps1')
+    if ($LASTEXITCODE -ne 0) {
+        throw "package consumer verification failed with exit code $LASTEXITCODE"
+    }
+}

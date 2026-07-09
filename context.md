@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 20 committed package-consumer sample is implemented and tracked in:
+
+- `tasks/slice-20-plan.md`
+- `tasks/slice-20-todo.md`
+
 Slice 19 SPA invitation acceptance JSON is implemented and tracked in:
 
 - `tasks/slice-19-plan.md`
@@ -78,6 +83,7 @@ Packable:
 Not packable:
 
 - `AuthNet.SampleHost`
+- `AuthNet.PackageConsumer`
 - `AuthNet.Tests`
 
 JWT and refresh-token authentication remain deferred.
@@ -86,7 +92,7 @@ JWT and refresh-token authentication remain deferred.
 
 Latest known package verification uses Release build plus per-project pack commands into ignored `artifacts/packages`.
 
-Latest package-consumer smoke app is ignored at `artifacts/package-smoke` and compiles against `AuthNet.AspNetCore` `0.1.0` from the local package source.
+Latest committed package-consumer sample is under `samples/AuthNet.PackageConsumer`, references `AuthNet.AspNetCore` `0.1.0` from local package artifacts, and is intentionally outside `AuthNet.slnx`.
 
 Focused SPA API verification:
 
@@ -124,6 +130,12 @@ Focused SPA invitation API verification:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaInvitationApiTests
 ```
 
+Focused package-consumer verification:
+
+```powershell
+.\scripts\verify-package-consumer.ps1
+```
+
 Focused sample email sender verification:
 
 ```powershell
@@ -151,6 +163,8 @@ Canonical local verification:
 ```
 
 Latest full verification: 160 passing tests.
+
+Package-consumer verification is integrated into `.\scripts\verify.ps1` after package packing.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 

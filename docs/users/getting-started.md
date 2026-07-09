@@ -59,6 +59,12 @@ If you are consuming local packages produced from this repository, add the local
 dotnet add package AuthNet.AspNetCore --version 0.1.0 --source C:\Projects\AuthNet\artifacts\packages
 ```
 
+The repository includes `samples/AuthNet.PackageConsumer` as a committed build-only package-consumer sample. After local packages are generated, verify that sample with:
+
+```powershell
+.\scripts\verify-package-consumer.ps1
+```
+
 While developing AuthNet itself from this repository, reference the projects directly, as shown in `samples/AuthNet.SampleHost`.
 
 ## Minimal Setup

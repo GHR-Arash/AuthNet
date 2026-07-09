@@ -32,6 +32,7 @@ From the repo root:
 ```
 
 This is the canonical local verification path. It restores, builds, tests, builds Release, packs the intended packages, and verifies the package output.
+It also restores and builds the committed package-consumer sample from the freshly packed local packages.
 
 For troubleshooting, run the individual commands:
 
@@ -148,6 +149,14 @@ Expected packages:
 - `AuthNet.AspNetCore`
 
 `AuthNet.SampleHost` and `AuthNet.Tests` are not package artifacts.
+
+Verify the committed package-consumer sample directly after packages exist:
+
+```powershell
+.\scripts\verify-package-consumer.ps1
+```
+
+The sample lives at `samples\AuthNet.PackageConsumer`, references `AuthNet.AspNetCore` `0.1.0` as a package, and is intentionally not part of `AuthNet.slnx` so root solution restore does not depend on generated local packages.
 
 ## CI
 

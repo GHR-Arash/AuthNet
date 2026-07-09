@@ -15,15 +15,13 @@ Packable:
 - `AuthNet.UI.Razor`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.ExternalProviders`
+- `AuthNet.Api`
 
 Not packable:
 
 - `AuthNet.SampleHost`
+- `AuthNet.PackageConsumer`
 - `AuthNet.Tests`
-
-Deferred:
-
-- `AuthNet.Api`
 
 ## Package Metadata
 
@@ -72,6 +70,10 @@ Final public publication still needs a real repository/project URL and license d
 
 - Razor Page models and input models are public as part of the Razor Pages UI assembly.
 
+`AuthNet.Api`:
+
+- Same-origin SPA JSON endpoint mapping and OpenAPI document support.
+
 API tightening completed:
 
 - `AuthNetConfigurationValidator` is now internal and exposed to `AuthNet.Tests` through `InternalsVisibleTo`.
@@ -79,6 +81,7 @@ API tightening completed:
 ## Package Dependency Review
 
 - `AuthNet.AspNetCore` depends on `AuthNet.Core`, `AuthNet.ExternalProviders`, `AuthNet.Persistence.Postgres`, and `AuthNet.UI.Razor`.
+- `AuthNet.Api` depends on `AuthNet.Core` and `AuthNet.Persistence.Postgres`.
 - `AuthNet.ExternalProviders` depends on `AuthNet.Core` and `Microsoft.AspNetCore.Authentication.OpenIdConnect`.
 - `AuthNet.Persistence.Postgres` depends on `AuthNet.Core`, `Microsoft.AspNetCore.Identity.EntityFrameworkCore`, and `Npgsql.EntityFrameworkCore.PostgreSQL`.
 - `AuthNet.UI.Razor` depends on `AuthNet.Core` and `AuthNet.Persistence.Postgres`.
@@ -89,6 +92,7 @@ API tightening completed:
 Generated packages:
 
 - `AuthNet.AspNetCore.0.1.0.nupkg`
+- `AuthNet.Api.0.1.0.nupkg`
 - `AuthNet.Core.0.1.0.nupkg`
 - `AuthNet.ExternalProviders.0.1.0.nupkg`
 - `AuthNet.Persistence.Postgres.0.1.0.nupkg`
@@ -112,6 +116,7 @@ Slice 03 should end with:
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
 ```
 
@@ -119,4 +124,10 @@ Generated packages should stay under ignored local artifact output and should no
 
 ## Consumer Smoke Result
 
-The temporary ignored smoke app at `artifacts/package-smoke` restored `AuthNet.AspNetCore` `0.1.0` from `artifacts/packages`, pulled the transitive AuthNet packages from the same source, and compiled a minimal `AddAuthNet` plus `MapAuthNet` setup.
+The committed sample at `samples/AuthNet.PackageConsumer` restores `AuthNet.AspNetCore` `0.1.0` from `artifacts/packages`, pulls the transitive AuthNet packages from the same source, and compiles a minimal `AddAuthNet` plus `MapAuthNet` setup.
+
+Focused verification:
+
+```powershell
+.\scripts\verify-package-consumer.ps1
+```

@@ -14,23 +14,27 @@ Prove that a clean ASP.NET Core consumer can install locally packed AuthNet pack
 .\.dotnet\dotnet.exe pack AuthNet.slnx --no-build --output .\artifacts\packages
 ```
 
-2. Create or use a temporary consumer app outside committed source. The current local smoke app is ignored at:
+2. Use the committed package-consumer sample:
 
 ```text
-artifacts/package-smoke
+samples/AuthNet.PackageConsumer
 ```
 
-3. Add `.\artifacts\packages` as a package source for the smoke app.
-
-4. Install the primary integration package:
+3. Restore and build the sample from the local package source:
 
 ```powershell
-.\.dotnet\dotnet.exe add artifacts\package-smoke\AuthNet.PackageSmoke.csproj package AuthNet.AspNetCore --version 0.1.0 --source C:\Projects\AuthNet\artifacts\packages
+.\scripts\verify-package-consumer.ps1
+```
+
+The sample references the primary integration package:
+
+```powershell
+AuthNet.AspNetCore 0.1.0
 ```
 
 `AuthNet.AspNetCore` brings the MVP AuthNet package dependencies transitively.
 
-5. Compile a minimal setup using:
+4. Compile a minimal setup using:
 
 ```csharp
 builder.Services.AddAuthNet(options =>
@@ -45,14 +49,15 @@ app.MapAuthNet();
 
 ## Acceptance Notes
 
-- The smoke app should compile from packages, not project references.
+- The committed sample should compile from packages, not project references.
 - The smoke test does not need a live PostgreSQL database unless runtime startup is selected as part of implementation.
 - The smoke flow should not require public NuGet publication.
+- Generated `.nupkg`, `bin`, `obj`, and restore artifacts stay ignored.
 
 ## Latest Result
 
 Passed:
 
 ```powershell
-.\.dotnet\dotnet.exe build artifacts\package-smoke\AuthNet.PackageSmoke.csproj --no-restore
+.\scripts\verify-package-consumer.ps1
 ```
