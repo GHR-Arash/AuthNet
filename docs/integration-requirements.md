@@ -28,10 +28,12 @@ builder.Services.AddAuthNet(options =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapAuthNet();
+await app.UseAuthNet(authNet => authNet
+    .ApplyMigrations(builder.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
+    .InitialAdministrator(builder.Configuration.GetSection("AuthNet:InitialAdministrator")));
 ```
 
-`UseAuthNet()` is a compatibility wrapper; the endpoint mapping API is `MapAuthNet()`.
+`UseAuthNet(...)` is the fluent startup API for validation, optional migration application, optional initial-administrator bootstrap, and endpoint mapping. `MapAuthNet()` remains available for endpoint-only mapping.
 
 ## Authentication Modes
 

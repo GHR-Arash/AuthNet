@@ -92,6 +92,9 @@ public static class AuthNetServiceCollectionExtensions
         services.TryAddScoped<IAuthNetAuditWriter, AuthNetAuditWriter>();
         services.AddSingleton<IAuthorizationHandler, AuthNetPermissionAuthorizationHandler>();
         services.TryAddSingleton<AuthNetConfigurationValidator>();
+        services.TryAddSingleton<AuthNetDatabaseInitializer>();
+        services.TryAddSingleton<AuthNetInitialAdministratorSeeder>();
+        services.TryAddSingleton<AuthNetStartupRunner>();
         services.AddAuthNetApi();
         services.AddAuthorization(authorization =>
         {

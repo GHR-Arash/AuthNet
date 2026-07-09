@@ -7,6 +7,11 @@ Slice 22 built-in UI polish is implemented and tracked in:
 - `tasks/slice-22-plan.md`
 - `tasks/slice-22-todo.md`
 
+Slice 23 fluent startup bootstrap API is implemented and tracked in:
+
+- `tasks/slice-23-plan.md`
+- `tasks/slice-23-todo.md`
+
 Slice 21 package publication finalization is implemented and tracked in:
 
 - `tasks/slice-21-plan.md`
@@ -196,7 +201,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 160 passing tests.
+Latest full verification: 167 passing tests.
 
 Package-consumer verification is integrated into `.\scripts\verify.ps1` after package packing.
 
@@ -228,20 +233,27 @@ Admin user management UI is available under the configured AuthNet route prefix:
 - `/auth/admin/users`
 - `/auth/admin/users/{id}`
 
-The UI requires the ASP.NET Core Identity `Administrator` role. AuthNet packages do not seed a default admin username or password.
+The UI requires the ASP.NET Core Identity `Administrator` role. AuthNet creates an initial administrator only when the host explicitly configures the fluent startup bootstrap.
 
-The sample host creates a demo admin user in code at startup:
+AuthNet.AspNetCore now provides fluent startup bootstrap through `await app.UseAuthNet(authNet => ...)`:
+
+- `ApplyMigrations()` applies EF migrations for relational providers and skips EF InMemory.
+- `InitialAdministrator(...)` creates/promotes a configured user into the `Administrator` role.
+- Existing users are not password-reset by initial administrator bootstrap.
+- `AuthNet:InitialAdministrator:{Enabled,UserName,Email,Password}` drives appsettings-based setup.
+
+The sample host creates a demo admin user through the package fluent startup API:
 
 - `UserName=admin`
 - `Email=admin@admin.com`
 - `Password=Password1!`
 
-The sample host also has explicit admin bootstrap in any environment through:
+The sample host also has explicit initial administrator configuration through:
 
-- `AuthNet:AdminBootstrap:Enabled`
-- `AuthNet:AdminBootstrap:UserName`
-- `AuthNet:AdminBootstrap:Email`
-- `AuthNet:AdminBootstrap:Password`
+- `AuthNet:InitialAdministrator:Enabled`
+- `AuthNet:InitialAdministrator:UserName`
+- `AuthNet:InitialAdministrator:Email`
+- `AuthNet:InitialAdministrator:Password`
 
 The sample host exposes admin workflow links from the home page, shared navigation, and protected `/Admin` page:
 

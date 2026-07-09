@@ -37,32 +37,6 @@ public sealed class SampleHostAuthNetPersistenceTests
     }
 
     [Fact]
-    public void Inmemory_database_skips_migrations()
-    {
-        var configuration = Configuration(
-            ("AuthNet:ApplyMigrations", "true"));
-
-        var shouldApplyMigrations = SampleHostAuthNetPersistence.ShouldApplyMigrations(
-            configuration,
-            useInMemoryDatabase: true);
-
-        Assert.False(shouldApplyMigrations);
-    }
-
-    [Fact]
-    public void Postgres_database_allows_migrations_when_configured()
-    {
-        var configuration = Configuration(
-            ("AuthNet:ApplyMigrations", "true"));
-
-        var shouldApplyMigrations = SampleHostAuthNetPersistence.ShouldApplyMigrations(
-            configuration,
-            useInMemoryDatabase: false);
-
-        Assert.True(shouldApplyMigrations);
-    }
-
-    [Fact]
     public void Sample_host_inmemory_registration_uses_inmemory_provider()
     {
         var services = new ServiceCollection();

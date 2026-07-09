@@ -28,6 +28,12 @@ PostgreSQL is the default and production persistence path. The sample host also 
   "UseDevelopmentEmailSender": false,
   "RequireConfirmedEmail": true,
   "ApplyMigrations": false,
+  "InitialAdministrator": {
+    "Enabled": false,
+    "UserName": "",
+    "Email": "",
+    "Password": ""
+  },
   "Invitations": {
     "Expiration": "7.00:00:00"
   }
@@ -106,7 +112,7 @@ true
 
 ### `ApplyMigrations`
 
-Sample-host convenience setting for applying EF migrations at startup.
+Opt-in setting commonly passed into `UseAuthNet(...ApplyMigrations(...))` for applying EF migrations at startup.
 
 Default:
 
@@ -114,9 +120,35 @@ Default:
 false
 ```
 
-Prefer explicit migration deployment outside local development.
+Prefer explicit migration deployment outside local development unless startup migrations are already part of your release model.
 
-When the sample host runs with Development-only InMemory mode, migrations are skipped because EF Core InMemory does not use relational migrations.
+When AuthNet is configured with EF Core InMemory, `ApplyMigrations()` skips migrations because EF Core InMemory does not use relational migrations.
+
+### `InitialAdministrator`
+
+Optional startup bootstrap configuration for the first administrator.
+
+```json
+"AuthNet": {
+  "InitialAdministrator": {
+    "Enabled": true,
+    "UserName": "admin",
+    "Email": "admin@example.test",
+    "Password": "Password1!"
+  }
+}
+```
+
+Use it through the fluent startup API:
+
+```csharp
+await app.UseAuthNet(authNet => authNet
+    .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator")));
+```
+
+AuthNet creates the `Administrator` role if needed, creates the user only when missing, confirms the initial email, and assigns administrator access. Existing users are not password-reset by this bootstrap.
+
+Keep `Password` in a secret manager or environment variable for real deployments.
 
 ### `Invitations:Expiration`
 

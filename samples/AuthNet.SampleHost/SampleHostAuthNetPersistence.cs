@@ -20,11 +20,6 @@ public static class SampleHostAuthNetPersistence
         return useInMemoryDatabase;
     }
 
-    public static bool ShouldApplyMigrations(IConfiguration configuration, bool useInMemoryDatabase)
-    {
-        return configuration.GetValue<bool>("AuthNet:ApplyMigrations") && !useInMemoryDatabase;
-    }
-
     public static void AddAuthNet(
         IServiceCollection services,
         IConfiguration configuration,

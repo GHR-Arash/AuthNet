@@ -40,6 +40,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 20 committed package-consumer sample is implemented and tracked in `tasks/slice-20-plan.md` and `tasks/slice-20-todo.md`.
 - Slice 21 package publication finalization is implemented and tracked in `tasks/slice-21-plan.md`, `tasks/slice-21-todo.md`, and `docs/slice-21/package-publication-finalization.md`.
 - Slice 22 built-in UI polish is implemented and tracked in `tasks/slice-22-plan.md` and `tasks/slice-22-todo.md`.
+- Slice 23 fluent startup bootstrap API is implemented and tracked in `tasks/slice-23-plan.md` and `tasks/slice-23-todo.md`.
 
 ## Implemented Product Surface
 
@@ -75,7 +76,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Admin audit UI supports recent audit event listing and filters by action, actor, target, and date range.
 - Admin invitation UI supports invitation list/create, duplicate pending invite rejection, existing-user rejection, and email-delivered single-use acceptance links.
 - Invitation acceptance creates a local Identity user, confirms the invited email, marks the invitation accepted, and signs in the user.
-- AuthNet packages do not seed a default admin username or password; host applications own first-admin bootstrap.
+- AuthNet packages do not create default admin credentials unless the host explicitly configures `UseAuthNet(...InitialAdministrator(...))`.
 - ASP.NET Core Identity user/context in `AuthNet.Persistence.Postgres`.
 - Persisted account invitations in `AuthNet.Persistence.Postgres`.
 - Persisted admin audit events in `AuthNet.Persistence.Postgres`.
@@ -98,7 +99,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
 - Package metadata verification is available through `scripts/verify-package-metadata.ps1`; strict public-publication metadata mode validates repository URL and packaged MIT `LICENSE`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
-- Sample host creates a demo admin user in code at startup and supports explicit additional admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
+- Sample host creates a demo admin user through the package fluent startup API and supports config-driven initial administrator setup through `AuthNet:InitialAdministrator:{Enabled,UserName,Email,Password}`.
+- `UseAuthNet(Action<AuthNetStartupBuilder>)` validates AuthNet configuration, optionally applies migrations, optionally creates/promotes an initial administrator, and maps AuthNet endpoints.
 - Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
 - `samples/AuthNet.SampleHost/appsettings.SmtpSample.json` shows SMTP settings without committed secrets.
 - Local verification is centralized in `scripts/verify.ps1`.
@@ -122,7 +124,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 160 passing tests.
+Latest full test count: 167 passing tests.
 
 Slice 14 focused SPA API tests:
 
@@ -217,7 +219,7 @@ Slice 13 focused permission tests:
 Sample host admin bootstrap focused tests:
 
 ```powershell
-.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAdminBootstrapTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetStartupTests
 ```
 
 Slice 12 focused sample email sender tests:

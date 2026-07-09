@@ -38,7 +38,9 @@ Build first:
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
 - Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
 - The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
-- The sample host creates a demo admin user in code at startup and can also explicitly bootstrap additional admin users via `AuthNet:AdminBootstrap`; this is local sample behavior, not package behavior.
+- AuthNet.AspNetCore owns fluent startup tasks through `await app.UseAuthNet(authNet => ...)`, including opt-in migration application and initial administrator bootstrap.
+- Initial administrator bootstrap creates/promotes a configured user into the `Administrator` role without exposing `UserManager`/`RoleManager` boilerplate to package consumers.
+- The sample host creates its demo admin user through the package fluent startup API and can override it through `AuthNet:InitialAdministrator`.
 - The sample host can register a sample SMTP email sender via `AuthNet:Email:Smtp` when `UseDevelopmentEmailSender=false`; this is local sample behavior, not package behavior.
 - The sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user and invitation pages for manual verification.
 - The sample host home page and shared navigation link to the built-in AuthNet home page for manual verification.
@@ -184,14 +186,13 @@ Sample-host-only development persistence:
 - The setting is rejected outside Development.
 - Startup migrations are skipped while InMemory mode is active.
 
-Sample-host-only admin bootstrap:
+AuthNet fluent startup:
 
-- The sample host creates `UserName=admin`, `Email=admin@admin.com`, and password `Password1!` in code at startup for local demo access.
-- `AuthNet:AdminBootstrap:Enabled=true` creates the `Administrator` role.
-- `AuthNet:AdminBootstrap:Email` identifies the user to promote or create.
-- `AuthNet:AdminBootstrap:UserName` optionally sets the username for a newly created admin.
-- `AuthNet:AdminBootstrap:Password` is required only when creating a missing user.
-- The optional configuration bootstrap uses the same explicit configuration in Development and Production and does not change package behavior.
+- `await app.UseAuthNet(authNet => authNet.ApplyMigrations())` applies EF migrations for relational providers and skips EF InMemory.
+- `await app.UseAuthNet(authNet => authNet.InitialAdministrator(...))` creates the `Administrator` role if needed, creates a missing user, confirms the initial email, and assigns administrator access.
+- `AuthNet:InitialAdministrator:{Enabled,UserName,Email,Password}` can drive the same initial administrator bootstrap from configuration.
+- Existing users are not password-reset by initial administrator bootstrap; AuthNet only ensures administrator role membership.
+- Keep initial administrator passwords in secrets or environment variables outside local samples.
 - The sample home page, shared navigation, and protected `/Admin` page expose links to `/auth/admin/users`, `/auth/admin/invitations`, and `/auth/admin/invitations/new`.
 - The same sample pages expose `/auth/admin/users/new` for direct local user creation.
 - The same sample pages expose `/auth/admin/audit` for admin audit review.
@@ -214,10 +215,12 @@ builder.Services.AddAuthNet(options =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapAuthNet();
+await app.UseAuthNet(authNet => authNet
+    .ApplyMigrations(builder.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
+    .InitialAdministrator(builder.Configuration.GetSection("AuthNet:InitialAdministrator")));
 ```
 
-`UseAuthNet()` remains as a compatibility wrapper. New integrations should use `MapAuthNet()`.
+`MapAuthNet()` remains available for endpoint-only mapping. New integrations that want startup tasks should use `UseAuthNet(...)`.
 
 ## Current Canonical Docs
 
