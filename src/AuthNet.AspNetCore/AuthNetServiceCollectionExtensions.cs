@@ -107,6 +107,7 @@ public static class AuthNetServiceCollectionExtensions
             .AddRazorPages(razor =>
             {
                 var prefix = options.NormalizedAccountRoutePrefix.Trim('/');
+                razor.Conventions.AddAreaPageRoute("AuthNet", "/Index", prefix);
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/Login", $"{prefix}/login");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/Register", $"{prefix}/register");
                 razor.Conventions.AddAreaPageRoute("AuthNet", "/Account/Logout", $"{prefix}/logout");

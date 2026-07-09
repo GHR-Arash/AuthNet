@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 22 built-in UI polish is implemented and tracked in:
+
+- `tasks/slice-22-plan.md`
+- `tasks/slice-22-todo.md`
+
 Slice 21 package publication finalization is implemented and tracked in:
 
 - `tasks/slice-21-plan.md`
@@ -95,6 +100,17 @@ Not packable:
 JWT and refresh-token authentication remain deferred.
 
 ## Current Verification
+
+Latest focused UI polish verification:
+
+```powershell
+.\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetRouteTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetLoginTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetAdminUserTests
+```
+
+Manual sample-host HTTP check in Development verified `/auth` returns 200 and `_content/AuthNet.UI.Razor/authnet.css` returns 200.
 
 Latest known package verification uses Release build plus per-project pack commands into ignored `artifacts/packages`.
 
@@ -200,6 +216,8 @@ Before public package publication, confirm:
 Publication work is paused for now.
 
 ## Current Admin UI
+
+Built-in fallback UI includes a package-owned home page at `/auth` by default, plus a navigation shell and package-owned CSS for account, MFA, users, roles, invitations, and audit workflows. Hosts can still replace the fallback shell with `AuthNetOptions.LayoutPath`.
 
 Admin user management UI is available under the configured AuthNet route prefix:
 

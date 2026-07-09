@@ -39,6 +39,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 19 SPA invitation acceptance JSON is implemented and tracked in `tasks/slice-19-plan.md` and `tasks/slice-19-todo.md`.
 - Slice 20 committed package-consumer sample is implemented and tracked in `tasks/slice-20-plan.md` and `tasks/slice-20-todo.md`.
 - Slice 21 package publication finalization is implemented and tracked in `tasks/slice-21-plan.md`, `tasks/slice-21-todo.md`, and `docs/slice-21/package-publication-finalization.md`.
+- Slice 22 built-in UI polish is implemented and tracked in `tasks/slice-22-plan.md` and `tasks/slice-22-todo.md`.
 
 ## Implemented Product Surface
 
@@ -55,6 +56,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `samples/AuthNet.PackageConsumer`
   - `tests/AuthNet.Tests`
 - Built-in Razor Pages account UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Account`.
+- Built-in AuthNet home page is mapped under the configured account route prefix, `/auth` by default.
+- Built-in fallback UI ships a package-owned navigation shell and CSS at `_content/AuthNet.UI.Razor/authnet.css`.
 - Account UI includes login by email or username, logout, registration, confirm/resend email, forgot/reset password, profile, verified email change, change password, and external login/linking.
 - Account UI includes authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count display, and user-owned MFA disable.
 - Built-in Razor Pages admin user-management UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Users`.
@@ -81,6 +84,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user list, direct user creation, role management, invitation pages, and SPA smoke page.
+- Sample host home page and shared navigation link to the built-in AuthNet home page.
 - Sample host SPA/home pages link to `/auth/api/openapi.json`; the sample SPA page can manually inspect and accept invitation tokens.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin audit page.
 - `UseAuthNet()` remains as a compatibility wrapper.
@@ -105,6 +109,10 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 Known passing commands:
 
 ```powershell
+.\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetRouteTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetLoginTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-build --filter AuthNetAdminUserTests
 .\scripts\verify.ps1
 .\scripts\verify-package-metadata.ps1
 .\scripts\verify-package-consumer.ps1

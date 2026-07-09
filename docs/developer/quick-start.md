@@ -227,7 +227,18 @@ The same configuration shape is shown in `samples/AuthNet.SampleHost/appsettings
 
 ## Admin Bootstrap
 
-The sample host can create or promote an admin user when explicit configuration is set. This is sample-host-only and uses the same configuration shape in Development and Production.
+The sample host can create or promote an admin user when explicit configuration is set. This is sample-host-only and uses the same configuration shape in Development and Production. AuthNet packages do not seed a default administrator account.
+
+The implementation is in `samples\AuthNet.SampleHost\SampleHostAdminBootstrap.cs` and is invoked from `samples\AuthNet.SampleHost\Program.cs` after the database is ready.
+
+Behavior:
+
+- `AuthNet:AdminBootstrap:Enabled=false` does nothing.
+- `AuthNet:AdminBootstrap:Enabled=true` creates the `Administrator` role if needed.
+- `AuthNet:AdminBootstrap:Email` is required and identifies the user to create or promote.
+- `AuthNet:AdminBootstrap:UserName` is optional and is used only for a newly created user.
+- `AuthNet:AdminBootstrap:Password` is required only when the user does not already exist.
+- Existing users can be promoted to `Administrator` without providing a password.
 
 To create an admin user:
 
@@ -263,6 +274,14 @@ $env:AuthNet__AdminBootstrap__Enabled='true'
 $env:AuthNet__AdminBootstrap__Email='existing@example.test'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
+
+Focused bootstrap tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAdminBootstrapTests
+```
+
+Package consumers should implement their own first-admin bootstrap in the host application. The package exposes the normal ASP.NET Core Identity services (`UserManager<AuthNetUser>` and `RoleManager<IdentityRole>`); it intentionally does not ship hardcoded credentials or an automatic admin seed.
 
 ## Apply Database Schema
 
