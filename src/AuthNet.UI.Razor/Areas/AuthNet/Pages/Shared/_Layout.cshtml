@@ -1,14 +1,83 @@
+@inject global::AuthNet.Core.AuthNetOptions AuthNetOptions
+@{
+    var title = ViewData["Title"]?.ToString();
+    var applicationName = string.IsNullOrWhiteSpace(AuthNetOptions.ApplicationName)
+        ? "AuthNet"
+        : AuthNetOptions.ApplicationName;
+    var prefix = AuthNetOptions.NormalizedAccountRoutePrefix;
+    var currentPath = Context.Request.Path.Value ?? string.Empty;
+    var isAdmin = currentPath.StartsWith(prefix + "/admin", StringComparison.OrdinalIgnoreCase);
+    var isSignedIn = User.Identity?.IsAuthenticated == true;
+    var canSeeAdministration = isSignedIn && User.IsInRole("Administrator");
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@(string.IsNullOrWhiteSpace(title) ? applicationName : $"{title} - {applicationName}")</title>
+    <link rel="stylesheet" href="~/_content/AuthNet.UI.Razor/authnet.css" asp-append-version="true" />
 </head>
 <body>
-    <main>
-        @RenderBody()
-    </main>
+    <div class="authnet-shell">
+        <header class="authnet-topbar">
+            <a class="authnet-brand" href="@prefix">
+                @if (!string.IsNullOrWhiteSpace(AuthNetOptions.BrandLogoUrl))
+                {
+                    <img src="@AuthNetOptions.BrandLogoUrl" alt="" class="authnet-brand-logo" />
+                }
+                <span>@applicationName</span>
+            </a>
+            <nav class="authnet-topnav" aria-label="Account navigation">
+                @if (isSignedIn)
+                {
+                    <a href="@prefix/profile">Profile</a>
+                    <a href="@prefix/mfa">MFA</a>
+                    @if (canSeeAdministration)
+                    {
+                        <a href="@prefix/admin/users">Admin</a>
+                    }
+                    <a href="@prefix/logout">Sign out</a>
+                }
+                else
+                {
+                    <a href="@prefix/login">Sign in</a>
+                }
+            </nav>
+        </header>
+
+        <div class="authnet-frame">
+            <aside class="authnet-sidebar" aria-label="AuthNet sections">
+                <div class="authnet-sidebar-group">
+                    <div class="authnet-sidebar-title">Account</div>
+                    @if (isSignedIn)
+                    {
+                        <a href="@prefix/profile" class="@(currentPath.Equals(prefix + "/profile", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Profile</a>
+                        <a href="@prefix/mfa" class="@(currentPath.StartsWith(prefix + "/mfa", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Multi-factor authentication</a>
+                        <a href="@prefix/logout" class="@(currentPath.Equals(prefix + "/logout", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Sign out</a>
+                    }
+                    else
+                    {
+                        <a href="@prefix/login" class="@(currentPath.Equals(prefix + "/login", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Sign in</a>
+                    }
+                </div>
+                @if (canSeeAdministration)
+                {
+                    <div class="authnet-sidebar-group">
+                        <div class="authnet-sidebar-title">Administration</div>
+                        <a href="@prefix/admin/users" class="@(isAdmin && currentPath.Contains("/users", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Users</a>
+                        <a href="@prefix/admin/roles" class="@(isAdmin && currentPath.Contains("/roles", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Roles</a>
+                        <a href="@prefix/admin/invitations" class="@(isAdmin && currentPath.Contains("/invitations", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Invitations</a>
+                        <a href="@prefix/admin/audit" class="@(isAdmin && currentPath.Contains("/audit", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)">Audit events</a>
+                    </div>
+                }
+            </aside>
+
+            <main class="authnet-main" role="main">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

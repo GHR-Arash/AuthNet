@@ -227,16 +227,38 @@ The same configuration shape is shown in `samples/AuthNet.SampleHost/appsettings
 
 ## Admin Bootstrap
 
-The sample host can create or promote an admin user when explicit configuration is set. This is sample-host-only and uses the same configuration shape in Development and Production.
+The sample host creates a demo administrator user from code at startup. This is sample-host-only behavior. AuthNet packages do not seed a default administrator account.
 
-To create an admin user:
+The implementation is in `samples\AuthNet.SampleHost\SampleHostAdminBootstrap.cs` and is invoked from `samples\AuthNet.SampleHost\Program.cs` after the database is ready.
+
+Demo admin credentials:
+
+```text
+Username: admin
+Email: admin@admin.com
+Password: Password1!
+```
+
+Programmatic demo bootstrap behavior:
+
+- Creates the `Administrator` role if needed.
+- Creates `admin@admin.com` with username `admin` if missing.
+- Confirms the sample admin email.
+- Assigns the sample admin to `Administrator`.
+
+The sample host also keeps an optional config-driven bootstrap for local override and promotion scenarios:
+
+- `AuthNet:AdminBootstrap:Enabled=false` does nothing.
+- `AuthNet:AdminBootstrap:Enabled=true` creates the `Administrator` role if needed.
+- `AuthNet:AdminBootstrap:Email` is required and identifies the user to create or promote.
+- `AuthNet:AdminBootstrap:UserName` is optional and is used only for a newly created user.
+- `AuthNet:AdminBootstrap:Password` is required only when the user does not already exist.
+- Existing users can be promoted to `Administrator` without providing a password.
+
+The demo admin is available without setting environment variables:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
-$env:AuthNet__AdminBootstrap__Enabled='true'
-$env:AuthNet__AdminBootstrap__UserName='admin'
-$env:AuthNet__AdminBootstrap__Email='admin@example.test'
-$env:AuthNet__AdminBootstrap__Password='Password1!'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
@@ -245,6 +267,17 @@ Then sign in at `/auth/login` with:
 ```text
 admin
 Password1!
+```
+
+To create or promote an additional configured admin user:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT='Development'
+$env:AuthNet__AdminBootstrap__Enabled='true'
+$env:AuthNet__AdminBootstrap__UserName='admin'
+$env:AuthNet__AdminBootstrap__Email='admin@example.test'
+$env:AuthNet__AdminBootstrap__Password='Password1!'
+.\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
 Open the admin UI:
@@ -263,6 +296,24 @@ $env:AuthNet__AdminBootstrap__Enabled='true'
 $env:AuthNet__AdminBootstrap__Email='existing@example.test'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
+
+Focused bootstrap tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAdminBootstrapTests
+```
+
+Package consumers should implement their own first-admin bootstrap in the host application. The package exposes the normal ASP.NET Core Identity services (`UserManager<AuthNetUser>` and `RoleManager<IdentityRole>`); it intentionally does not ship hardcoded credentials or an automatic admin seed.
+
+The programmatic pattern for consumers is:
+
+1. Resolve `RoleManager<IdentityRole>` and `UserManager<AuthNetUser>` from a scoped service provider.
+2. Create the `Administrator` role if it is missing.
+3. Find the intended admin by email.
+4. Create the user only when the host's bootstrap policy allows creation and a password/secret was supplied.
+5. Assign the user to `Administrator` if they are not already in the role.
+
+The user-facing guide has a copyable `AdminUserBootstrap.EnsureAdminUserAsync(...)` helper under `docs/users/getting-started.md`.
 
 ## Apply Database Schema
 
@@ -334,7 +385,7 @@ Useful routes:
 
 The integration test suite uses isolated EF Core InMemory databases through the AuthNet test host. The sample host also supports Development-only InMemory mode for local manual account-flow smoke testing.
 
-The sample host does not seed a default admin username or password unless the explicit `AuthNet:AdminBootstrap` settings are supplied.
+The sample host creates the demo admin user in code at startup. This is sample-host-only behavior and is intentionally separate from AuthNet package behavior.
 
 ## Sample AuthNet Configuration
 

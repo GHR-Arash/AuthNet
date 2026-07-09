@@ -1,0 +1,66 @@
+@page
+@inject global::AuthNet.Core.AuthNetOptions AuthNetOptions
+@{
+    ViewData["Title"] = "Home";
+    var prefix = AuthNetOptions.NormalizedAccountRoutePrefix;
+    var isSignedIn = User.Identity?.IsAuthenticated == true;
+    var canSeeAdministration = isSignedIn && User.IsInRole("Administrator");
+}
+
+<section class="authnet-home">
+    <div class="authnet-home-copy">
+        <p class="authnet-kicker">Built-in identity UI</p>
+        <h1>@AuthNetOptions.ApplicationName</h1>
+        <p class="authnet-lead">Account, multi-factor authentication, invitation, role, user, and audit workflows in one server-rendered UI.</p>
+        <div class="authnet-actions">
+            @if (isSignedIn)
+            {
+                <a class="btn btn-primary" href="@prefix/profile">Open profile</a>
+                <a class="btn btn-outline-secondary" href="@prefix/logout">Sign out</a>
+            }
+            else
+            {
+                <a class="btn btn-primary" href="@prefix/login">Sign in</a>
+            }
+        </div>
+    </div>
+    <div class="authnet-home-panel" aria-label="Available sections">
+        @if (isSignedIn)
+        {
+            <a href="@prefix/profile">
+                <span>Account</span>
+                <strong>Profile and password</strong>
+            </a>
+            <a href="@prefix/mfa">
+                <span>Security</span>
+                <strong>Multi-factor authentication</strong>
+            </a>
+            @if (canSeeAdministration)
+            {
+                <a href="@prefix/admin/users">
+                    <span>Admin</span>
+                    <strong>User management</strong>
+                </a>
+                <a href="@prefix/admin/roles">
+                    <span>Access</span>
+                    <strong>Roles and permissions</strong>
+                </a>
+                <a href="@prefix/admin/invitations">
+                    <span>Onboarding</span>
+                    <strong>Invitations</strong>
+                </a>
+                <a href="@prefix/admin/audit">
+                    <span>Review</span>
+                    <strong>Audit events</strong>
+                </a>
+            }
+        }
+        else
+        {
+            <a href="@prefix/login">
+                <span>Account</span>
+                <strong>Sign in</strong>
+            </a>
+        }
+    </div>
+</section>

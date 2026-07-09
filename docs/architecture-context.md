@@ -34,12 +34,14 @@ Build first:
 - OpenAPI document endpoint for the same-origin SPA JSON endpoints.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
+- Built-in fallback UI home page, navigation shell, and package-owned CSS for hosts that do not provide a custom layout.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
 - Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
 - The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
-- The sample host can explicitly bootstrap an admin user via `AuthNet:AdminBootstrap` in any environment; this is local sample behavior, not package behavior.
+- The sample host creates a demo admin user in code at startup and can also explicitly bootstrap additional admin users via `AuthNet:AdminBootstrap`; this is local sample behavior, not package behavior.
 - The sample host can register a sample SMTP email sender via `AuthNet:Email:Smtp` when `UseDevelopmentEmailSender=false`; this is local sample behavior, not package behavior.
 - The sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user and invitation pages for manual verification.
+- The sample host home page and shared navigation link to the built-in AuthNet home page for manual verification.
 
 Deferred:
 
@@ -176,11 +178,12 @@ Sample-host-only development persistence:
 
 Sample-host-only admin bootstrap:
 
+- The sample host creates `UserName=admin`, `Email=admin@admin.com`, and password `Password1!` in code at startup for local demo access.
 - `AuthNet:AdminBootstrap:Enabled=true` creates the `Administrator` role.
 - `AuthNet:AdminBootstrap:Email` identifies the user to promote or create.
 - `AuthNet:AdminBootstrap:UserName` optionally sets the username for a newly created admin.
 - `AuthNet:AdminBootstrap:Password` is required only when creating a missing user.
-- The bootstrap uses the same explicit configuration in Development and Production and does not change package behavior.
+- The optional configuration bootstrap uses the same explicit configuration in Development and Production and does not change package behavior.
 - The sample home page, shared navigation, and protected `/Admin` page expose links to `/auth/admin/users`, `/auth/admin/invitations`, and `/auth/admin/invitations/new`.
 - The same sample pages expose `/auth/admin/users/new` for direct local user creation.
 - The same sample pages expose `/auth/admin/audit` for admin audit review.

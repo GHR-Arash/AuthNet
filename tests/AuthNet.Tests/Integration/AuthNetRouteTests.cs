@@ -5,6 +5,7 @@ namespace AuthNet.Tests.Integration;
 public sealed class AuthNetRouteTests
 {
     [Theory]
+    [InlineData("/auth")]
     [InlineData("/auth/login")]
     [InlineData("/auth/register")]
     [InlineData("/auth/forgot-password")]
@@ -21,6 +22,54 @@ public sealed class AuthNetRouteTests
 
         var body = await response.Content.ReadAsStringAsync();
         Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+    }
+
+    [Fact]
+    public async Task Home_navigation_hides_administration_and_sign_out_for_anonymous_users()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+
+        var response = await host.Client.GetAsync("/auth");
+        var body = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("href=\"/auth/login\"", body);
+        Assert.DoesNotContain("href=\"/auth/logout\"", body);
+        Assert.DoesNotContain("href=\"/auth/admin/users\"", body);
+    }
+
+    [Fact]
+    public async Task Home_navigation_hides_administration_for_signed_in_non_admin_users()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateUserAsync("nav@example.test");
+        var loginResponse = await host.SignInAsync("nav@example.test");
+        Assert.Equal(HttpStatusCode.Redirect, loginResponse.StatusCode);
+
+        var response = await host.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/auth"));
+        var body = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("href=\"/auth/logout\"", body);
+        Assert.DoesNotContain("href=\"/auth/login\"", body);
+        Assert.DoesNotContain("href=\"/auth/admin/users\"", body);
+    }
+
+    [Fact]
+    public async Task Home_navigation_shows_administration_for_signed_in_admin_users()
+    {
+        await using var host = await AuthNetTestHost.CreateAsync();
+        await host.CreateAdminUserAsync("admin.nav@example.test");
+        var loginResponse = await host.SignInAsync("admin.nav@example.test");
+        Assert.Equal(HttpStatusCode.Redirect, loginResponse.StatusCode);
+
+        var response = await host.SendAsync(new HttpRequestMessage(HttpMethod.Get, "/auth"));
+        var body = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("href=\"/auth/logout\"", body);
+        Assert.Contains("href=\"/auth/admin/users\"", body);
+        Assert.DoesNotContain("href=\"/auth/login\"", body);
     }
 
     [Theory]

@@ -269,7 +269,19 @@ AuthNet also registers built-in permission policies for its admin UI. Permission
 
 ## Admin User Management
 
-The built-in admin UI uses the standard `Administrator` role as the superuser role:
+The built-in admin UI uses the standard `Administrator` role as the superuser role. AuthNet packages do not seed an administrator account, username, or password. The host application must decide how the first administrator is created.
+
+### Bootstrap the first administrator in your app
+
+Use a startup bootstrap, one-time migration job, deployment script, or internal operations tool that does all of the following:
+
+- Creates the `Administrator` role if it does not exist.
+- Finds an intended admin user by email.
+- Creates that user only when your deployment policy allows it.
+- Assigns the user to `Administrator`.
+- Sources any initial password from secrets or operator input, never from committed code or JSON.
+
+Example startup bootstrap:
 
 ```csharp
 using AuthNet.Persistence.Postgres;
@@ -284,14 +296,110 @@ if (!await roleManager.RoleExistsAsync("Administrator"))
     await roleManager.CreateAsync(new IdentityRole("Administrator"));
 }
 
-var user = await userManager.FindByEmailAsync("admin@example.com");
-if (user is not null)
+var adminEmail = app.Configuration["AdminBootstrap:Email"];
+var adminPassword = app.Configuration["AdminBootstrap:Password"];
+
+if (!string.IsNullOrWhiteSpace(adminEmail))
 {
-    await userManager.AddToRoleAsync(user, "Administrator");
+    var user = await userManager.FindByEmailAsync(adminEmail);
+    if (user is null && !string.IsNullOrWhiteSpace(adminPassword))
+    {
+        user = new AuthNetUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true,
+            LockoutEnabled = true
+        };
+
+        var create = await userManager.CreateAsync(user, adminPassword);
+        if (!create.Succeeded)
+        {
+            throw new InvalidOperationException(
+                string.Join(" ", create.Errors.Select(error => error.Description)));
+        }
+    }
+
+    if (user is not null && !await userManager.IsInRoleAsync(user, "Administrator"))
+    {
+        await userManager.AddToRoleAsync(user, "Administrator");
+    }
 }
 ```
 
-Use your own bootstrap policy for creating the first administrator. Do not ship a hardcoded admin password.
+If you prefer to keep this out of `Program.cs`, put the same logic behind a small helper that your startup code, migration runner, or operations endpoint can call:
+
+```csharp
+using AuthNet.Persistence.Postgres;
+using Microsoft.AspNetCore.Identity;
+
+public static class AdminUserBootstrap
+{
+    public static async Task EnsureAdminUserAsync(
+        IServiceProvider services,
+        string email,
+        string? userName,
+        string? password)
+    {
+        using var scope = services.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+
+        if (!await roleManager.RoleExistsAsync("Administrator"))
+        {
+            var roleResult = await roleManager.CreateAsync(new IdentityRole("Administrator"));
+            ThrowIfFailed(roleResult, "create Administrator role");
+        }
+
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new InvalidOperationException("Password is required when creating a new admin user.");
+            }
+
+            user = new AuthNetUser
+            {
+                UserName = string.IsNullOrWhiteSpace(userName) ? email : userName,
+                Email = email,
+                EmailConfirmed = true,
+                LockoutEnabled = true
+            };
+
+            var createResult = await userManager.CreateAsync(user, password);
+            ThrowIfFailed(createResult, "create admin user");
+        }
+
+        if (!await userManager.IsInRoleAsync(user, "Administrator"))
+        {
+            var addRoleResult = await userManager.AddToRoleAsync(user, "Administrator");
+            ThrowIfFailed(addRoleResult, "assign Administrator role");
+        }
+    }
+
+    private static void ThrowIfFailed(IdentityResult result, string action)
+    {
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(
+                $"Failed to {action}: {string.Join(" ", result.Errors.Select(error => error.Description))}");
+        }
+    }
+}
+```
+
+Call it after AuthNet services are registered and after the database schema is available:
+
+```csharp
+await AdminUserBootstrap.EnsureAdminUserAsync(
+    app.Services,
+    app.Configuration["AdminBootstrap:Email"]!,
+    app.Configuration["AdminBootstrap:UserName"],
+    app.Configuration["AdminBootstrap:Password"]);
+```
+
+For production, prefer promoting an existing verified user or requiring a one-time secret supplied by the deployment environment. Disable the bootstrap after the first administrator exists unless your operations policy intentionally keeps it idempotent.
 
 After the first administrator exists, administrators can create roles, assign built-in AuthNet permissions to roles, and assign roles to users. AuthNet prevents removing the last remaining administrator.
 
@@ -310,7 +418,35 @@ Administrators can also directly create local users at `/auth/admin/users/new`. 
 
 Administrators can review successful admin mutation events at `/auth/admin/audit`. Audit coverage includes direct user creation, invitation creation, role creation, role assignment/removal, role permission assignment/removal, administrator role grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
 
-The repository sample host includes an explicit admin bootstrap that uses the same configuration in Development and Production:
+### Repository sample-host bootstrap
+
+The repository sample host creates a demo administrator from code at startup for local testing. It is sample-host code, not AuthNet package behavior.
+
+Demo admin credentials:
+
+```text
+Username: admin
+Email: admin@admin.com
+Password: Password1!
+```
+
+Run the sample host and sign in at `/auth/login` with username `admin` and password `Password1!`:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT='Development'
+.\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
+```
+
+The repository sample host also includes an optional configuration-driven bootstrap for creating or promoting another admin user.
+
+Configuration keys:
+
+- `AuthNet:AdminBootstrap:Enabled`: enables the sample bootstrap.
+- `AuthNet:AdminBootstrap:Email`: identifies the user to create or promote.
+- `AuthNet:AdminBootstrap:UserName`: optional username for a newly created user.
+- `AuthNet:AdminBootstrap:Password`: required only when the sample bootstrap must create a missing user.
+
+Run the sample host with environment variables to create or promote an additional configured admin:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
@@ -321,11 +457,20 @@ $env:AuthNet__AdminBootstrap__Password='Password1!'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
-With that configuration, sign in at `/auth/login` using username `admin` and password `Password1!`.
+With that configuration, the configured account is also assigned to `Administrator`.
+
+If the user already exists, the sample bootstrap can promote that user without a password:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT='Development'
+$env:AuthNet__AdminBootstrap__Enabled='true'
+$env:AuthNet__AdminBootstrap__Email='existing@example.test'
+.\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
+```
 
 In the repository sample host, the home page, navbar, and protected `/Admin` page link to the user list, direct user creation, role management, audit, and invitation pages so the admin workflows are discoverable after sign-in.
 
-This sample-host bootstrap is not package behavior and does not provide default credentials.
+Do not copy the sample password into a real application. Use environment variables, a secret manager, or an operator-controlled one-time setup path.
 
 ## Account Invitations
 

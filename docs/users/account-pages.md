@@ -2,6 +2,8 @@
 
 AuthNet provides built-in Razor Pages for common account flows.
 
+The package fallback layout includes a built-in navigation shell and package-owned CSS from the Razor Class Library. Hosts can still replace the layout through `AuthNetOptions.LayoutPath`; when they do, they own the surrounding navigation and styling.
+
 ## Route Prefix
 
 Routes are controlled by:
@@ -16,6 +18,7 @@ With the default `/auth` prefix, routes are:
 
 | Route | Purpose |
 |---|---|
+| `/auth` | Built-in AuthNet home page with account, security, and admin navigation. |
 | `/auth/login` | Sign in with email or username plus password, or use an external provider. |
 | `/auth/logout` | Sign out. |
 | `/auth/register` | Create account when public registration is enabled. |
@@ -135,7 +138,9 @@ This slice does not include SMS OTP, email OTP, passkeys, generated QR-code imag
 
 The admin user-management UI is server-rendered and role/permission-based.
 
-The `Administrator` role remains the built-in superuser role and satisfies every AuthNet admin permission. AuthNet does not seed a default administrator account, username, or password.
+The `Administrator` role remains the built-in superuser role and satisfies every AuthNet admin permission. AuthNet does not seed a default administrator account, username, or password; host applications must bootstrap the first administrator through their own startup, deployment, or operations process.
+
+The repository sample host creates a demo admin user in code at startup and also demonstrates an optional explicit bootstrap behind `AuthNet:AdminBootstrap`. The optional bootstrap can create a configured admin user when a password is supplied, or promote an existing user by email without a password. This sample-host behavior is not package behavior and should not be treated as production default credentials.
 
 The admin UI supports:
 
