@@ -161,6 +161,42 @@
                 </form>
             </div>
         </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-12">
+                <form id="invitationForm" class="vstack gap-3">
+                    <h2 class="h5 mb-0">Invitation</h2>
+                    <div>
+                        <label class="form-label" for="invitationToken">Token</label>
+                        <input class="form-control" id="invitationToken" name="invitationToken" />
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="invitationUserName">User name</label>
+                            <input class="form-control" id="invitationUserName" name="invitationUserName" autocomplete="username" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="invitationDisplayName">Display name</label>
+                            <input class="form-control" id="invitationDisplayName" name="invitationDisplayName" autocomplete="name" />
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="invitationPassword">Password</label>
+                            <input class="form-control" id="invitationPassword" name="invitationPassword" type="password" autocomplete="new-password" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="invitationConfirmPassword">Confirm password</label>
+                            <input class="form-control" id="invitationConfirmPassword" name="invitationConfirmPassword" type="password" autocomplete="new-password" />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-dark" id="invitationStatusButton" type="button">Inspect token</button>
+                        <button class="btn btn-outline-primary" type="submit">Accept invitation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -343,6 +379,30 @@
                 })
             });
         });
+
+        document.getElementById('invitationStatusButton').addEventListener('click', async () => {
+            const token = document.getElementById('invitationToken').value;
+            await api(`/auth/api/invitations/accept?token=${encodeURIComponent(token)}`);
+        });
+
+        document.getElementById('invitationForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            await api('/auth/api/invitations/accept', {
+                method: 'POST',
+                body: JSON.stringify({
+                    token: document.getElementById('invitationToken').value,
+                    userName: document.getElementById('invitationUserName').value,
+                    displayName: document.getElementById('invitationDisplayName').value || null,
+                    password: document.getElementById('invitationPassword').value,
+                    confirmPassword: document.getElementById('invitationConfirmPassword').value
+                })
+            });
+        });
+
+        const tokenFromUrl = new URLSearchParams(window.location.search).get('token');
+        if (tokenFromUrl) {
+            document.getElementById('invitationToken').value = tokenFromUrl;
+        }
 
         api('/auth/api/session');
     </script>

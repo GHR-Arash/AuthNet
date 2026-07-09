@@ -9,10 +9,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthNet.Api;
 
 internal sealed class AuthNetSpaAccountService(
+    AuthNetDbContext dbContext,
     UserManager<AuthNetUser> userManager,
     SignInManager<AuthNetUser> signInManager,
     IAuthNetEmailSender emailSender,
@@ -717,11 +719,181 @@ internal sealed class AuthNetSpaAccountService(
         return ExternalLinkCallback("linked", "External login linked.", safeReturnUrl, info.LoginProvider);
     }
 
+    public async Task<AuthNetInvitationAcceptanceStatusResponse> GetInvitationAcceptanceStatusAsync(
+        string? token,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var invitation = await FindInvitationByTokenAsync(token, cancellationToken);
+        if (invitation is null)
+        {
+            return InvitationStatus(
+                "invalidToken",
+                AuthNetApiResult.Failure("Invitation is invalid.", [new("InvalidToken", "token", "Invitation is invalid.")]));
+        }
+
+        var state = await ClassifyInvitationAsync(invitation, cancellationToken);
+        return state switch
+        {
+            "valid" => InvitationStatus(
+                "valid",
+                AuthNetApiResult.Success("Invitation is valid."),
+                invitation),
+            "expired" => InvitationStatus(
+                "expired",
+                AuthNetApiResult.Failure("Invitation has expired.", [new("ExpiredInvitation", "token", "Invitation has expired.")]),
+                invitation),
+            "alreadyAccepted" => InvitationStatus(
+                "alreadyAccepted",
+                AuthNetApiResult.Failure("Invitation has already been accepted.", [new("AlreadyAccepted", "token", "Invitation has already been accepted.")]),
+                invitation),
+            "existingUser" => InvitationStatus(
+                "existingUser",
+                AuthNetApiResult.Failure("A user with this email already exists.", [new("ExistingUser", "token", "A user with this email already exists.")]),
+                invitation),
+            _ => InvitationStatus(
+                "invalidToken",
+                AuthNetApiResult.Failure("Invitation is invalid.", [new("InvalidToken", "token", "Invitation is invalid.")]))
+        };
+    }
+
+    public async Task<AuthNetAcceptInvitationResponse> AcceptInvitationAsync(
+        AuthNetAcceptInvitationRequest request,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var validationErrors = Validate(request);
+        if (validationErrors.Count > 0)
+        {
+            return AcceptInvitationResponse(
+                "validationFailed",
+                AuthNetApiResult.Failure("Validation failed.", validationErrors));
+        }
+
+        var invitation = await FindInvitationByTokenAsync(request.Token, cancellationToken);
+        if (invitation is null)
+        {
+            return AcceptInvitationResponse(
+                "invalidToken",
+                AuthNetApiResult.Failure("Invitation is invalid.", [new("InvalidToken", "token", "Invitation is invalid.")]));
+        }
+
+        var state = await ClassifyInvitationAsync(invitation, cancellationToken);
+        if (state != "valid")
+        {
+            return state switch
+            {
+                "expired" => AcceptInvitationResponse(
+                    "expired",
+                    AuthNetApiResult.Failure("Invitation has expired.", [new("ExpiredInvitation", "token", "Invitation has expired.")]),
+                    invitation.Email),
+                "alreadyAccepted" => AcceptInvitationResponse(
+                    "alreadyAccepted",
+                    AuthNetApiResult.Failure("Invitation has already been accepted.", [new("AlreadyAccepted", "token", "Invitation has already been accepted.")]),
+                    invitation.Email),
+                "existingUser" => AcceptInvitationResponse(
+                    "existingUser",
+                    AuthNetApiResult.Failure("A user with this email already exists.", [new("ExistingUser", "token", "A user with this email already exists.")]),
+                    invitation.Email),
+                _ => AcceptInvitationResponse(
+                    "invalidToken",
+                    AuthNetApiResult.Failure("Invitation is invalid.", [new("InvalidToken", "token", "Invitation is invalid.")]))
+            };
+        }
+
+        var user = new AuthNetUser
+        {
+            UserName = request.UserName.Trim(),
+            Email = invitation.Email,
+            EmailConfirmed = true,
+            DisplayName = string.IsNullOrWhiteSpace(request.DisplayName)
+                ? null
+                : request.DisplayName.Trim()
+        };
+
+        var createResult = await userManager.CreateAsync(user, request.Password);
+        if (!createResult.Succeeded)
+        {
+            return AcceptInvitationResponse(
+                "validationFailed",
+                IdentityFailure("Invitation acceptance failed.", createResult),
+                invitation.Email);
+        }
+
+        invitation.AcceptedAtUtc = DateTimeOffset.UtcNow;
+        invitation.AcceptedByUserId = user.Id;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        await signInManager.SignInAsync(user, isPersistent: false);
+        return AcceptInvitationResponse(
+            "accepted",
+            AuthNetApiResult.Success("Invitation accepted."),
+            invitation.Email,
+            user.Id);
+    }
+
     private async Task<AuthNetUser?> FindUserAsync(string identifier)
     {
         var trimmedIdentifier = identifier.Trim();
         return await userManager.FindByEmailAsync(trimmedIdentifier)
             ?? await userManager.FindByNameAsync(trimmedIdentifier);
+    }
+
+    private async Task<AuthNetInvitation?> FindInvitationByTokenAsync(
+        string? token,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return null;
+        }
+
+        var tokenHash = AuthNetInvitationToken.Hash(token);
+        return await dbContext.Invitations.SingleOrDefaultAsync(
+            invitation => invitation.TokenHash == tokenHash,
+            cancellationToken);
+    }
+
+    private async Task<string> ClassifyInvitationAsync(
+        AuthNetInvitation invitation,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var now = DateTimeOffset.UtcNow;
+        if (invitation.IsAccepted)
+        {
+            return "alreadyAccepted";
+        }
+
+        if (invitation.IsExpired(now))
+        {
+            return "expired";
+        }
+
+        return await userManager.FindByEmailAsync(invitation.Email) is null
+            ? "valid"
+            : "existingUser";
+    }
+
+    private static AuthNetInvitationAcceptanceStatusResponse InvitationStatus(
+        string status,
+        AuthNetApiResult result,
+        AuthNetInvitation? invitation = null)
+    {
+        return new AuthNetInvitationAcceptanceStatusResponse(
+            result,
+            status,
+            invitation?.Email,
+            invitation?.ExpiresAtUtc);
+    }
+
+    private static AuthNetAcceptInvitationResponse AcceptInvitationResponse(
+        string status,
+        AuthNetApiResult result,
+        string? email = null,
+        string? userId = null)
+    {
+        return new AuthNetAcceptInvitationResponse(result, status, email, userId);
     }
 
     private static AuthNetApiResult IdentityFailure(string message, IdentityResult result)

@@ -66,6 +66,8 @@ public sealed class AuthNetOpenApiTests
         AssertOperation(paths, "/auth/api/external-login/callback", "get", "AuthNetApiExternalLoginCallback");
         AssertOperation(paths, "/auth/api/external-login/link/challenge", "post", "AuthNetApiExternalLoginLinkChallenge");
         AssertOperation(paths, "/auth/api/external-login/link/callback", "get", "AuthNetApiExternalLoginLinkCallback");
+        AssertOperation(paths, "/auth/api/invitations/accept", "get", "AuthNetApiInvitationAcceptanceStatus");
+        AssertOperation(paths, "/auth/api/invitations/accept", "post", "AuthNetApiAcceptInvitation");
         Assert.False(paths.TryGetProperty("/auth/login", out _));
         Assert.False(paths.TryGetProperty("/auth/admin/users", out _));
         Assert.False(paths.TryGetProperty("/Spa", out _));
@@ -106,6 +108,9 @@ public sealed class AuthNetOpenApiTests
         AssertSchema(schemas, "AuthNetExternalChallengeRequest");
         AssertSchema(schemas, "AuthNetExternalLoginCallbackResponse");
         AssertSchema(schemas, "AuthNetExternalLinkCallbackResponse");
+        AssertSchema(schemas, "AuthNetInvitationAcceptanceStatusResponse");
+        AssertSchema(schemas, "AuthNetAcceptInvitationRequest");
+        AssertSchema(schemas, "AuthNetAcceptInvitationResponse");
 
         var loginRequestRef = document.RootElement
             .GetProperty("paths")
@@ -154,6 +159,26 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("$ref")
             .GetString();
         Assert.Equal("#/components/schemas/AuthNetExternalChallengeRequest", externalChallengeRequestRef);
+
+        var acceptInvitationRequestRef = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/invitations/accept")
+            .GetProperty("post")
+            .GetProperty("requestBody")
+            .GetProperty("content")
+            .GetProperty("application/json")
+            .GetProperty("schema")
+            .GetProperty("$ref")
+            .GetString();
+        Assert.Equal("#/components/schemas/AuthNetAcceptInvitationRequest", acceptInvitationRequestRef);
+
+        var invitationStatusTokenParameter = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/invitations/accept")
+            .GetProperty("get")
+            .GetProperty("parameters")[0];
+        Assert.Equal("token", invitationStatusTokenParameter.GetProperty("name").GetString());
+        Assert.Equal("query", invitationStatusTokenParameter.GetProperty("in").GetString());
     }
 
     [Fact]
@@ -198,6 +223,18 @@ public sealed class AuthNetOpenApiTests
             .GetProperty("post")
             .GetProperty("security")[0];
         Assert.True(externalLinkSecurity.TryGetProperty("AuthNetApplicationCookie", out _));
+
+        var invitationStatusOperation = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/invitations/accept")
+            .GetProperty("get");
+        Assert.False(invitationStatusOperation.TryGetProperty("security", out _));
+
+        var invitationAcceptOperation = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/auth/api/invitations/accept")
+            .GetProperty("post");
+        Assert.False(invitationAcceptOperation.TryGetProperty("security", out _));
     }
 
     private static async Task<JsonDocument> GetOpenApiDocumentAsync(AuthNetTestHost host)

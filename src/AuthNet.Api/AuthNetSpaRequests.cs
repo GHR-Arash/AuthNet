@@ -115,3 +115,22 @@ public sealed record AuthNetExternalChallengeRequest
 
     public string? ReturnUrl { get; init; }
 }
+
+/// <summary>Payload for accepting an account invitation with local credentials.</summary>
+public sealed record AuthNetAcceptInvitationRequest
+{
+    [Required]
+    public string Token { get; init; } = string.Empty;
+
+    [Required, MaxLength(256)]
+    public string UserName { get; init; } = string.Empty;
+
+    [MaxLength(200)]
+    public string? DisplayName { get; init; }
+
+    [Required]
+    public string Password { get; init; } = string.Empty;
+
+    [Required, Compare(nameof(Password))]
+    public string ConfirmPassword { get; init; } = string.Empty;
+}

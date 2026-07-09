@@ -51,4 +51,8 @@ public interface IAuthNetSpaAccountService
     Task<AuthNetExternalLoginCallbackResponse> CompleteExternalLoginAsync(HttpContext httpContext, string? returnUrl, string? remoteError, CancellationToken cancellationToken);
 
     Task<AuthNetExternalLinkCallbackResponse?> CompleteExternalLinkAsync(HttpContext httpContext, string? returnUrl, string? remoteError, CancellationToken cancellationToken);
+
+    Task<AuthNetInvitationAcceptanceStatusResponse> GetInvitationAcceptanceStatusAsync(string? token, CancellationToken cancellationToken);
+
+    Task<AuthNetAcceptInvitationResponse> AcceptInvitationAsync(AuthNetAcceptInvitationRequest request, CancellationToken cancellationToken);
 }

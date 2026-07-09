@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 19 SPA invitation acceptance JSON is implemented and tracked in:
+
+- `tasks/slice-19-plan.md`
+- `tasks/slice-19-todo.md`
+
 Slice 18 SPA external-login JSON orchestration is implemented and tracked in:
 
 - `tasks/slice-18-plan.md`
@@ -113,6 +118,12 @@ Focused SPA external-login API verification:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaExternalLoginApiTests
 ```
 
+Focused SPA invitation API verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaInvitationApiTests
+```
+
 Focused sample email sender verification:
 
 ```powershell
@@ -139,7 +150,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 146 passing tests.
+Latest full verification: 160 passing tests.
 
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
@@ -249,12 +260,14 @@ Implemented Slice 09 scope:
 - Invitation email delivery through `IAuthNetEmailSender`.
 - Identity user creation with invited email confirmed after successful acceptance.
 - Single-use and expiration handling.
+- Same-origin SPA JSON endpoints for invitation token inspection and invitation acceptance.
 
 Routes:
 
 - `/auth/admin/invitations`
 - `/auth/admin/invitations/new`
 - `/auth/invitations/accept`
+- `/auth/api/invitations/accept`
 
 Out of scope:
 
@@ -262,19 +275,19 @@ Out of scope:
 - Role assignment during invite.
 - Invitation resend/cancel.
 - Organization/team membership.
-- API/JWT/SPA invitation endpoints.
+- Admin invitation JSON APIs and API/JWT invitation endpoints.
 
 ## Current SPA Workflow Scope
 
-Implemented Slice 14 through Slice 18 scope:
+Implemented Slice 14 through Slice 19 scope:
 
 - `AuthNet.Api` package/project for JSON browser account endpoints.
 - Same-origin SPA/BFF-style cookie workflow using the existing Identity application cookie.
 - JSON routes under the configured account route prefix, `/auth/api` by default.
-- Session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, and signed-in external-login link challenge/callback JSON endpoints.
+- Session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, signed-in external-login link challenge/callback, and invitation acceptance status/completion JSON endpoints.
 - OpenAPI document endpoint at `/auth/api/openapi.json`, scoped to AuthNet SPA JSON endpoints.
-- Sample SPA smoke page in the sample host at `/Spa` exercises session, login/logout, profile update, password change, reset completion, confirm-email completion, MFA workflows, external-login provider/challenge/link calls, and OpenAPI discovery.
-- Keep JWT access tokens, refresh tokens, admin JSON, invitation acceptance JSON, cross-origin SPA auth, and provider-specific helper packages deferred to separate slices.
+- Sample SPA smoke page in the sample host at `/Spa` exercises session, login/logout, profile update, password change, reset completion, confirm-email completion, MFA workflows, external-login provider/challenge/link calls, invitation token inspection/acceptance calls, and OpenAPI discovery.
+- Keep JWT access tokens, refresh tokens, admin JSON, cross-origin SPA auth, and provider-specific helper packages deferred to separate slices.
 
 ## Current Sample Email Scope
 

@@ -106,6 +106,12 @@ Focused SPA external-login API tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaExternalLoginApiTests
 ```
 
+Focused SPA invitation API tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaInvitationApiTests
+```
+
 Focused OpenAPI tests:
 
 ```powershell
@@ -300,6 +306,7 @@ Useful routes:
 - `/auth/api/external-login/callback` to complete SPA external sign-in callback handling
 - `/auth/api/external-login/link/challenge` to start signed-in external account linking
 - `/auth/api/external-login/link/callback` to complete signed-in external account linking
+- `/auth/api/invitations/accept` to inspect and accept invitation tokens from a same-origin SPA
 - `/auth/api/openapi.json` to inspect the AuthNet SPA API OpenAPI document
 - `/Spa` to exercise the sample same-origin SPA workflow
 - `/Admin`

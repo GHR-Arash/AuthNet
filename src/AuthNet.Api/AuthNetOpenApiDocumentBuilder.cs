@@ -335,6 +335,30 @@ internal static class AuthNetOpenApiDocumentBuilder
                         ["401"] = Response("Authentication is required.")
                     },
                     requiresCookie: true)
+            },
+            [$"{apiRoot}/invitations/accept"] = new Dictionary<string, object?>
+            {
+                ["get"] = Operation(
+                    "AuthNetApiInvitationAcceptanceStatus",
+                    "Inspect an account invitation token before accepting it.",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Invitation can be accepted.", "AuthNetInvitationAcceptanceStatusResponse"),
+                        ["400"] = JsonResponse("Invitation token is invalid or cannot be accepted.", "AuthNetInvitationAcceptanceStatusResponse")
+                    },
+                    parameters:
+                    [
+                        QueryParameter("token", "Raw invitation token from the invitation link.")
+                    ]),
+                ["post"] = Operation(
+                    "AuthNetApiAcceptInvitation",
+                    "Accept an account invitation with local credentials.",
+                    requestSchema: "AuthNetAcceptInvitationRequest",
+                    responses: new Dictionary<string, object?>
+                    {
+                        ["200"] = JsonResponse("Invitation accepted.", "AuthNetAcceptInvitationResponse"),
+                        ["400"] = JsonResponse("Validation or invitation acceptance failed.", "AuthNetAcceptInvitationResponse")
+                    })
             }
         };
     }
@@ -344,7 +368,8 @@ internal static class AuthNetOpenApiDocumentBuilder
         string summary,
         IReadOnlyDictionary<string, object?> responses,
         string? requestSchema = null,
-        bool requiresCookie = false)
+        bool requiresCookie = false,
+        IReadOnlyList<IReadOnlyDictionary<string, object?>>? parameters = null)
     {
         var operation = new Dictionary<string, object?>
         {
@@ -366,6 +391,11 @@ internal static class AuthNetOpenApiDocumentBuilder
             };
         }
 
+        if (parameters is not null)
+        {
+            operation["parameters"] = parameters;
+        }
+
         if (requiresCookie)
         {
             operation["security"] = new[]
@@ -378,6 +408,21 @@ internal static class AuthNetOpenApiDocumentBuilder
         }
 
         return operation;
+    }
+
+    private static IReadOnlyDictionary<string, object?> QueryParameter(string name, string description)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["name"] = name,
+            ["in"] = "query",
+            ["required"] = true,
+            ["description"] = description,
+            ["schema"] = new Dictionary<string, object?>
+            {
+                ["type"] = "string"
+            }
+        };
     }
 
     private static IReadOnlyDictionary<string, object?> Response(string description)
@@ -609,6 +654,34 @@ internal static class AuthNetOpenApiDocumentBuilder
                     ["message"] = StringSchema("Human-readable callback message."),
                     ["returnUrl"] = StringSchema("Safe local URL supplied by the challenge."),
                     ["provider"] = NullableStringSchema("External login provider, when available.")
+                }),
+            ["AuthNetInvitationAcceptanceStatusResponse"] = ObjectSchema(
+                required: ["result", "status"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["result"] = Ref("AuthNetApiResult"),
+                    ["status"] = StringSchema("Stable invitation token state."),
+                    ["email"] = NullableStringSchema("Invited email address when a token resolves to an invitation."),
+                    ["expiresAtUtc"] = NullableStringSchema("Invitation expiration timestamp in UTC.")
+                }),
+            ["AuthNetAcceptInvitationRequest"] = ObjectSchema(
+                required: ["token", "userName", "password", "confirmPassword"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["token"] = StringSchema("Raw invitation token from the invitation link."),
+                    ["userName"] = StringSchema("Local username for the invited account.", maxLength: 256),
+                    ["displayName"] = NullableStringSchema("Optional display name.", maxLength: 200),
+                    ["password"] = StringSchema("Local account password.", format: "password"),
+                    ["confirmPassword"] = StringSchema("Password confirmation.", format: "password")
+                }),
+            ["AuthNetAcceptInvitationResponse"] = ObjectSchema(
+                required: ["result", "status"],
+                properties: new Dictionary<string, object?>
+                {
+                    ["result"] = Ref("AuthNetApiResult"),
+                    ["status"] = StringSchema("Stable invitation acceptance outcome."),
+                    ["email"] = NullableStringSchema("Invited email address when available."),
+                    ["userId"] = NullableStringSchema("Created AuthNet user identifier when acceptance succeeds.")
                 })
         };
     }

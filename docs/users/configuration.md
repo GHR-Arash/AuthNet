@@ -48,7 +48,7 @@ AuthNet
 
 Route prefix for built-in account pages.
 
-The same prefix is also used for SPA JSON account endpoints under `{AccountRoutePrefix}/api`. With the default `/auth` prefix, the API root is `/auth/api`, account, MFA, and external-login workflow routes stay under that root, and the OpenAPI document is `/auth/api/openapi.json`.
+The same prefix is also used for SPA JSON account endpoints under `{AccountRoutePrefix}/api`. With the default `/auth` prefix, the API root is `/auth/api`, account, MFA, external-login, and invitation acceptance workflow routes stay under that root, and the OpenAPI document is `/auth/api/openapi.json`.
 
 Default:
 
@@ -128,7 +128,7 @@ Default:
 7.00:00:00
 ```
 
-Invitation tokens are single-use and stored only as hashes.
+Invitation tokens are single-use and stored only as hashes. The same expiration applies to the Razor acceptance page and same-origin SPA JSON invitation acceptance endpoints.
 
 ## Password Options
 

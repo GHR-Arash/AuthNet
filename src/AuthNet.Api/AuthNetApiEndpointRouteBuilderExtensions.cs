@@ -385,6 +385,36 @@ public static class AuthNetApiEndpointRouteBuilderExtensions
             .Produces<AuthNetExternalLinkCallbackResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized);
 
+        group.MapGet("/invitations/accept", async Task<IResult> (
+            string? token,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.GetInvitationAcceptanceStatusAsync(token, cancellationToken);
+            return result.Result.Succeeded
+                ? TypedResults.Ok(result)
+                : TypedResults.BadRequest(result);
+        })
+            .WithName("AuthNetApiInvitationAcceptanceStatus")
+            .WithSummary("Inspect an account invitation token before accepting it.")
+            .Produces<AuthNetInvitationAcceptanceStatusResponse>(StatusCodes.Status200OK)
+            .Produces<AuthNetInvitationAcceptanceStatusResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/invitations/accept", async Task<IResult> (
+            AuthNetAcceptInvitationRequest request,
+            IAuthNetSpaAccountService accountService,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await accountService.AcceptInvitationAsync(request, cancellationToken);
+            return result.Result.Succeeded
+                ? TypedResults.Ok(result)
+                : TypedResults.BadRequest(result);
+        })
+            .WithName("AuthNetApiAcceptInvitation")
+            .WithSummary("Accept an account invitation with local credentials.")
+            .Produces<AuthNetAcceptInvitationResponse>(StatusCodes.Status200OK)
+            .Produces<AuthNetAcceptInvitationResponse>(StatusCodes.Status400BadRequest);
+
         return group;
     }
 

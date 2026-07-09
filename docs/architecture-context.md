@@ -30,7 +30,7 @@ Build first:
 - Direct admin local user creation from the built-in admin user-management UI.
 - Persisted admin audit events with a built-in admin audit list page.
 - Built-in account invitation flow with persisted invitations, admin create/list pages, email-delivered single-use acceptance links, and invited-user account creation.
-- Same-origin SPA account, authenticator-app MFA, and external-login orchestration workflows through JSON account endpoints and the existing Identity application cookie.
+- Same-origin SPA account, authenticator-app MFA, external-login orchestration, and invitation acceptance workflows through JSON account endpoints and the existing Identity application cookie.
 - OpenAPI document endpoint for the same-origin SPA JSON endpoints.
 - Generic OpenID Connect external login.
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
@@ -151,7 +151,7 @@ Host app should be able to configure:
 - Invitation expiration through `AuthNetOptions.Invitations.Expiration`.
 - Role management routes under the account route prefix.
 - Bounded AuthNet UI permissions backed by Identity role claims.
-- Same-origin SPA JSON routes under `{AccountRoutePrefix}/api` for session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, password change, authenticator-app MFA setup/status/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, and signed-in external-login link challenge/callback.
+- Same-origin SPA JSON routes under `{AccountRoutePrefix}/api` for session, login, logout, registration, forgot-password, reset-password, resend-confirmation, confirm-email, profile read/update, password change, authenticator-app MFA setup/status/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, signed-in external-login link challenge/callback, and invitation acceptance status/completion.
 - AuthNet-owned OpenAPI JSON document under `{AccountRoutePrefix}/api/openapi.json`, scoped to AuthNet SPA API routes.
 
 Sample-host-only development persistence:
@@ -222,6 +222,8 @@ app.MapAuthNet();
 - Slice 17 SPA MFA JSON workflows todo: `tasks/slice-17-todo.md`
 - Slice 18 SPA external-login JSON orchestration plan: `tasks/slice-18-plan.md`
 - Slice 18 SPA external-login JSON orchestration todo: `tasks/slice-18-todo.md`
+- Slice 19 SPA invitation acceptance JSON plan: `tasks/slice-19-plan.md`
+- Slice 19 SPA invitation acceptance JSON todo: `tasks/slice-19-todo.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`

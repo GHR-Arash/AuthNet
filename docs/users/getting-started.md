@@ -16,6 +16,7 @@ After AuthNet is registered in your app, it provides:
 - Change password.
 - Authenticator-app MFA with recovery codes.
 - Same-origin SPA JSON external-login discovery, challenge, callback, and account-link orchestration.
+- Same-origin SPA JSON invitation acceptance.
 - Admin user management UI protected by `Administrator` or AuthNet permissions.
 - Role creation, role assignment, and built-in AuthNet permission assignment.
 - Account invitation flow.
@@ -228,9 +229,11 @@ SPA JSON routes are mapped under `{AccountRoutePrefix}/api`. With the default pr
 - `GET /auth/api/external-login/callback`
 - `POST /auth/api/external-login/link/challenge`
 - `GET /auth/api/external-login/link/callback`
+- `GET /auth/api/invitations/accept`
+- `POST /auth/api/invitations/accept`
 - `GET /auth/api/openapi.json`
 
-These endpoints are intended for same-origin browser clients using the existing Identity application cookie. The OpenAPI document describes only AuthNet-owned SPA JSON routes. JWT access tokens, refresh tokens, cross-origin CORS policy management, admin JSON APIs, invitation acceptance JSON, admin MFA reset, required-MFA policy, SMS/email OTP, passkeys, provider-specific helper packages, and bundled Swagger/Scalar UI are still deferred.
+These endpoints are intended for same-origin browser clients using the existing Identity application cookie. The OpenAPI document describes only AuthNet-owned SPA JSON routes. JWT access tokens, refresh tokens, cross-origin CORS policy management, admin JSON APIs, invitation resend/cancel JSON, admin MFA reset, required-MFA policy, SMS/email OTP, passkeys, provider-specific helper packages, and bundled Swagger/Scalar UI are still deferred.
 
 ## Protecting Pages or Endpoints
 
@@ -330,6 +333,15 @@ Use the admin invitation pages:
 ```
 
 AuthNet sends an invitation link through `IAuthNetEmailSender`. The invited user opens the link, sets a username, optional display name, and password, then AuthNet creates the local account with the invited email confirmed.
+
+Same-origin SPA clients can inspect and accept invitation links through:
+
+```text
+GET /auth/api/invitations/accept?token={token}
+POST /auth/api/invitations/accept
+```
+
+The JSON acceptance flow uses the same single-use token, expiration, invited-email confirmation, local user creation, and application-cookie sign-in model as the Razor acceptance page.
 
 Invitation tokens are single-use, expire after `AuthNet:Invitations:Expiration`, and are stored only as hashes.
 

@@ -104,6 +104,20 @@ public sealed record AuthNetExternalLinkCallbackResponse(
     string ReturnUrl,
     string? Provider);
 
+/// <summary>Represents an account invitation token inspection outcome.</summary>
+public sealed record AuthNetInvitationAcceptanceStatusResponse(
+    AuthNetApiResult Result,
+    string Status,
+    string? Email,
+    DateTimeOffset? ExpiresAtUtc);
+
+/// <summary>Represents an account invitation acceptance outcome.</summary>
+public sealed record AuthNetAcceptInvitationResponse(
+    AuthNetApiResult Result,
+    string Status,
+    string? Email,
+    string? UserId);
+
 /// <summary>Represents a prepared external authentication challenge.</summary>
 public sealed record AuthNetExternalChallengeResult(
     AuthNetApiResult Result,

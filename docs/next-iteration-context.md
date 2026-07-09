@@ -33,6 +33,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 16 SPA account workflow completion is implemented and tracked in `tasks/slice-16-plan.md` and `tasks/slice-16-todo.md`.
 - Slice 17 SPA MFA JSON workflows are implemented and tracked in `tasks/slice-17-plan.md` and `tasks/slice-17-todo.md`.
 - Slice 18 SPA external-login JSON orchestration is implemented and tracked in `tasks/slice-18-plan.md` and `tasks/slice-18-todo.md`.
+- Slice 19 SPA invitation acceptance JSON is implemented and tracked in `tasks/slice-19-plan.md` and `tasks/slice-19-todo.md`.
 
 ## Implemented Product Surface
 
@@ -55,7 +56,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Built-in Razor Pages admin invitation UI under `src/AuthNet.UI.Razor/Areas/AuthNet/Pages/Admin/Invitations`.
 - Admin user routes are `/auth/admin/users`, `/auth/admin/users/new`, and `/auth/admin/users/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet user permissions.
 - Admin role routes are `/auth/admin/roles`, `/auth/admin/roles/new`, and `/auth/admin/roles/{id}` by default, protected by the ASP.NET Core Identity `Administrator` role or AuthNet role permissions.
-- Same-origin SPA JSON routes are mapped under `/auth/api` by default: session, profile read/update, login, logout, register, forgot-password, reset-password, resend-confirmation, confirm-email, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, and signed-in external-login link challenge/callback.
+- Same-origin SPA JSON routes are mapped under `/auth/api` by default: session, profile read/update, login, logout, register, forgot-password, reset-password, resend-confirmation, confirm-email, change-password, MFA status/setup/disable, recovery-code count/regeneration, MFA challenge sign-in, recovery-code sign-in, external-provider discovery, external-login challenge/callback, signed-in external-login link challenge/callback, and invitation acceptance status/completion.
 - AuthNet SPA OpenAPI JSON is mapped at `/auth/api/openapi.json` by default.
 - Admin audit route is `/auth/admin/audit` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.audit.view`.
 - Admin invitation routes are `/auth/admin/invitations` and `/auth/admin/invitations/new` by default, protected by the ASP.NET Core Identity `Administrator` role or `authnet.invitations.manage`.
@@ -74,13 +75,13 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin user list, direct user creation, role management, invitation pages, and SPA smoke page.
-- Sample host SPA/home pages link to `/auth/api/openapi.json`.
+- Sample host SPA/home pages link to `/auth/api/openapi.json`; the sample SPA page can manually inspect and accept invitation tokens.
 - Sample host home page, shared navigation, and protected `/Admin` page link to the built-in admin audit page.
 - `UseAuthNet()` remains as a compatibility wrapper.
 - AuthNet UI ships fallback shared `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml`, and `_AuthNetBrand.cshtml` so built-in pages render in a bare host.
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot/reset password, profile update, change password, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
 - `AuthNet.Tests` covers Razor and SPA authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count/regeneration, and disable flows.
-- `AuthNet.Tests` covers invitation creation, email delivery, acceptance, expired invitations, reused invitations, invalid tokens, duplicate pending invitations, existing-user rejection, and route protection.
+- `AuthNet.Tests` covers Razor and SPA invitation creation, email delivery, acceptance, expired invitations, reused invitations, invalid tokens, duplicate pending invitations, existing-user rejection, and route protection.
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
@@ -101,7 +102,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
 ```
 
-Latest full test count: 146 passing tests.
+Latest full test count: 160 passing tests.
 
 Slice 14 focused SPA API tests:
 
@@ -131,6 +132,12 @@ Slice 18 focused SPA external-login API tests:
 
 ```powershell
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaExternalLoginApiTests
+```
+
+Slice 19 focused SPA invitation API tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetSpaInvitationApiTests
 ```
 
 Login regression focused tests:
@@ -296,6 +303,10 @@ For product/architecture:
 - `tasks/slice-16-todo.md`
 - `tasks/slice-17-plan.md`
 - `tasks/slice-17-todo.md`
+- `tasks/slice-18-plan.md`
+- `tasks/slice-18-todo.md`
+- `tasks/slice-19-plan.md`
+- `tasks/slice-19-todo.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
@@ -313,7 +324,7 @@ Publication decisions are intentionally paused for now.
 
 Recommended next product slice:
 
-- Add same-origin SPA invitation acceptance or admin JSON APIs, depending on whether invitation-first onboarding or admin automation is the higher priority.
+- Add admin JSON APIs if admin automation is the higher priority.
 
 Other candidates:
 
