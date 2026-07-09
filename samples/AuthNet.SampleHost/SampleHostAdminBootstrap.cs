@@ -6,6 +6,9 @@ namespace AuthNet.SampleHost;
 public static class SampleHostAdminBootstrap
 {
     public const string RoleName = "Administrator";
+    public const string DemoAdminUserName = "admin";
+    public const string DemoAdminEmail = "admin@admin.com";
+    public const string DemoAdminPassword = "Password1!";
 
     public static bool IsEnabled(IConfiguration configuration)
     {
@@ -27,6 +30,28 @@ public static class SampleHostAdminBootstrap
             throw new InvalidOperationException("AuthNet:AdminBootstrap:Email is required when admin bootstrap is enabled.");
         }
 
+        await EnsureAdminUserAsync(
+            services,
+            email,
+            configuration["AuthNet:AdminBootstrap:UserName"],
+            configuration["AuthNet:AdminBootstrap:Password"]);
+    }
+
+    public static Task BootstrapDemoAdminAsync(IServiceProvider services)
+    {
+        return EnsureAdminUserAsync(
+            services,
+            DemoAdminEmail,
+            DemoAdminUserName,
+            DemoAdminPassword);
+    }
+
+    private static async Task EnsureAdminUserAsync(
+        IServiceProvider services,
+        string email,
+        string? userName,
+        string? password)
+    {
         using var scope = services.CreateScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
@@ -40,13 +65,11 @@ public static class SampleHostAdminBootstrap
         var user = await userManager.FindByEmailAsync(email);
         if (user is null)
         {
-            var password = configuration["AuthNet:AdminBootstrap:Password"];
             if (string.IsNullOrWhiteSpace(password))
             {
                 throw new InvalidOperationException("AuthNet:AdminBootstrap:Password is required to create an admin user.");
             }
 
-            var userName = configuration["AuthNet:AdminBootstrap:UserName"];
             user = new AuthNetUser
             {
                 UserName = string.IsNullOrWhiteSpace(userName) ? email : userName,

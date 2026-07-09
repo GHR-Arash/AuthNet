@@ -48,6 +48,25 @@ public sealed class SampleHostAdminBootstrapTests
     }
 
     [Fact]
+    public async Task Demo_bootstrap_creates_sample_admin_user_and_role()
+    {
+        var services = Services();
+
+        await SampleHostAdminBootstrap.BootstrapDemoAdminAsync(services);
+
+        using var scope = services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var user = await userManager.FindByEmailAsync(SampleHostAdminBootstrap.DemoAdminEmail);
+
+        Assert.NotNull(user);
+        Assert.Equal(SampleHostAdminBootstrap.DemoAdminUserName, user.UserName);
+        Assert.True(user.EmailConfirmed);
+        Assert.True(await roleManager.RoleExistsAsync(SampleHostAdminBootstrap.RoleName));
+        Assert.True(await userManager.IsInRoleAsync(user, SampleHostAdminBootstrap.RoleName));
+    }
+
+    [Fact]
     public async Task Enabled_bootstrap_can_create_admin_with_separate_user_name()
     {
         var services = Services();

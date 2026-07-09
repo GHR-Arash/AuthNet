@@ -44,6 +44,7 @@ if (SampleHostAuthNetPersistence.ShouldApplyMigrations(app.Configuration, useInM
     db.Database.Migrate();
 }
 
+await SampleHostAdminBootstrap.BootstrapDemoAdminAsync(app.Services);
 await SampleHostAdminBootstrap.BootstrapAsync(app.Services, app.Configuration);
 
 app.MapStaticAssets();

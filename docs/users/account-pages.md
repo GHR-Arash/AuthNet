@@ -140,7 +140,7 @@ The admin user-management UI is server-rendered and role/permission-based.
 
 The `Administrator` role remains the built-in superuser role and satisfies every AuthNet admin permission. AuthNet does not seed a default administrator account, username, or password; host applications must bootstrap the first administrator through their own startup, deployment, or operations process.
 
-The repository sample host demonstrates one explicit bootstrap behind `AuthNet:AdminBootstrap`. It can create a configured admin user when a password is supplied, or promote an existing user by email without a password. This sample-host bootstrap is not package behavior and should not be treated as default credentials.
+The repository sample host creates a demo admin user in code at startup and also demonstrates an optional explicit bootstrap behind `AuthNet:AdminBootstrap`. The optional bootstrap can create a configured admin user when a password is supplied, or promote an existing user by email without a password. This sample-host behavior is not package behavior and should not be treated as production default credentials.
 
 The admin UI supports:
 

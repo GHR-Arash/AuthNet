@@ -226,7 +226,13 @@ Admin user management UI is available under the configured AuthNet route prefix:
 
 The UI requires the ASP.NET Core Identity `Administrator` role. AuthNet packages do not seed a default admin username or password.
 
-The sample host has explicit admin bootstrap in any environment through:
+The sample host creates a demo admin user in code at startup:
+
+- `UserName=admin`
+- `Email=admin@admin.com`
+- `Password=Password1!`
+
+The sample host also has explicit admin bootstrap in any environment through:
 
 - `AuthNet:AdminBootstrap:Enabled`
 - `AuthNet:AdminBootstrap:UserName`

@@ -98,7 +98,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
 - Package metadata verification is available through `scripts/verify-package-metadata.ps1`; strict public-publication metadata mode remains gated on owner repository URL and license decisions.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
-- Sample host supports explicit admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
+- Sample host creates a demo admin user in code at startup and supports explicit additional admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
 - Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
 - `samples/AuthNet.SampleHost/appsettings.SmtpSample.json` shows SMTP settings without committed secrets.
 - Local verification is centralized in `scripts/verify.ps1`.
@@ -273,7 +273,7 @@ Application started.
 - Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
 - Admin UI uses `Administrator` as a superuser role and a bounded AuthNet built-in UI permission catalog backed by Identity role claims.
 - Do not add host-defined custom permission catalogs, tenant-scoped permissions, role deletion, or API/JWT permission flows unless explicitly re-scoped.
-- AuthNet packages must not ship hardcoded default admin credentials; sample-host admin bootstrap requires explicit config.
+- AuthNet packages must not ship hardcoded default admin credentials; sample-host demo admin creation is local sample behavior only.
 - Production must use a real `IAuthNetEmailSender`; development sender is rejected in production. The repository sample host can demonstrate this with its SMTP sender, but package consumers still own their production sender.
 - Public registration remains disabled by default.
 - External auto-provisioning requires a verified provider email claim.
