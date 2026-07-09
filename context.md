@@ -2,6 +2,12 @@
 
 ## Current Iteration
 
+Slice 21 package publication finalization is implemented and tracked in:
+
+- `tasks/slice-21-plan.md`
+- `tasks/slice-21-todo.md`
+- `docs/slice-21/package-publication-finalization.md`
+
 Slice 20 committed package-consumer sample is implemented and tracked in:
 
 - `tasks/slice-20-plan.md`
@@ -94,6 +100,8 @@ Latest known package verification uses Release build plus per-project pack comma
 
 Latest committed package-consumer sample is under `samples/AuthNet.PackageConsumer`, references `AuthNet.AspNetCore` `0.1.0` from local package artifacts, and is intentionally outside `AuthNet.slnx`.
 
+Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
+
 Focused SPA API verification:
 
 ```powershell
@@ -136,6 +144,12 @@ Focused package-consumer verification:
 .\scripts\verify-package-consumer.ps1
 ```
 
+Focused package metadata verification:
+
+```powershell
+.\scripts\verify-package-metadata.ps1
+```
+
 Focused sample email sender verification:
 
 ```powershell
@@ -166,6 +180,8 @@ Latest full verification: 160 passing tests.
 
 Package-consumer verification is integrated into `.\scripts\verify.ps1` after package packing.
 
+Package metadata verification is integrated into `.\scripts\verify.ps1` after package output verification.
+
 Verify-only CI exists at `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
 CI does not publish packages, upload package artifacts, or require secrets.
@@ -178,6 +194,8 @@ Before public package publication, confirm:
 - License expression or license file.
 - Final package owners/authors.
 - XML documentation policy.
+- Package signing policy.
+- CI tag-publish or trusted-publishing strategy.
 
 Publication work is paused for now.
 

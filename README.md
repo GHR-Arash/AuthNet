@@ -28,6 +28,7 @@ Create local package artifacts:
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
 ```
 
@@ -55,5 +56,6 @@ Apply the Identity schema to PostgreSQL by setting `AuthNet:ApplyMigrations` to 
 - [Architecture Context](docs/architecture-context.md)
 - [Slice 03 Package Readiness](docs/slice-03/package-readiness.md)
 - [Slice 05 CI and Publication Readiness](docs/slice-05/ci-and-publication-readiness.md)
+- [Slice 21 Package Publication Finalization](docs/slice-21/package-publication-finalization.md)
 - [MVP Tasks](docs/tasks.md)
 - [Product Decisions](docs/product-decisions.md)

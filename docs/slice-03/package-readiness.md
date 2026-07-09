@@ -36,6 +36,12 @@ Shared metadata is defined in `Directory.Build.props`:
 
 Final public publication still needs a real repository/project URL and license decision.
 
+Slice 21 added focused package metadata verification:
+
+```powershell
+.\scripts\verify-package-metadata.ps1
+```
+
 ## Public API Inventory
 
 `AuthNet.Core`:

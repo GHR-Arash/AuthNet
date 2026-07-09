@@ -32,7 +32,7 @@ From the repo root:
 ```
 
 This is the canonical local verification path. It restores, builds, tests, builds Release, packs the intended packages, and verifies the package output.
-It also restores and builds the committed package-consumer sample from the freshly packed local packages.
+It also verifies package metadata and restores/builds the committed package-consumer sample from the freshly packed local packages.
 
 For troubleshooting, run the individual commands:
 
@@ -157,6 +157,18 @@ Verify the committed package-consumer sample directly after packages exist:
 ```
 
 The sample lives at `samples\AuthNet.PackageConsumer`, references `AuthNet.AspNetCore` `0.1.0` as a package, and is intentionally not part of `AuthNet.slnx` so root solution restore does not depend on generated local packages.
+
+Verify generated package metadata directly after packages exist:
+
+```powershell
+.\scripts\verify-package-metadata.ps1
+```
+
+Use strict public-publication metadata verification only after repository URL and license decisions are finalized:
+
+```powershell
+.\scripts\verify-package-metadata.ps1 -RequirePublicPublicationMetadata
+```
 
 ## CI
 

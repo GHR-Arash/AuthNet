@@ -6,7 +6,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 
 - Repo is a Git repository on `master`.
 - Latest known commits:
-  - Current HEAD: Add package consumer sample
+  - Current HEAD: Add package publication finalization
+  - `b26d631 Add package consumer sample`
   - `453b0d1 Add SPA invitation acceptance JSON`
   - Add SPA external login JSON orchestration
   - `7d2d823 Add SPA MFA JSON workflows`
@@ -37,6 +38,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 18 SPA external-login JSON orchestration is implemented and tracked in `tasks/slice-18-plan.md` and `tasks/slice-18-todo.md`.
 - Slice 19 SPA invitation acceptance JSON is implemented and tracked in `tasks/slice-19-plan.md` and `tasks/slice-19-todo.md`.
 - Slice 20 committed package-consumer sample is implemented and tracked in `tasks/slice-20-plan.md` and `tasks/slice-20-todo.md`.
+- Slice 21 package publication finalization is implemented and tracked in `tasks/slice-21-plan.md`, `tasks/slice-21-todo.md`, and `docs/slice-21/package-publication-finalization.md`.
 
 ## Implemented Product Surface
 
@@ -89,6 +91,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Committed package-consumer sample at `samples/AuthNet.PackageConsumer` references `AuthNet.AspNetCore` `0.1.0` from local package artifacts and is intentionally outside `AuthNet.slnx`.
+- Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
+- Package metadata verification is available through `scripts/verify-package-metadata.ps1`; strict public-publication metadata mode remains gated on owner repository URL and license decisions.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
 - Sample host supports explicit admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
 - Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
@@ -102,6 +106,7 @@ Known passing commands:
 
 ```powershell
 .\scripts\verify.ps1
+.\scripts\verify-package-metadata.ps1
 .\scripts\verify-package-consumer.ps1
 .\.dotnet\dotnet.exe restore AuthNet.slnx
 .\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
@@ -230,6 +235,12 @@ Known passing committed package-consumer smoke:
 .\scripts\verify-package-consumer.ps1
 ```
 
+Known passing package metadata verification:
+
+```powershell
+.\scripts\verify-package-metadata.ps1
+```
+
 Known passing sample startup:
 
 ```powershell
@@ -315,6 +326,9 @@ For product/architecture:
 - `tasks/slice-19-todo.md`
 - `tasks/slice-20-plan.md`
 - `tasks/slice-20-todo.md`
+- `tasks/slice-21-plan.md`
+- `tasks/slice-21-todo.md`
+- `docs/slice-21/package-publication-finalization.md`
 - `docs/slice-03/package-readiness.md`
 - `docs/slice-03/package-consumption-smoke.md`
 - `docs/slice-04/development-inmemory.md`
@@ -328,11 +342,11 @@ For product/architecture:
 
 ## Likely Next Work
 
-Publication decisions and admin JSON APIs are intentionally paused for now.
+Public package publication and admin JSON APIs are intentionally paused for now.
 
 Other candidates:
 
-- Decide whether package publication metadata is ready to finalize.
+- Confirm repository URL, license, owners/authors, XML documentation, signing, and trusted-publishing decisions before public NuGet publication.
 - Pick up the future admin JSON API plan only if admin automation becomes the priority.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

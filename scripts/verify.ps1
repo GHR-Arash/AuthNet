@@ -9,15 +9,9 @@ if (-not (Test-Path -LiteralPath $dotnet)) {
     $dotnet = 'dotnet'
 }
 
+. (Join-Path $repoRoot 'scripts\package-manifest.ps1')
+
 $packageOutput = Join-Path $repoRoot 'artifacts\packages'
-$expectedPackages = @(
-    'AuthNet.Core.0.1.0.nupkg',
-    'AuthNet.ExternalProviders.0.1.0.nupkg',
-    'AuthNet.Persistence.Postgres.0.1.0.nupkg',
-    'AuthNet.UI.Razor.0.1.0.nupkg',
-    'AuthNet.Api.0.1.0.nupkg',
-    'AuthNet.AspNetCore.0.1.0.nupkg'
-)
 
 function Invoke-Step {
     param(
@@ -61,16 +55,7 @@ Invoke-Step 'Clean package output' {
         Remove-Item -Force
 }
 
-$packProjects = @(
-    'src\AuthNet.Core\AuthNet.Core.csproj',
-    'src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj',
-    'src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj',
-    'src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj',
-    'src\AuthNet.Api\AuthNet.Api.csproj',
-    'src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj'
-)
-
-foreach ($project in $packProjects) {
+foreach ($project in $AuthNetPackProjects) {
     Invoke-Step "Pack $project" {
         Invoke-DotNet pack $project --configuration Release --no-build --output $packageOutput
     }
@@ -80,7 +65,7 @@ Invoke-Step 'Verify package output' {
     $actualPackages = Get-ChildItem -LiteralPath $packageOutput -Filter 'AuthNet.*.nupkg' -File |
         Select-Object -ExpandProperty Name |
         Sort-Object
-    $expectedSorted = $expectedPackages | Sort-Object
+    $expectedSorted = $AuthNetExpectedPackageFiles | Sort-Object
 
     $missing = @($expectedSorted | Where-Object { $_ -notin $actualPackages })
     $extra = @($actualPackages | Where-Object { $_ -notin $expectedSorted })
@@ -98,6 +83,13 @@ Invoke-Step 'Verify package output' {
     }
 
     Write-Host "Verified packages: $($actualPackages -join ', ')"
+}
+
+Invoke-Step 'Verify package metadata' {
+    & (Join-Path $repoRoot 'scripts\verify-package-metadata.ps1')
+    if ($LASTEXITCODE -ne 0) {
+        throw "package metadata verification failed with exit code $LASTEXITCODE"
+    }
 }
 
 Invoke-Step 'Verify package consumer sample' {

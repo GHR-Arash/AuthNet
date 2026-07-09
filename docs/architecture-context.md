@@ -112,6 +112,12 @@ Focused package-consumer verification after packages exist:
 .\scripts\verify-package-consumer.ps1
 ```
 
+Focused package metadata verification after packages exist:
+
+```powershell
+.\scripts\verify-package-metadata.ps1
+```
+
 Pack local package artifacts:
 
 ```powershell
@@ -234,6 +240,9 @@ app.MapAuthNet();
 - Slice 19 SPA invitation acceptance JSON todo: `tasks/slice-19-todo.md`
 - Slice 20 committed package-consumer sample plan: `tasks/slice-20-plan.md`
 - Slice 20 committed package-consumer sample todo: `tasks/slice-20-todo.md`
+- Slice 21 package publication finalization plan: `tasks/slice-21-plan.md`
+- Slice 21 package publication finalization todo: `tasks/slice-21-todo.md`
+- Slice 21 package publication finalization docs: `docs/slice-21/package-publication-finalization.md`
 - Slice 09 account invitations: `docs/slice-09/account-invitations.md`
 - Roadmap: `docs/mvp-roadmap.md`
 - Local tasks: `docs/tasks.md`
