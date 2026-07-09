@@ -96,13 +96,14 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Committed package-consumer sample at `samples/AuthNet.PackageConsumer` references `AuthNet.AspNetCore` `0.1.0` from local package artifacts and is intentionally outside `AuthNet.slnx`.
 - Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
-- Package metadata verification is available through `scripts/verify-package-metadata.ps1`; strict public-publication metadata mode remains gated on owner repository URL and license decisions.
+- Package metadata verification is available through `scripts/verify-package-metadata.ps1`; strict public-publication metadata mode validates repository URL and packaged MIT `LICENSE`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
 - Sample host creates a demo admin user in code at startup and supports explicit additional admin bootstrap in any environment through `AuthNet:AdminBootstrap:{Enabled,UserName,Email,Password}`.
 - Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
 - `samples/AuthNet.SampleHost/appsettings.SmtpSample.json` shows SMTP settings without committed secrets.
 - Local verification is centralized in `scripts/verify.ps1`.
 - GitHub Actions verify-only CI exists at `.github/workflows/ci.yml`; it does not publish or upload packages.
+- GitHub Actions NuGet release workflow exists at `.github/workflows/nuget-release.yml`; it runs after pushes or merges to `master` and publishes generated packages with the `NUGET_API_KEY` repository secret.
 
 ## Current Verification
 
@@ -249,6 +250,12 @@ Known passing package metadata verification:
 .\scripts\verify-package-metadata.ps1
 ```
 
+Manual NuGet publish command:
+
+```powershell
+.\scripts\publish-nuget.ps1 -ApiKey $env:NUGET_API_KEY -SkipDuplicate
+```
+
 Known passing sample startup:
 
 ```powershell
@@ -354,7 +361,7 @@ Public package publication and admin JSON APIs are intentionally paused for now.
 
 Other candidates:
 
-- Confirm repository URL, license, owners/authors, XML documentation, signing, and trusted-publishing decisions before public NuGet publication.
+- Confirm XML documentation, signing, and trusted-publishing decisions before changing the current NuGet publication policy.
 - Pick up the future admin JSON API plan only if admin automation becomes the priority.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

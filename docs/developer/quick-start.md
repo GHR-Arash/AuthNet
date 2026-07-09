@@ -164,7 +164,13 @@ Verify generated package metadata directly after packages exist:
 .\scripts\verify-package-metadata.ps1
 ```
 
-Use strict public-publication metadata verification only after repository URL and license decisions are finalized:
+Publish generated packages manually:
+
+```powershell
+.\scripts\publish-nuget.ps1 -ApiKey $env:NUGET_API_KEY -SkipDuplicate
+```
+
+Strict public-publication metadata verification should pass before packages are published:
 
 ```powershell
 .\scripts\verify-package-metadata.ps1 -RequirePublicPublicationMetadata
@@ -174,7 +180,7 @@ Use strict public-publication metadata verification only after repository URL an
 
 GitHub Actions runs the verify-only workflow in `.github/workflows/ci.yml` for pushes and pull requests to `master`.
 
-The workflow does not publish packages, upload package artifacts, or require secrets.
+GitHub Actions also runs `.github/workflows/nuget-release.yml` on pushes and merges to `master`. That workflow runs verification, packs packages, and publishes them to NuGet with the `NUGET_API_KEY` repository secret.
 
 ## Configure PostgreSQL
 

@@ -118,6 +118,10 @@ Latest committed package-consumer sample is under `samples/AuthNet.PackageConsum
 
 Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
 
+NuGet publishing is automated by `.github/workflows/nuget-release.yml` on pushes and merges to `master`. The workflow runs `.\scripts\verify.ps1` and then `.\scripts\publish-nuget.ps1 -ApiKey $env:NUGET_API_KEY -SkipDuplicate`; repository secret `NUGET_API_KEY` must be configured in GitHub.
+
+NuGet publication metadata uses repository URL `https://github.com/GHR-Arash/AuthNet` and packages the root MIT `LICENSE` file.
+
 Focused SPA API verification:
 
 ```powershell

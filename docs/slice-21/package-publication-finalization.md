@@ -23,13 +23,15 @@ Focused metadata verification:
 .\scripts\verify-package-metadata.ps1
 ```
 
-Strict future public-publication metadata verification:
+Strict public-publication metadata verification:
 
 ```powershell
 .\scripts\verify-package-metadata.ps1 -RequirePublicPublicationMetadata
 ```
 
-The strict mode is expected to fail until repository URL and license metadata are explicitly decided.
+The strict mode must pass before publishing packages.
+
+Manual publishing steps are documented in `docs/developer/nuget-publishing.md`.
 
 ## Validated Package Metadata
 
@@ -47,19 +49,22 @@ For each generated package, the focused verifier checks:
 
 ## Remaining Public Publication Decisions
 
-Before public NuGet publication, confirm:
+Public NuGet publication metadata now includes:
 
-- public repository URL;
-- license expression or license file;
-- final package authors/owners;
+- repository URL: `https://github.com/GHR-Arash/AuthNet`;
+- MIT license file: `LICENSE`;
+- package authors: `Arash Ghoreyhsie`;
+
+Before changing publication policy, confirm:
+
 - XML documentation generation policy;
 - package signing policy;
 - CI tag-publish or trusted-publishing strategy.
 
 ## Explicit Non-Goals
 
-- No NuGet publishing in this slice.
+- No manual NuGet publishing in this slice.
 - No package signing in this slice.
 - No trusted publishing setup in this slice.
-- No guessed repository URL or license metadata.
+- No guessed repository URL or license metadata remains; repository URL and license file are configured.
 - No JWT, refresh tokens, admin JSON APIs, or other product scope changes.

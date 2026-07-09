@@ -108,6 +108,14 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
+Manual NuGet publish after verification:
+
+```powershell
+.\scripts\publish-nuget.ps1 -ApiKey $env:NUGET_API_KEY -SkipDuplicate
+```
+
+GitHub Actions publishes packages automatically from `.github/workflows/nuget-release.yml` on pushes and merges to `master` when the `NUGET_API_KEY` repository secret is configured.
+
 Focused package-consumer verification after packages exist:
 
 ```powershell

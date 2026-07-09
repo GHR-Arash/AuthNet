@@ -1,10 +1,12 @@
 <Project>
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
-    <Authors>AuthNet Contributors</Authors>
-    <Company>AuthNet</Company>
+    <Authors>Arash Ghoreyhsie</Authors>
+    <Company>TehranCloud</Company>
     <Product>AuthNet</Product>
     <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/GHR-Arash/AuthNet</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageTags>auth;identity;aspnetcore;razor-pages;postgresql</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>Initial package-readiness build for AuthNet MVP account UI, Identity integration, PostgreSQL persistence, and generic OpenID Connect support.</PackageReleaseNotes>
@@ -14,5 +16,6 @@
 
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
