@@ -2,7 +2,7 @@ using AuthNet.Api;
 using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.ExternalProviders;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNetRazor;
 using AuthNetRazor.Areas.AuthNet.Pages.Account;
 using Microsoft.AspNetCore.Authorization;
@@ -20,8 +20,35 @@ public static class AuthNetServiceCollectionExtensions
 {
     public static IServiceCollection AddAuthNet(
         this IServiceCollection services,
-        Action<AuthNetOptions>? configure = null,
-        Action<DbContextOptionsBuilder>? configureDbContext = null)
+        Action<AuthNetOptions>? configure = null)
+    {
+        return services.AddAuthNetCore(configure, new AuthNetDatabaseBuilder());
+    }
+
+    public static IServiceCollection AddAuthNet(
+        this IServiceCollection services,
+        Action<AuthNetOptions> configure,
+        Action<AuthNetDatabaseBuilder> configureDatabase)
+    {
+        ArgumentNullException.ThrowIfNull(configureDatabase);
+
+        var databaseBuilder = new AuthNetDatabaseBuilder();
+        configureDatabase(databaseBuilder);
+
+        return services.AddAuthNetCore(configure, databaseBuilder);
+    }
+
+    public static IServiceCollection AddAuthNet(
+        this IServiceCollection services,
+        Action<AuthNetDatabaseBuilder> configureDatabase)
+    {
+        return services.AddAuthNet(_ => { }, configureDatabase);
+    }
+
+    private static IServiceCollection AddAuthNetCore(
+        this IServiceCollection services,
+        Action<AuthNetOptions>? configure,
+        AuthNetDatabaseBuilder databaseBuilder)
     {
         var options = new AuthNetOptions();
         configure?.Invoke(options);
@@ -30,20 +57,22 @@ public static class AuthNetServiceCollectionExtensions
         services.AddOptions<AuthNetOptions>().Configure(configure ?? (_ => { }));
         services.AddSingleton<IValidateOptions<AuthNetOptions>, AuthNetOptionsValidator>();
 
-        if (configureDbContext is null && string.IsNullOrWhiteSpace(options.PostgresConnectionString))
+        var configureDbContext = databaseBuilder.ConfigureDbContextAction;
+        if (configureDbContext is null)
         {
-            throw new AuthNetConfigurationException("AuthNet requires PostgresConnectionString for MVP slice 1.");
+#pragma warning disable CS0618
+            if (string.IsNullOrWhiteSpace(options.PostgresConnectionString))
+            {
+                throw new AuthNetConfigurationException("AuthNet requires database configuration. Use AddAuthNet(..., db => db.UsePostgres(connectionString)) or another supported database provider.");
+            }
+
+            configureDbContext = db => AuthNetPostgresDbContextOptions.Configure(db, options.PostgresConnectionString);
+#pragma warning restore CS0618
         }
 
         services.AddDbContext<AuthNetDbContext>(db =>
         {
-            if (configureDbContext is not null)
-            {
-                configureDbContext(db);
-                return;
-            }
-
-            db.UseNpgsql(options.PostgresConnectionString);
+            configureDbContext(db);
         });
 
         services
@@ -92,6 +121,9 @@ public static class AuthNetServiceCollectionExtensions
         services.TryAddScoped<IAuthNetAuditWriter, AuthNetAuditWriter>();
         services.AddSingleton<IAuthorizationHandler, AuthNetPermissionAuthorizationHandler>();
         services.TryAddSingleton<AuthNetConfigurationValidator>();
+        services.TryAddSingleton<AuthNetDatabaseInitializer>();
+        services.TryAddSingleton<AuthNetInitialAdministratorSeeder>();
+        services.TryAddSingleton<AuthNetStartupRunner>();
         services.AddAuthNetApi();
         services.AddAuthorization(authorization =>
         {

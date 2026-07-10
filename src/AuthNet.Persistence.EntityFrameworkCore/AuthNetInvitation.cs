@@ -1,4 +1,4 @@
-namespace AuthNet.Persistence.Postgres;
+namespace AuthNet.Persistence.EntityFrameworkCore;
 
 public sealed class AuthNetInvitation
 {

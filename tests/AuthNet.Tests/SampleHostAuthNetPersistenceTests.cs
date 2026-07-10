@@ -1,5 +1,5 @@
 using AuthNet.Core;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNet.SampleHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,32 +37,6 @@ public sealed class SampleHostAuthNetPersistenceTests
     }
 
     [Fact]
-    public void Inmemory_database_skips_migrations()
-    {
-        var configuration = Configuration(
-            ("AuthNet:ApplyMigrations", "true"));
-
-        var shouldApplyMigrations = SampleHostAuthNetPersistence.ShouldApplyMigrations(
-            configuration,
-            useInMemoryDatabase: true);
-
-        Assert.False(shouldApplyMigrations);
-    }
-
-    [Fact]
-    public void Postgres_database_allows_migrations_when_configured()
-    {
-        var configuration = Configuration(
-            ("AuthNet:ApplyMigrations", "true"));
-
-        var shouldApplyMigrations = SampleHostAuthNetPersistence.ShouldApplyMigrations(
-            configuration,
-            useInMemoryDatabase: false);
-
-        Assert.True(shouldApplyMigrations);
-    }
-
-    [Fact]
     public void Sample_host_inmemory_registration_uses_inmemory_provider()
     {
         var services = new ServiceCollection();
@@ -92,7 +66,7 @@ public sealed class SampleHostAuthNetPersistenceTests
         var exception = Assert.Throws<AuthNetConfigurationException>(() =>
             SampleHostAuthNetPersistence.AddAuthNet(services, configuration, environment));
 
-        Assert.Contains("PostgresConnectionString", exception.Message);
+        Assert.Contains("db.UsePostgres", exception.Message);
     }
 
     private static IConfiguration Configuration(params (string Key, string Value)[] values)

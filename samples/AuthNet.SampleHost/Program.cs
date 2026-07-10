@@ -1,8 +1,6 @@
 using AuthNet.AspNetCore;
-using AuthNet.Persistence.Postgres;
 using AuthNet.SampleHost;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,18 +34,16 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-var useInMemoryDatabase = SampleHostAuthNetPersistence.ShouldUseInMemoryDatabase(app.Environment, app.Configuration);
-if (SampleHostAuthNetPersistence.ShouldApplyMigrations(app.Configuration, useInMemoryDatabase))
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AuthNetDbContext>();
-    db.Database.Migrate();
-}
-
-await SampleHostAdminBootstrap.BootstrapDemoAdminAsync(app.Services);
-await SampleHostAdminBootstrap.BootstrapAsync(app.Services, app.Configuration);
-
 app.MapStaticAssets();
-app.MapAuthNet();
+await app.UseAuthNet(authNet =>
+{
+    authNet
+        .ApplyMigrations(app.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
+        .InitialAdministrator(
+            username: "admin",
+            password: "Password1!",
+            email: "admin@admin.com")
+        .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator"));
+});
 
 app.Run();

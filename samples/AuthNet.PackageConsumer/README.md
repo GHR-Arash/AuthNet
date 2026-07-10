@@ -18,6 +18,14 @@ To rerun only the package-consumer check after packages already exist:
 
 The sample references `AuthNet.AspNetCore` `0.1.0`; the primary package brings the current AuthNet package dependencies transitively.
 
+The sample configures AuthNet persistence through the unified database builder:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => options.UseDevelopmentEmailSender = true,
+    db => db.UsePostgres(connectionString));
+```
+
 The focused verification is build-only. Runtime startup still requires a PostgreSQL database and production applications should register a real `IAuthNetEmailSender` instead of using the development sender.
 
 Troubleshooting:

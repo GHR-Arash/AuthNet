@@ -4,7 +4,7 @@ using System.Security.Claims;
 using AuthNet.AspNetCore;
 using AuthNet.Core;
 using AuthNet.Core.Email;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -39,7 +39,8 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
 
     public static async Task<AuthNetTestHost> CreateAsync(
         Action<AuthNetOptions>? configure = null,
-        bool useLegacyUseAuthNet = false)
+        bool useLegacyUseAuthNet = false,
+        Action<AuthNetStartupBuilder>? configureStartup = null)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
@@ -64,7 +65,7 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
                 options.ApplicationName = "AuthNet Test";
                 configure?.Invoke(options);
             },
-            db => db.UseInMemoryDatabase(databaseName));
+            db => db.UseInMemory(databaseName));
 
         var app = builder.Build();
 
@@ -102,7 +103,11 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
 
             return Results.Ok();
         });
-        if (useLegacyUseAuthNet)
+        if (configureStartup is not null)
+        {
+            await app.UseAuthNet(configureStartup);
+        }
+        else if (useLegacyUseAuthNet)
         {
 #pragma warning disable CS0618
             app.UseAuthNet();

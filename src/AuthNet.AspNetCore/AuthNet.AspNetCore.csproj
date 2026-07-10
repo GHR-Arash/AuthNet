@@ -1,11 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\AuthNet.Api\AuthNet.Api.csproj" />
     <ProjectReference Include="..\AuthNet.Core\AuthNet.Core.csproj" />
     <ProjectReference Include="..\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj" />
+    <ProjectReference Include="..\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj" />
+    <ProjectReference Include="..\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj" />
     <ProjectReference Include="..\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>

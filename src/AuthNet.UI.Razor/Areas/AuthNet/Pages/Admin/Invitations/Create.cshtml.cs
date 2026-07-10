@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AuthNet.Core;
 using AuthNet.Core.Email;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNetRazor;
 using AuthNetRazor.Areas.AuthNet.Pages.Account;
 using Microsoft.AspNetCore.Authorization;

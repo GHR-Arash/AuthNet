@@ -14,10 +14,24 @@ public static class AuthNetApplicationBuilderExtensions
         return endpoints.MapRazorPages();
     }
 
-    [Obsolete("Use MapAuthNet() after UseAuthentication() and UseAuthorization().")]
+    [Obsolete("Use UseAuthNet(Action<AuthNetStartupBuilder>) for startup tasks or MapAuthNet() for endpoint-only mapping.")]
     public static WebApplication UseAuthNet(this WebApplication app)
     {
         app.MapAuthNet();
+        return app;
+    }
+
+    public static async Task<WebApplication> UseAuthNet(
+        this WebApplication app,
+        Action<AuthNetStartupBuilder> configure)
+    {
+        var builder = new AuthNetStartupBuilder();
+        configure(builder);
+
+        app.Services.GetRequiredService<AuthNetConfigurationValidator>().Validate();
+        await app.Services.GetRequiredService<AuthNetStartupRunner>().RunAsync(builder.Options);
+        app.MapAuthNet();
+
         return app;
     }
 }

@@ -5,7 +5,7 @@ Use this when you only need to restore, build, run, and verify AuthNet locally.
 ## Prerequisites
 
 - Windows PowerShell.
-- PostgreSQL if you want to exercise real account flows.
+- PostgreSQL or SQL Server if you want to exercise real account flows.
 - The repo-local .NET 10 SDK at `.dotnet\dotnet.exe`.
 
 If `.dotnet\dotnet.exe` is missing, install the local SDK:
@@ -125,6 +125,18 @@ Focused sample email sender tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostEmailSenderTests
 ```
 
+Focused fluent startup tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetStartupTests
+```
+
+Focused database builder tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetDatabaseBuilderTests
+```
+
 ## Pack Local NuGet Artifacts
 
 Build Release first, then pack the intended package projects into ignored local artifacts:
@@ -133,7 +145,9 @@ Build Release first, then pack the intended package projects into ignored local 
 .\.dotnet\dotnet.exe build AuthNet.slnx --configuration Release --no-restore
 .\.dotnet\dotnet.exe pack src\AuthNet.Core\AuthNet.Core.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
@@ -143,7 +157,9 @@ Expected packages:
 
 - `AuthNet.Core`
 - `AuthNet.ExternalProviders`
+- `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
+- `AuthNet.Persistence.SqlServer`
 - `AuthNet.UI.Razor`
 - `AuthNet.Api`
 - `AuthNet.AspNetCore`
@@ -194,6 +210,24 @@ The sample host default connection string is in `samples/AuthNet.SampleHost/apps
 
 Change this locally if your PostgreSQL credentials differ.
 
+## Configure SQL Server
+
+SQL Server consumers use the same database builder surface:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
+Use a SQL Server connection string in `ConnectionStrings:AuthNet`, for example:
+
+```json
+"ConnectionStrings": {
+  "AuthNet": "Server=(localdb)\\mssqllocaldb;Database=authnet_sample;Trusted_Connection=True;MultipleActiveResultSets=true"
+}
+```
+
 ## Development InMemory Sample Mode
 
 In Development, the sample host uses EF Core InMemory by default through `samples/AuthNet.SampleHost/appsettings.Development.json`:
@@ -204,14 +238,22 @@ In Development, the sample host uses EF Core InMemory by default through `sample
 }
 ```
 
-This lets you run the sample account UI without a local PostgreSQL server:
+This lets you run the sample account UI without a local relational database server:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
-Use PostgreSQL for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
+Use PostgreSQL or SQL Server for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
+
+The sample host maps its persistence choice through AuthNet's unified database builder:
+
+```csharp
+db.UseInMemory("AuthNetSampleHost")
+db.UsePostgres(connectionString)
+db.UseSqlServer(connectionString)
+```
 
 ## Sample SMTP Email Sender
 
@@ -231,11 +273,9 @@ $env:AuthNet__Email__Smtp__EnableSsl='true'
 
 The same configuration shape is shown in `samples/AuthNet.SampleHost/appsettings.SmtpSample.json`. Keep the password empty in committed JSON and provide it through environment variables or another secret provider.
 
-## Admin Bootstrap
+## Initial Administrator Bootstrap
 
-The sample host creates a demo administrator user from code at startup. This is sample-host-only behavior. AuthNet packages do not seed a default administrator account.
-
-The implementation is in `samples\AuthNet.SampleHost\SampleHostAdminBootstrap.cs` and is invoked from `samples\AuthNet.SampleHost\Program.cs` after the database is ready.
+The sample host creates a demo administrator user through the package-owned fluent startup API in `samples\AuthNet.SampleHost\Program.cs`.
 
 Demo admin credentials:
 
@@ -252,13 +292,13 @@ Programmatic demo bootstrap behavior:
 - Confirms the sample admin email.
 - Assigns the sample admin to `Administrator`.
 
-The sample host also keeps an optional config-driven bootstrap for local override and promotion scenarios:
+The sample host also keeps optional config-driven initial administrator setup for local override and promotion scenarios:
 
-- `AuthNet:AdminBootstrap:Enabled=false` does nothing.
-- `AuthNet:AdminBootstrap:Enabled=true` creates the `Administrator` role if needed.
-- `AuthNet:AdminBootstrap:Email` is required and identifies the user to create or promote.
-- `AuthNet:AdminBootstrap:UserName` is optional and is used only for a newly created user.
-- `AuthNet:AdminBootstrap:Password` is required only when the user does not already exist.
+- `AuthNet:InitialAdministrator:Enabled=false` does nothing.
+- `AuthNet:InitialAdministrator:Enabled=true` creates the `Administrator` role if needed.
+- `AuthNet:InitialAdministrator:Email` is required and identifies the user to create or promote.
+- `AuthNet:InitialAdministrator:UserName` is optional and is used only for a newly created user.
+- `AuthNet:InitialAdministrator:Password` is required only when the user does not already exist.
 - Existing users can be promoted to `Administrator` without providing a password.
 
 The demo admin is available without setting environment variables:
@@ -279,10 +319,10 @@ To create or promote an additional configured admin user:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
-$env:AuthNet__AdminBootstrap__Enabled='true'
-$env:AuthNet__AdminBootstrap__UserName='admin'
-$env:AuthNet__AdminBootstrap__Email='admin@example.test'
-$env:AuthNet__AdminBootstrap__Password='Password1!'
+$env:AuthNet__InitialAdministrator__Enabled='true'
+$env:AuthNet__InitialAdministrator__UserName='admin'
+$env:AuthNet__InitialAdministrator__Email='admin@example.test'
+$env:AuthNet__InitialAdministrator__Password='Password1!'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
@@ -298,28 +338,18 @@ If the user already exists, the bootstrap can assign the `Administrator` role wi
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
-$env:AuthNet__AdminBootstrap__Enabled='true'
-$env:AuthNet__AdminBootstrap__Email='existing@example.test'
+$env:AuthNet__InitialAdministrator__Enabled='true'
+$env:AuthNet__InitialAdministrator__Email='existing@example.test'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
 Focused bootstrap tests:
 
 ```powershell
-.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAdminBootstrapTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetStartupTests
 ```
 
-Package consumers should implement their own first-admin bootstrap in the host application. The package exposes the normal ASP.NET Core Identity services (`UserManager<AuthNetUser>` and `RoleManager<IdentityRole>`); it intentionally does not ship hardcoded credentials or an automatic admin seed.
-
-The programmatic pattern for consumers is:
-
-1. Resolve `RoleManager<IdentityRole>` and `UserManager<AuthNetUser>` from a scoped service provider.
-2. Create the `Administrator` role if it is missing.
-3. Find the intended admin by email.
-4. Create the user only when the host's bootstrap policy allows creation and a password/secret was supplied.
-5. Assign the user to `Administrator` if they are not already in the role.
-
-The user-facing guide has a copyable `AdminUserBootstrap.EnsureAdminUserAsync(...)` helper under `docs/users/getting-started.md`.
+Package consumers should use `await app.UseAuthNet(authNet => authNet.InitialAdministrator(...))` for first-admin bootstrap. The package intentionally does not create hardcoded credentials unless the host opts in.
 
 ## Apply Database Schema
 
@@ -329,13 +359,19 @@ Install EF tooling into the ignored `.tools/` folder:
 .\.dotnet\dotnet.exe tool install dotnet-ef --version 10.0.9 --tool-path .tools
 ```
 
-Apply migrations:
+Apply PostgreSQL migrations:
 
 ```powershell
 .\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
 ```
 
-Alternative: set `AuthNet:ApplyMigrations` to `true` in the sample host config before running it.
+Apply SQL Server migrations:
+
+```powershell
+.\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
+```
+
+Alternative: set `AuthNet:ApplyMigrations` to `true` in the sample host config before running it. The sample host passes that setting into `UseAuthNet(...ApplyMigrations(...))`.
 
 ## Run Sample Host
 
@@ -418,7 +454,7 @@ The sample host creates the demo admin user in code at startup. This is sample-h
   "Invitations": {
     "Expiration": "7.00:00:00"
   },
-  "AdminBootstrap": {
+  "InitialAdministrator": {
     "Enabled": false,
     "UserName": "",
     "Email": "",

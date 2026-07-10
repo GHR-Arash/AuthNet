@@ -2,9 +2,25 @@
 
 This page describes the current AuthNet MVP configuration surface.
 
-Package consumers should reference `AuthNet.AspNetCore`; the Razor UI, PostgreSQL persistence, external provider, and core packages are resolved through package dependencies in the current MVP package set.
+Package consumers should reference `AuthNet.AspNetCore`; the Razor UI, EF Core persistence providers, external provider, and core packages are resolved through package dependencies in the current MVP package set.
 
-PostgreSQL is the default and production persistence path. The sample host also has a Development-only `AuthNet:UseInMemoryDatabase` convenience setting, but that setting is sample-host behavior rather than a supported production persistence provider.
+Configure persistence through the AuthNet database builder. PostgreSQL:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UsePostgres(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
+SQL Server:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
+The sample host also has a Development-only `AuthNet:UseInMemoryDatabase` convenience setting, which maps to `db.UseInMemory(...)`. That setting is sample-host behavior rather than a supported production persistence provider.
 
 ## Connection String
 
@@ -14,7 +30,7 @@ PostgreSQL is the default and production persistence path. The sample host also 
 }
 ```
 
-`PostgresConnectionString` is required for MVP slice 1.
+`AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path through Slice 26, but new integrations should use the database builder. Slice 27 removes that compatibility option.
 
 ## AuthNet Options
 
@@ -28,6 +44,12 @@ PostgreSQL is the default and production persistence path. The sample host also 
   "UseDevelopmentEmailSender": false,
   "RequireConfirmedEmail": true,
   "ApplyMigrations": false,
+  "InitialAdministrator": {
+    "Enabled": false,
+    "UserName": "",
+    "Email": "",
+    "Password": ""
+  },
   "Invitations": {
     "Expiration": "7.00:00:00"
   }
@@ -106,7 +128,7 @@ true
 
 ### `ApplyMigrations`
 
-Sample-host convenience setting for applying EF migrations at startup.
+Opt-in setting commonly passed into `UseAuthNet(...ApplyMigrations(...))` for applying EF migrations at startup.
 
 Default:
 
@@ -114,9 +136,35 @@ Default:
 false
 ```
 
-Prefer explicit migration deployment outside local development.
+Prefer explicit migration deployment outside local development unless startup migrations are already part of your release model.
 
-When the sample host runs with Development-only InMemory mode, migrations are skipped because EF Core InMemory does not use relational migrations.
+When AuthNet is configured with EF Core InMemory, `ApplyMigrations()` skips migrations because EF Core InMemory does not use relational migrations.
+
+### `InitialAdministrator`
+
+Optional startup bootstrap configuration for the first administrator.
+
+```json
+"AuthNet": {
+  "InitialAdministrator": {
+    "Enabled": true,
+    "UserName": "admin",
+    "Email": "admin@example.test",
+    "Password": "Password1!"
+  }
+}
+```
+
+Use it through the fluent startup API:
+
+```csharp
+await app.UseAuthNet(authNet => authNet
+    .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator")));
+```
+
+AuthNet creates the `Administrator` role if needed, creates the user only when missing, confirms the initial email, and assigns administrator access. Existing users are not password-reset by this bootstrap.
+
+Keep `Password` in a secret manager or environment variable for real deployments.
 
 ### `Invitations:Expiration`
 

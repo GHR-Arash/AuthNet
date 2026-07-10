@@ -7,7 +7,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/GHR-Arash/AuthNet</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageTags>auth;identity;aspnetcore;razor-pages;postgresql</PackageTags>
+    <PackageTags>auth;identity;aspnetcore;razor-pages;postgresql;sqlserver</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>Initial package-readiness build for AuthNet MVP account UI, Identity integration, PostgreSQL persistence, and generic OpenID Connect support.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

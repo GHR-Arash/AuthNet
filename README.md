@@ -1,6 +1,6 @@
 # AuthNet
 
-AuthNet is a drop-in identity module for ASP.NET Core apps. Install one package and get a polished, server-rendered account experience backed by ASP.NET Core Identity, PostgreSQL, cookie authentication, MFA, invitations, roles, admin screens, audit events, and same-origin JSON endpoints for SPA shells.
+AuthNet is a drop-in identity module for ASP.NET Core apps. Install one package and get a polished, server-rendered account experience backed by ASP.NET Core Identity, PostgreSQL or SQL Server, cookie authentication, MFA, invitations, roles, admin screens, audit events, and same-origin JSON endpoints for SPA shells.
 
 It is built for teams who want real authentication and access management without spending the first month rebuilding login, password reset, MFA setup, admin user management, and audit screens from scratch.
 
@@ -9,7 +9,7 @@ It is built for teams who want real authentication and access management without
 - Built-in Razor Pages UI for sign in, sign out, registration, email confirmation, password reset, profile, password change, MFA, and invitation acceptance.
 - Polished default AuthNet home page and navigation under `/auth`.
 - ASP.NET Core Identity users, roles, claims, password policy, lockout, security stamps, token providers, and cookies.
-- PostgreSQL persistence through EF Core and Npgsql.
+- PostgreSQL and SQL Server persistence through EF Core provider packages.
 - Authenticator-app MFA with recovery codes.
 - Admin UI for users, roles, built-in AuthNet permissions, invitations, and audit events.
 - Admin audit events for successful administrative mutations.
@@ -29,14 +29,16 @@ dotnet add package AuthNet.AspNetCore
 `AuthNet.AspNetCore` brings in the current package set:
 
 - `AuthNet.Core`
+- `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
+- `AuthNet.Persistence.SqlServer`
 - `AuthNet.UI.Razor`
 - `AuthNet.ExternalProviders`
 - `AuthNet.Api`
 
 ## Development Quick Start
 
-Use this setup for local development with a local PostgreSQL database and the development email sender. This is the best default because it exercises the same relational provider you will use in production.
+Use this setup for local development with a local PostgreSQL or SQL Server database and the development email sender. This is the best default because it exercises the same relational provider you will use in production.
 
 ### 1. Configure `appsettings.Development.json`
 
@@ -51,7 +53,13 @@ Use this setup for local development with a local PostgreSQL database and the de
     "EnablePublicRegistration": true,
     "UseDevelopmentEmailSender": true,
     "RequireConfirmedEmail": true,
-    "ApplyMigrations": true
+    "ApplyMigrations": true,
+    "InitialAdministrator": {
+      "Enabled": true,
+      "UserName": "admin",
+      "Email": "admin@example.test",
+      "Password": "ChangeMe1!"
+    }
   }
 }
 ```
@@ -62,18 +70,14 @@ Use this setup for local development with a local PostgreSQL database and the de
 
 ```csharp
 using AuthNet.AspNetCore;
-using AuthNet.Persistence.Postgres;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 
-builder.Services.AddAuthNet(options =>
-{
-    builder.Configuration.GetSection("AuthNet").Bind(options);
-    options.PostgresConnectionString = builder.Configuration.GetConnectionString("AuthNet");
-});
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UsePostgres(builder.Configuration.GetConnectionString("AuthNet")));
 
 var app = builder.Build();
 
@@ -82,28 +86,30 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AuthNetDbContext>();
-    db.Database.Migrate();
-}
-
 app.MapStaticAssets();
-app.MapAuthNet();
+await app.UseAuthNet(authNet => authNet
+    .ApplyMigrations(app.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
+    .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator")));
 
 app.Run();
 ```
 
-Order matters: `UseRouting()`, then `UseAuthentication()`, then `UseAuthorization()`, then `MapAuthNet()`.
+For SQL Server, use the same database builder surface:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
+Order matters: `UseRouting()`, then `UseAuthentication()`, then `UseAuthorization()`, then `UseAuthNet(...)`.
 
 ### Development InMemory Option
 
-For quick throwaway smoke tests, you can use EF Core InMemory instead of PostgreSQL by passing AuthNet a custom DbContext registration. This is useful when you want to click through the UI without running a database server.
+For quick throwaway smoke tests, you can use EF Core InMemory instead of a relational database through the same AuthNet database builder. This is useful when you want to click through the UI without running a database server.
 
 ```csharp
 using AuthNet.AspNetCore;
-using Microsoft.EntityFrameworkCore;
 
 builder.Services.AddRazorPages();
 
@@ -113,16 +119,14 @@ builder.Services.AddAuthNet(
         builder.Configuration.GetSection("AuthNet").Bind(options);
         options.UseDevelopmentEmailSender = true;
     },
-    db => db.UseInMemoryDatabase("AuthNet.Dev"));
+    db => db.UseInMemory("AuthNet.Dev"));
+
+await app.UseAuthNet(authNet => authNet
+    .ApplyMigrations()
+    .InitialAdministrator("admin", "Password1!", "admin@example.test"));
 ```
 
-Install the EF InMemory provider in your app if you use this path:
-
-```powershell
-dotnet add package Microsoft.EntityFrameworkCore.InMemory
-```
-
-Do not use InMemory for production or for final persistence testing. It does not behave like PostgreSQL for relational constraints, migrations, transactions, or SQL translation.
+Do not use InMemory for production or for final persistence testing. It does not behave like relational providers for constraints, migrations, transactions, or SQL translation.
 
 ### 3. Open the UI
 
@@ -144,46 +148,14 @@ The admin routes require a signed-in user in the `Administrator` role or a role 
 
 ### 4. Create Your First Admin
 
-AuthNet packages do not create production default credentials. For development, add a small bootstrap in your app or use your own seed process.
+AuthNet packages do not create default credentials unless you explicitly ask for an initial administrator. For development, keep the setup fluent and local:
 
-Hardcoded local-only example:
+Code-based local-only example:
 
 ```csharp
-using AuthNet.Persistence.Postgres;
-using Microsoft.AspNetCore.Identity;
-
-using var scope = app.Services.CreateScope();
-var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
-
-if (!await roleManager.RoleExistsAsync("Administrator"))
-{
-    await roleManager.CreateAsync(new IdentityRole("Administrator"));
-}
-
-var admin = await userManager.FindByEmailAsync("admin@example.test");
-if (admin is null)
-{
-    admin = new AuthNetUser
-    {
-        UserName = "admin",
-        Email = "admin@example.test",
-        EmailConfirmed = true,
-        LockoutEnabled = true
-    };
-
-    var create = await userManager.CreateAsync(admin, "ChangeMe1!");
-    if (!create.Succeeded)
-    {
-        throw new InvalidOperationException(
-            string.Join(" ", create.Errors.Select(error => error.Description)));
-    }
-}
-
-if (!await userManager.IsInRoleAsync(admin, "Administrator"))
-{
-    await userManager.AddToRoleAsync(admin, "Administrator");
-}
+await app.UseAuthNet(authNet => authNet
+    .ApplyMigrations()
+    .InitialAdministrator("admin", "ChangeMe1!", "admin@example.test"));
 ```
 
 Use secrets or environment variables for real deployments. Do not hardcode production passwords.
@@ -192,73 +164,28 @@ Appsettings-driven example:
 
 ```json
 {
-  "AdminBootstrap": {
-    "Enabled": true,
-    "UserName": "admin",
-    "Email": "admin@example.test",
-    "Password": "ChangeMe1!"
+  "AuthNet": {
+    "InitialAdministrator": {
+      "Enabled": true,
+      "UserName": "admin",
+      "Email": "admin@example.test",
+      "Password": "ChangeMe1!"
+    }
   }
 }
 ```
 
 ```csharp
-if (app.Configuration.GetValue<bool>("AdminBootstrap:Enabled"))
-{
-    using var scope = app.Services.CreateScope();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNetUser>>();
-
-    const string adminRole = "Administrator";
-    if (!await roleManager.RoleExistsAsync(adminRole))
-    {
-        await roleManager.CreateAsync(new IdentityRole(adminRole));
-    }
-
-    var email = app.Configuration["AdminBootstrap:Email"];
-    var userName = app.Configuration["AdminBootstrap:UserName"];
-    var password = app.Configuration["AdminBootstrap:Password"];
-
-    if (string.IsNullOrWhiteSpace(email))
-    {
-        throw new InvalidOperationException("AdminBootstrap:Email is required.");
-    }
-
-    var admin = await userManager.FindByEmailAsync(email);
-    if (admin is null)
-    {
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            throw new InvalidOperationException("AdminBootstrap:Password is required when creating an admin.");
-        }
-
-        admin = new AuthNetUser
-        {
-            UserName = string.IsNullOrWhiteSpace(userName) ? email : userName,
-            Email = email,
-            EmailConfirmed = true,
-            LockoutEnabled = true
-        };
-
-        var create = await userManager.CreateAsync(admin, password);
-        if (!create.Succeeded)
-        {
-            throw new InvalidOperationException(
-                string.Join(" ", create.Errors.Select(error => error.Description)));
-        }
-    }
-
-    if (!await userManager.IsInRoleAsync(admin, adminRole))
-    {
-        await userManager.AddToRoleAsync(admin, adminRole);
-    }
-}
+await app.UseAuthNet(authNet => authNet
+    .ApplyMigrations(app.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
+    .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator")));
 ```
 
-For production, keep `AdminBootstrap:Password` in a secret manager or environment variable, not committed JSON. A common production pattern is to create the user through a controlled operational path, then run an idempotent bootstrap that only assigns the `Administrator` role by email.
+For production, keep `AuthNet:InitialAdministrator:Password` in a secret manager or environment variable, not committed JSON. If the user already exists, AuthNet does not reset that user's password; it only ensures the `Administrator` role.
 
 ## Production Quick Start
 
-Production should be explicit: real PostgreSQL, real email, HTTPS, migrations under your release process, and no development email sender.
+Production should be explicit: real PostgreSQL or SQL Server, real email, HTTPS, migrations under your release process, and no development email sender.
 
 ### 1. Configure Production
 
@@ -274,6 +201,12 @@ Production should be explicit: real PostgreSQL, real email, HTTPS, migrations un
     "UseDevelopmentEmailSender": false,
     "RequireConfirmedEmail": true,
     "ApplyMigrations": false,
+    "InitialAdministrator": {
+      "Enabled": false,
+      "UserName": "",
+      "Email": "",
+      "Password": ""
+    },
     "Invitations": {
       "Expiration": "7.00:00:00"
     }
@@ -308,7 +241,15 @@ Production validation rejects the development email sender.
 
 ### 3. Apply the Database Schema
 
-Apply migrations during deployment, before serving traffic:
+You can let AuthNet apply migrations at application startup when that matches your deployment model:
+
+```csharp
+await app.UseAuthNet(authNet => authNet
+    .ApplyMigrations()
+    .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator")));
+```
+
+For stricter production deployments, apply migrations before serving traffic:
 
 ```powershell
 dotnet tool install dotnet-ef --version 10.0.9 --tool-path .tools
@@ -318,11 +259,27 @@ dotnet tool install dotnet-ef --version 10.0.9 --tool-path .tools
   --context AuthNetDbContext
 ```
 
-You can also run migrations from your own deployment job. Avoid surprise production schema changes from normal web startup unless that is already your standard operating model.
+For SQL Server migrations, use the SQL Server provider project:
+
+```powershell
+.\.tools\dotnet-ef.exe database update `
+  --project src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj `
+  --startup-project path\to\your-app.csproj `
+  --context AuthNetDbContext
+```
+
+Avoid surprise production schema changes from normal web startup unless that is already your standard operating model.
 
 ### 4. Bootstrap an Administrator
 
-Promote an existing verified user or run a one-time bootstrap with secrets supplied by your deployment environment. Remove or disable the bootstrap after the first admin exists unless you intentionally keep it idempotent.
+Promote an existing verified user or run a one-time bootstrap with secrets supplied by your deployment environment:
+
+```csharp
+await app.UseAuthNet(authNet => authNet
+    .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator")));
+```
+
+The bootstrap is idempotent. It creates the `Administrator` role if needed, creates the configured user only when missing, confirms the initial email, and assigns administrator access. It does not reset an existing user's password.
 
 AuthNet uses the standard ASP.NET Core Identity role name:
 
@@ -369,7 +326,7 @@ Use `LayoutPath` when you want AuthNet pages inside your application shell.
 
 ## Run the Repository Sample
 
-The repository sample host creates a demo administrator in code at startup:
+The repository sample host creates a demo administrator through the fluent startup API:
 
 ```text
 Username: admin

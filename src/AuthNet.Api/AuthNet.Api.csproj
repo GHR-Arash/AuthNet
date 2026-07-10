@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuthNet.Core\AuthNet.Core.csproj" />
-    <ProjectReference Include="..\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj" />
+    <ProjectReference Include="..\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>

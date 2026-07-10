@@ -2,10 +2,31 @@
 
 ## Current Iteration
 
+Slice 26 SQL Server provider is implemented and tracked in:
+
+- `tasks/slice-26-plan.md`
+- `tasks/slice-26-todo.md`
+
+Slice 25 provider-neutral EF persistence split is implemented and tracked in:
+
+- `tasks/slice-25-plan.md`
+- `tasks/slice-25-todo.md`
+
+Slice 24 unified database provider API is implemented and tracked in:
+
+- `tasks/slice-24-plan.md`
+- `tasks/slice-24-todo.md`
+- `docs/slice-24/unified-database-provider-api.md`
+
 Slice 22 built-in UI polish is implemented and tracked in:
 
 - `tasks/slice-22-plan.md`
 - `tasks/slice-22-todo.md`
+
+Slice 23 fluent startup bootstrap API is implemented and tracked in:
+
+- `tasks/slice-23-plan.md`
+- `tasks/slice-23-todo.md`
 
 Slice 21 package publication finalization is implemented and tracked in:
 
@@ -87,7 +108,9 @@ Packable:
 - `AuthNet.Core`
 - `AuthNet.AspNetCore`
 - `AuthNet.UI.Razor`
+- `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
+- `AuthNet.Persistence.SqlServer`
 - `AuthNet.ExternalProviders`
 - `AuthNet.Api`
 
@@ -97,7 +120,11 @@ Not packable:
 - `AuthNet.PackageConsumer`
 - `AuthNet.Tests`
 
-JWT and refresh-token authentication remain deferred.
+PostgreSQL is configured through `db.UsePostgres(connectionString)` and SQL Server is configured through `db.UseSqlServer(connectionString)` on the AuthNet database builder. EF Core InMemory remains available for development/test smoke paths through `db.UseInMemory(databaseName)`.
+
+Shared EF Core Identity model types live in `AuthNet.Persistence.EntityFrameworkCore`; PostgreSQL provider dependencies and migrations live in `AuthNet.Persistence.Postgres`; SQL Server provider dependencies and migrations live in `AuthNet.Persistence.SqlServer`.
+
+`AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path through Slice 26 and should be removed in Slice 27. JWT and refresh-token authentication remain deferred.
 
 ## Current Verification
 
@@ -111,6 +138,14 @@ Latest focused UI polish verification:
 ```
 
 Manual sample-host HTTP check in Development verified `/auth` returns 200 and `_content/AuthNet.UI.Razor/authnet.css` returns 200.
+
+Latest focused unified database provider verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetDatabaseBuilderTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAuthNetPersistenceTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetStartupTests
+```
 
 Latest known package verification uses Release build plus per-project pack commands into ignored `artifacts/packages`.
 
@@ -178,7 +213,7 @@ Focused sample email sender verification:
 
 ## Current Persistence Modes
 
-PostgreSQL remains the default production/package persistence path.
+PostgreSQL and SQL Server are the production/package persistence paths.
 
 Development-only InMemory is implemented for the sample host through `AuthNet:UseInMemoryDatabase=true` in `appsettings.Development.json`.
 
@@ -196,7 +231,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 160 passing tests.
+Latest full verification: 182 passing tests.
 
 Package-consumer verification is integrated into `.\scripts\verify.ps1` after package packing.
 
@@ -228,20 +263,33 @@ Admin user management UI is available under the configured AuthNet route prefix:
 - `/auth/admin/users`
 - `/auth/admin/users/{id}`
 
-The UI requires the ASP.NET Core Identity `Administrator` role. AuthNet packages do not seed a default admin username or password.
+The UI requires the ASP.NET Core Identity `Administrator` role. AuthNet creates an initial administrator only when the host explicitly configures the fluent startup bootstrap.
 
-The sample host creates a demo admin user in code at startup:
+AuthNet.AspNetCore now provides fluent startup bootstrap through `await app.UseAuthNet(authNet => ...)`:
+
+- `ApplyMigrations()` applies EF migrations for relational providers and skips EF InMemory.
+- `InitialAdministrator(...)` creates/promotes a configured user into the `Administrator` role.
+- Existing users are not password-reset by initial administrator bootstrap.
+- `AuthNet:InitialAdministrator:{Enabled,UserName,Email,Password}` drives appsettings-based setup.
+
+The sample host creates a demo admin user through the package fluent startup API:
 
 - `UserName=admin`
 - `Email=admin@admin.com`
 - `Password=Password1!`
 
-The sample host also has explicit admin bootstrap in any environment through:
+The sample host also has explicit initial administrator configuration through:
 
-- `AuthNet:AdminBootstrap:Enabled`
-- `AuthNet:AdminBootstrap:UserName`
-- `AuthNet:AdminBootstrap:Email`
-- `AuthNet:AdminBootstrap:Password`
+- `AuthNet:InitialAdministrator:Enabled`
+- `AuthNet:InitialAdministrator:UserName`
+- `AuthNet:InitialAdministrator:Email`
+- `AuthNet:InitialAdministrator:Password`
+
+The sample host registers persistence through the package database builder:
+
+- Development-only InMemory: `db.UseInMemory("AuthNetSampleHost")`.
+- PostgreSQL/default: `db.UsePostgres(configuration.GetConnectionString("AuthNet"))`.
+- SQL Server: `db.UseSqlServer(configuration.GetConnectionString("AuthNet"))`.
 
 The sample host exposes admin workflow links from the home page, shared navigation, and protected `/Admin` page:
 
@@ -267,7 +315,7 @@ Implemented actions:
 
 Implemented Slice 11 scope:
 
-- Persisted audit events in `AuthNet.Persistence.Postgres`.
+- Persisted audit events through the provider-neutral EF model in `AuthNet.Persistence.EntityFrameworkCore`.
 - Admin-only audit list page at `/auth/admin/audit`.
 - Filters by action, actor, target, and date range.
 - Successful admin mutation coverage for direct user creation, invitation creation, fixed administrator grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
@@ -315,7 +363,7 @@ Implemented Slice 09 scope:
 
 - Admin-only invitation list and create pages.
 - Anonymous invitation acceptance page with secure token.
-- Persisted invitation records in `AuthNet.Persistence.Postgres`.
+- Persisted invitation records through the provider-neutral EF model in `AuthNet.Persistence.EntityFrameworkCore`.
 - Invitation token hashes only; raw tokens are sent in email links and are not stored.
 - Invitation email delivery through `IAuthNetEmailSender`.
 - Identity user creation with invited email confirmed after successful acceptance.
