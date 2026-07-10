@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace AuthNet.Persistence.Postgres;
+namespace AuthNet.Persistence.EntityFrameworkCore;
 
 public static class AuthNetInvitationToken
 {

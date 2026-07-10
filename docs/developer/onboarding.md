@@ -33,7 +33,8 @@ Deferred work:
 
 - `src/AuthNet.Core`: options, shared contracts, email abstractions.
 - `src/AuthNet.AspNetCore`: service registration, middleware integration, validation, development email sender.
-- `src/AuthNet.Persistence.Postgres`: Identity user, EF Core DbContext, PostgreSQL migrations.
+- `src/AuthNet.Persistence.EntityFrameworkCore`: provider-neutral Identity user, EF Core DbContext, invitations, and audit model.
+- `src/AuthNet.Persistence.Postgres`: PostgreSQL provider dependencies and migrations.
 - `src/AuthNet.UI.Razor`: reusable Razor Pages account and admin UI.
 - `src/AuthNet.ExternalProviders`: generic OpenID Connect registration.
 - `samples/AuthNet.SampleHost`: runnable host app for manual verification.

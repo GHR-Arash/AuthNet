@@ -10,14 +10,12 @@ builder.Services.AddAuthNet(
     db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
 ```
 
-This work should happen after the provider-neutral EF Core model split described in `docs/slice-24/unified-database-provider-api.md`.
+This work builds on the provider-neutral EF Core model split completed in Slice 25.
 
 ## Scope
 
 In scope:
 
-- Add `AuthNet.Persistence.EntityFrameworkCore` or equivalent provider-neutral package.
-- Move shared AuthNet EF entities and DbContext/model configuration out of `AuthNet.Persistence.Postgres`.
 - Add `AuthNet.Persistence.SqlServer`.
 - Add `db.UseSqlServer(connectionString)`.
 - Add SQL Server EF migrations.
@@ -37,7 +35,7 @@ Out of scope:
 
 - SQL Server support must live in its own provider package.
 - PostgreSQL and SQL Server migrations remain provider-specific.
-- Shared EF model types should live in a provider-neutral package to avoid making UI/API/runtime packages depend on PostgreSQL.
+- Shared EF model types live in `AuthNet.Persistence.EntityFrameworkCore` to avoid making UI/API/runtime packages depend on PostgreSQL.
 - The database builder remains the public configuration surface for all first-party providers.
 
 ## Verification Commands
@@ -54,7 +52,6 @@ Out of scope:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Shared EF type move breaks consumers. | High | Consider compatibility namespaces or type forwarding before moving public types. |
 | Provider migrations conflict. | High | Keep separate migrations assemblies per provider. |
 | `AuthNet.AspNetCore` becomes too heavy. | Medium | Keep provider dependencies in provider packages once the split is complete. |
 | SQL Server behavior differs from PostgreSQL constraints. | Medium | Add provider-specific migration and smoke tests. |

@@ -29,6 +29,7 @@ dotnet add package AuthNet.AspNetCore
 `AuthNet.AspNetCore` brings in the current package set:
 
 - `AuthNet.Core`
+- `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.UI.Razor`
 - `AuthNet.ExternalProviders`

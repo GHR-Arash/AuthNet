@@ -1,5 +1,5 @@
 using AuthNet.Core;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNet.SampleHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

@@ -3,6 +3,7 @@ Set-StrictMode -Version Latest
 $AuthNetPackProjects = @(
     'src\AuthNet.Core\AuthNet.Core.csproj',
     'src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj',
+    'src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj',
     'src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj',
     'src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj',
     'src\AuthNet.Api\AuthNet.Api.csproj',

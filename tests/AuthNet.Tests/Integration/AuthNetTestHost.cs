@@ -4,7 +4,7 @@ using System.Security.Claims;
 using AuthNet.AspNetCore;
 using AuthNet.Core;
 using AuthNet.Core.Email;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;

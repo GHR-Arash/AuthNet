@@ -145,6 +145,7 @@ Build Release first, then pack the intended package projects into ignored local 
 .\.dotnet\dotnet.exe build AuthNet.slnx --configuration Release --no-restore
 .\.dotnet\dotnet.exe pack src\AuthNet.Core\AuthNet.Core.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
@@ -155,6 +156,7 @@ Expected packages:
 
 - `AuthNet.Core`
 - `AuthNet.ExternalProviders`
+- `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.UI.Razor`
 - `AuthNet.Api`

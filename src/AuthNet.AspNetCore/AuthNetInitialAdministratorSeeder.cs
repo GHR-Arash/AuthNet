@@ -1,5 +1,5 @@
 using AuthNet.Core;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 

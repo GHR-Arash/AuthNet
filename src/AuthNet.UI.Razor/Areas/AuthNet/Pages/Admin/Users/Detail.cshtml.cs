@@ -1,5 +1,5 @@
 using AuthNet.Core;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNetRazor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

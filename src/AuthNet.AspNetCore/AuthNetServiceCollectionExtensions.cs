@@ -2,7 +2,7 @@ using AuthNet.Api;
 using AuthNet.Core;
 using AuthNet.Core.Email;
 using AuthNet.ExternalProviders;
-using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNetRazor;
 using AuthNetRazor.Areas.AuthNet.Pages.Account;
 using Microsoft.AspNetCore.Authorization;
@@ -73,7 +73,7 @@ public static class AuthNetServiceCollectionExtensions
                 throw new AuthNetConfigurationException("AuthNet requires database configuration. Use AddAuthNet(..., db => db.UsePostgres(connectionString)) or another supported database provider.");
             }
 
-            configureDbContext = db => db.UseNpgsql(options.PostgresConnectionString);
+            configureDbContext = db => AuthNetPostgresDbContextOptions.Configure(db, options.PostgresConnectionString);
 #pragma warning restore CS0618
         }
 

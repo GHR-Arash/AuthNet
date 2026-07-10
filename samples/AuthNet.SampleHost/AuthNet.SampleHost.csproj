@@ -3,7 +3,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj" />
-    <ProjectReference Include="..\..\src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj" />
     <ProjectReference Include="..\..\src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj" />
   </ItemGroup>
 

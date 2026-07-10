@@ -16,7 +16,7 @@ public sealed class AuthNetDatabaseBuilder
             throw new AuthNetConfigurationException("AuthNet PostgreSQL configuration requires a non-empty connection string. Pass one to db.UsePostgres(connectionString).");
         }
 
-        SetProvider(nameof(UsePostgres), db => db.UseNpgsql(connectionString));
+        SetProvider(nameof(UsePostgres), db => AuthNetPostgresDbContextOptions.Configure(db, connectionString));
 
         return this;
     }

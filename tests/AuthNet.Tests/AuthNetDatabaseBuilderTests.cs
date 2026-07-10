@@ -1,7 +1,9 @@
 using AuthNet.AspNetCore;
 using AuthNet.Core;
+using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNet.Persistence.Postgres;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthNet.Tests;
@@ -22,6 +24,22 @@ public sealed class AuthNetDatabaseBuilderTests
 
         Assert.Contains(options.Extensions, extension =>
             extension.GetType().Name.Contains("Npgsql", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void UsePostgres_sets_postgres_migrations_assembly()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAuthNet(
+            options => options.UseDevelopmentEmailSender = true,
+            db => db.UsePostgres("Host=localhost;Database=authnet;Username=postgres;Password=postgres"));
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<DbContextOptions<AuthNetDbContext>>();
+        var relationalExtension = options.Extensions.OfType<RelationalOptionsExtension>().Single();
+
+        Assert.Equal(typeof(AuthNetPostgresMigrationsAssembly).Assembly.GetName().Name, relationalExtension.MigrationsAssembly);
     }
 
     [Fact]
@@ -69,6 +87,26 @@ public sealed class AuthNetDatabaseBuilderTests
 
         Assert.Contains(options.Extensions, extension =>
             extension.GetType().Name.Contains("Npgsql", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Legacy_postgres_connection_string_sets_postgres_migrations_assembly()
+    {
+        var services = new ServiceCollection();
+
+#pragma warning disable CS0618
+        services.AddAuthNet(options =>
+        {
+            options.UseDevelopmentEmailSender = true;
+            options.PostgresConnectionString = "Host=localhost;Database=authnet;Username=postgres;Password=postgres";
+        });
+#pragma warning restore CS0618
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<DbContextOptions<AuthNetDbContext>>();
+        var relationalExtension = options.Extensions.OfType<RelationalOptionsExtension>().Single();
+
+        Assert.Equal(typeof(AuthNetPostgresMigrationsAssembly).Assembly.GetName().Name, relationalExtension.MigrationsAssembly);
     }
 
     [Fact]

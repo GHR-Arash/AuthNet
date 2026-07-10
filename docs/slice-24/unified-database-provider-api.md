@@ -22,7 +22,7 @@ builder.Services.AddAuthNet(
 
 ## Provider-Neutral EF Split
 
-SQL Server support should not be added to `AuthNet.Persistence.Postgres`. Before adding `db.UseSqlServer(...)`, AuthNet should split shared EF Core model types from provider-specific packages.
+SQL Server support should not be added to `AuthNet.Persistence.Postgres`. Slice 25 moved shared EF Core model types into a provider-neutral package before adding `db.UseSqlServer(...)`.
 
 Proposed package shape:
 
@@ -42,9 +42,9 @@ Proposed package shape:
   - SQL Server migrations
   - `UseSqlServer(...)` provider extension
 
-## Current Coupling to Untangle
+## Coupling Untangled in Slice 25
 
-These projects currently reference `AuthNet.Persistence.Postgres` because common EF model types live there:
+These projects should reference `AuthNet.Persistence.EntityFrameworkCore` for common EF model types:
 
 - `AuthNet.AspNetCore`
 - `AuthNet.UI.Razor`
@@ -52,15 +52,15 @@ These projects currently reference `AuthNet.Persistence.Postgres` because common
 - `AuthNet.Tests`
 - `AuthNet.SampleHost`
 
-The split should move shared model references to the provider-neutral package while preserving PostgreSQL migrations in the PostgreSQL package.
+The split preserves PostgreSQL migrations in the PostgreSQL package.
 
-## Compatibility Risks
+## Compatibility Notes
 
-- Namespace changes can break package consumers who reference `AuthNet.Persistence.Postgres.AuthNetUser` or `AuthNetDbContext` directly.
+- Slice 25 moved shared EF model types into `AuthNet.Persistence.EntityFrameworkCore`; consumers should reference that package/namespace for direct `AuthNetUser` or `AuthNetDbContext` access.
 - Package dependency changes can affect `AuthNet.AspNetCore` transitive restore behavior.
 - EF migration commands must stay provider-specific.
 - SQL Server and PostgreSQL migrations must not share a migrations assembly.
 
 ## Recommended Follow-Up
 
-Implement SQL Server as a separate slice after the provider-neutral EF package boundary is agreed. Keep JWT, custom Identity stores, multi-tenancy, and cross-origin APIs out of that provider slice.
+Implement SQL Server as a separate slice on top of the provider-neutral EF package boundary. Keep JWT, custom Identity stores, multi-tenancy, and cross-origin APIs out of that provider slice.

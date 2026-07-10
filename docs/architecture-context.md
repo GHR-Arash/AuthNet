@@ -74,7 +74,8 @@ Current MVP package/project names:
 - `AuthNet.Core`: options, shared contracts, account service boundaries.
 - `AuthNet.AspNetCore`: service registration, middleware, auth integration.
 - `AuthNet.UI.Razor`: Razor Pages account and admin user-management UI.
-- `AuthNet.Persistence.Postgres`: EF Core/Npgsql Identity store setup.
+- `AuthNet.Persistence.EntityFrameworkCore`: provider-neutral EF Core Identity model, DbContext, invitations, and audit events.
+- `AuthNet.Persistence.Postgres`: EF Core/Npgsql provider package and PostgreSQL migrations.
 - `AuthNet.ExternalProviders`: generic OpenID Connect integration.
 - `AuthNet.Api`: same-origin SPA JSON account endpoints.
 - `AuthNet.SampleHost`: sample Razor Pages host app.
@@ -86,6 +87,7 @@ Packable packages:
 - `AuthNet.Core`
 - `AuthNet.AspNetCore`
 - `AuthNet.UI.Razor`
+- `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.ExternalProviders`
 - `AuthNet.Api`
@@ -138,6 +140,7 @@ Pack local package artifacts:
 .\.dotnet\dotnet.exe build AuthNet.slnx --configuration Release --no-restore
 .\.dotnet\dotnet.exe pack src\AuthNet.Core\AuthNet.Core.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages

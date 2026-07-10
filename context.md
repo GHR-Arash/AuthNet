@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 25 provider-neutral EF persistence split is implemented and tracked in:
+
+- `tasks/slice-25-plan.md`
+- `tasks/slice-25-todo.md`
+
 Slice 24 unified database provider API is implemented and tracked in:
 
 - `tasks/slice-24-plan.md`
@@ -98,6 +103,7 @@ Packable:
 - `AuthNet.Core`
 - `AuthNet.AspNetCore`
 - `AuthNet.UI.Razor`
+- `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
 - `AuthNet.ExternalProviders`
 - `AuthNet.Api`
@@ -109,6 +115,8 @@ Not packable:
 - `AuthNet.Tests`
 
 PostgreSQL is configured through `db.UsePostgres(connectionString)` on the AuthNet database builder. EF Core InMemory remains available for development/test smoke paths through `db.UseInMemory(databaseName)`.
+
+Shared EF Core Identity model types live in `AuthNet.Persistence.EntityFrameworkCore`; PostgreSQL provider dependencies and migrations live in `AuthNet.Persistence.Postgres`.
 
 `AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path. JWT, refresh-token authentication, and SQL Server provider runtime support remain deferred.
 
@@ -300,7 +308,7 @@ Implemented actions:
 
 Implemented Slice 11 scope:
 
-- Persisted audit events in `AuthNet.Persistence.Postgres`.
+- Persisted audit events through the provider-neutral EF model in `AuthNet.Persistence.EntityFrameworkCore`.
 - Admin-only audit list page at `/auth/admin/audit`.
 - Filters by action, actor, target, and date range.
 - Successful admin mutation coverage for direct user creation, invitation creation, fixed administrator grant/remove, email confirm/unconfirm, lock/unlock, and access failure reset.
@@ -348,7 +356,7 @@ Implemented Slice 09 scope:
 
 - Admin-only invitation list and create pages.
 - Anonymous invitation acceptance page with secure token.
-- Persisted invitation records in `AuthNet.Persistence.Postgres`.
+- Persisted invitation records through the provider-neutral EF model in `AuthNet.Persistence.EntityFrameworkCore`.
 - Invitation token hashes only; raw tokens are sent in email links and are not stored.
 - Invitation email delivery through `IAuthNetEmailSender`.
 - Identity user creation with invited email confirmed after successful acceptance.

@@ -42,6 +42,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 22 built-in UI polish is implemented and tracked in `tasks/slice-22-plan.md` and `tasks/slice-22-todo.md`.
 - Slice 23 fluent startup bootstrap API is implemented and tracked in `tasks/slice-23-plan.md` and `tasks/slice-23-todo.md`.
 - Slice 24 unified database provider API is implemented and tracked in `tasks/slice-24-plan.md`, `tasks/slice-24-todo.md`, and `docs/slice-24/unified-database-provider-api.md`.
+- Slice 25 provider-neutral EF persistence split is implemented and tracked in `tasks/slice-25-plan.md` and `tasks/slice-25-todo.md`.
 
 ## Implemented Product Surface
 
@@ -50,6 +51,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Projects:
   - `src/AuthNet.Core`
   - `src/AuthNet.AspNetCore`
+  - `src/AuthNet.Persistence.EntityFrameworkCore`
   - `src/AuthNet.Persistence.Postgres`
   - `src/AuthNet.UI.Razor`
   - `src/AuthNet.ExternalProviders`
@@ -78,9 +80,9 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Admin invitation UI supports invitation list/create, duplicate pending invite rejection, existing-user rejection, and email-delivered single-use acceptance links.
 - Invitation acceptance creates a local Identity user, confirms the invited email, marks the invitation accepted, and signs in the user.
 - AuthNet packages do not create default admin credentials unless the host explicitly configures `UseAuthNet(...InitialAdministrator(...))`.
-- ASP.NET Core Identity user/context in `AuthNet.Persistence.Postgres`.
-- Persisted account invitations in `AuthNet.Persistence.Postgres`.
-- Persisted admin audit events in `AuthNet.Persistence.Postgres`.
+- ASP.NET Core Identity user/context in `AuthNet.Persistence.EntityFrameworkCore`.
+- Persisted account invitation and admin audit EF model in `AuthNet.Persistence.EntityFrameworkCore`.
+- PostgreSQL provider dependencies and migrations in `AuthNet.Persistence.Postgres`.
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
@@ -94,7 +96,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot/reset password, profile update, change password, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
 - `AuthNet.Tests` covers Razor and SPA authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count/regeneration, and disable flows.
 - `AuthNet.Tests` covers Razor and SPA invitation creation, email delivery, acceptance, expired invitations, reused invitations, invalid tokens, duplicate pending invitations, existing-user rejection, and route protection.
-- MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.Postgres`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
+- MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.EntityFrameworkCore`, `AuthNet.Persistence.Postgres`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Committed package-consumer sample at `samples/AuthNet.PackageConsumer` references `AuthNet.AspNetCore` `0.1.0` from local package artifacts and is intentionally outside `AuthNet.slnx`.
 - Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
@@ -238,6 +240,7 @@ Known passing package commands:
 .\.dotnet\dotnet.exe build AuthNet.slnx --configuration Release --no-restore
 .\.dotnet\dotnet.exe pack src\AuthNet.Core\AuthNet.Core.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
@@ -370,7 +373,7 @@ Public package publication and admin JSON APIs are intentionally paused for now.
 Other candidates:
 
 - Confirm XML documentation, signing, and trusted-publishing decisions before changing the current NuGet publication policy.
-- Promote the future SQL Server provider plan only after agreeing the provider-neutral EF package split.
+- Promote the future SQL Server provider plan when SQL Server becomes the next priority.
 - Pick up the future admin JSON API plan only if admin automation becomes the priority.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

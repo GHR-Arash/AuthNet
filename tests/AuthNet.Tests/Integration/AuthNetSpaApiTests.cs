@@ -139,7 +139,7 @@ public sealed class AuthNetSpaApiTests
         Assert.Contains("/auth/confirm-email", message.HtmlBody);
 
         using var scope = host.Services.CreateScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNet.Persistence.Postgres.AuthNetUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthNet.Persistence.EntityFrameworkCore.AuthNetUser>>();
         var user = await userManager.FindByEmailAsync("registered.spa@example.test");
         Assert.NotNull(user);
         Assert.Equal("Registered SPA", user.DisplayName);
