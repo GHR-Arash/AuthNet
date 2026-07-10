@@ -5,7 +5,7 @@ Use this when you only need to restore, build, run, and verify AuthNet locally.
 ## Prerequisites
 
 - Windows PowerShell.
-- PostgreSQL if you want to exercise real account flows.
+- PostgreSQL or SQL Server if you want to exercise real account flows.
 - The repo-local .NET 10 SDK at `.dotnet\dotnet.exe`.
 
 If `.dotnet\dotnet.exe` is missing, install the local SDK:
@@ -147,6 +147,7 @@ Build Release first, then pack the intended package projects into ignored local 
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
@@ -158,6 +159,7 @@ Expected packages:
 - `AuthNet.ExternalProviders`
 - `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
+- `AuthNet.Persistence.SqlServer`
 - `AuthNet.UI.Razor`
 - `AuthNet.Api`
 - `AuthNet.AspNetCore`
@@ -208,6 +210,24 @@ The sample host default connection string is in `samples/AuthNet.SampleHost/apps
 
 Change this locally if your PostgreSQL credentials differ.
 
+## Configure SQL Server
+
+SQL Server consumers use the same database builder surface:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
+Use a SQL Server connection string in `ConnectionStrings:AuthNet`, for example:
+
+```json
+"ConnectionStrings": {
+  "AuthNet": "Server=(localdb)\\mssqllocaldb;Database=authnet_sample;Trusted_Connection=True;MultipleActiveResultSets=true"
+}
+```
+
 ## Development InMemory Sample Mode
 
 In Development, the sample host uses EF Core InMemory by default through `samples/AuthNet.SampleHost/appsettings.Development.json`:
@@ -218,20 +238,21 @@ In Development, the sample host uses EF Core InMemory by default through `sample
 }
 ```
 
-This lets you run the sample account UI without a local PostgreSQL server:
+This lets you run the sample account UI without a local relational database server:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT='Development'
 .\.dotnet\dotnet.exe run --project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --urls http://127.0.0.1:5127
 ```
 
-Use PostgreSQL for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
+Use PostgreSQL or SQL Server for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
 
 The sample host maps its persistence choice through AuthNet's unified database builder:
 
 ```csharp
 db.UseInMemory("AuthNetSampleHost")
 db.UsePostgres(connectionString)
+db.UseSqlServer(connectionString)
 ```
 
 ## Sample SMTP Email Sender
@@ -338,10 +359,16 @@ Install EF tooling into the ignored `.tools/` folder:
 .\.dotnet\dotnet.exe tool install dotnet-ef --version 10.0.9 --tool-path .tools
 ```
 
-Apply migrations:
+Apply PostgreSQL migrations:
 
 ```powershell
 .\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
+```
+
+Apply SQL Server migrations:
+
+```powershell
+.\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
 ```
 
 Alternative: set `AuthNet:ApplyMigrations` to `true` in the sample host config before running it. The sample host passes that setting into `UseAuthNet(...ApplyMigrations(...))`.

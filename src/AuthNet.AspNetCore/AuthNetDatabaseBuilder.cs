@@ -33,6 +33,18 @@ public sealed class AuthNetDatabaseBuilder
         return this;
     }
 
+    public AuthNetDatabaseBuilder UseSqlServer(string? connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new AuthNetConfigurationException("AuthNet SQL Server configuration requires a non-empty connection string. Pass one to db.UseSqlServer(connectionString).");
+        }
+
+        SetProvider(nameof(UseSqlServer), db => AuthNetSqlServerDbContextOptions.Configure(db, connectionString));
+
+        return this;
+    }
+
     public AuthNetDatabaseBuilder ConfigureDbContext(Action<DbContextOptionsBuilder> configureDbContext)
     {
         ArgumentNullException.ThrowIfNull(configureDbContext);

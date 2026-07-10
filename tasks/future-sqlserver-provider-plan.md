@@ -1,8 +1,16 @@
 # Future Plan: SQL Server Provider
 
-## Overview
+## Status
 
-Deferred future slice for SQL Server persistence support through a modular AuthNet provider package. The target host API is:
+Promoted to Slice 26.
+
+Current implementation artifacts:
+
+- `tasks/slice-26-plan.md`
+- `tasks/slice-26-todo.md`
+- `src/AuthNet.Persistence.SqlServer`
+
+SQL Server is now a first-party provider configured through:
 
 ```csharp
 builder.Services.AddAuthNet(
@@ -10,48 +18,6 @@ builder.Services.AddAuthNet(
     db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
 ```
 
-This work builds on the provider-neutral EF Core model split completed in Slice 25.
+## Remaining Follow-Up
 
-## Scope
-
-In scope:
-
-- Add `AuthNet.Persistence.SqlServer`.
-- Add `db.UseSqlServer(connectionString)`.
-- Add SQL Server EF migrations.
-- Add package metadata and package verification.
-- Add focused tests for SQL Server provider registration.
-- Update user and developer docs with SQL Server setup and migration commands.
-
-Out of scope:
-
-- JWT or refresh-token authentication.
-- Cross-origin SPA APIs.
-- Custom Identity stores.
-- Multi-tenancy.
-- Runtime provider switching without explicit `db.UseX(...)` setup.
-
-## Architecture Decisions
-
-- SQL Server support must live in its own provider package.
-- PostgreSQL and SQL Server migrations remain provider-specific.
-- Shared EF model types live in `AuthNet.Persistence.EntityFrameworkCore` to avoid making UI/API/runtime packages depend on PostgreSQL.
-- The database builder remains the public configuration surface for all first-party providers.
-
-## Verification Commands
-
-```powershell
-.\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
-.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetDatabaseBuilderTests
-.\scripts\verify-package-metadata.ps1
-.\scripts\verify-package-consumer.ps1
-.\scripts\verify.ps1
-```
-
-## Risks and Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Provider migrations conflict. | High | Keep separate migrations assemblies per provider. |
-| `AuthNet.AspNetCore` becomes too heavy. | Medium | Keep provider dependencies in provider packages once the split is complete. |
-| SQL Server behavior differs from PostgreSQL constraints. | Medium | Add provider-specific migration and smoke tests. |
+Slice 27 removes the legacy `AuthNetOptions.PostgresConnectionString` compatibility path so database configuration goes only through the database builder API.

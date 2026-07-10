@@ -20,16 +20,9 @@ public static class AuthNetServiceCollectionExtensions
 {
     public static IServiceCollection AddAuthNet(
         this IServiceCollection services,
-        Action<AuthNetOptions>? configure = null,
-        Action<DbContextOptionsBuilder>? configureDbContext = null)
+        Action<AuthNetOptions>? configure = null)
     {
-        var databaseBuilder = new AuthNetDatabaseBuilder();
-        if (configureDbContext is not null)
-        {
-            databaseBuilder.ConfigureDbContext(configureDbContext);
-        }
-
-        return services.AddAuthNetCore(configure, databaseBuilder);
+        return services.AddAuthNetCore(configure, new AuthNetDatabaseBuilder());
     }
 
     public static IServiceCollection AddAuthNet(

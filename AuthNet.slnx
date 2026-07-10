@@ -9,6 +9,7 @@
     <Project Path="src/AuthNet.ExternalProviders/AuthNet.ExternalProviders.csproj" />
     <Project Path="src/AuthNet.Persistence.EntityFrameworkCore/AuthNet.Persistence.EntityFrameworkCore.csproj" />
     <Project Path="src/AuthNet.Persistence.Postgres/AuthNet.Persistence.Postgres.csproj" />
+    <Project Path="src/AuthNet.Persistence.SqlServer/AuthNet.Persistence.SqlServer.csproj" />
     <Project Path="src/AuthNet.UI.Razor/AuthNet.UI.Razor.csproj" />
   </Folder>
   <Folder Name="/tests/">

@@ -43,6 +43,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 23 fluent startup bootstrap API is implemented and tracked in `tasks/slice-23-plan.md` and `tasks/slice-23-todo.md`.
 - Slice 24 unified database provider API is implemented and tracked in `tasks/slice-24-plan.md`, `tasks/slice-24-todo.md`, and `docs/slice-24/unified-database-provider-api.md`.
 - Slice 25 provider-neutral EF persistence split is implemented and tracked in `tasks/slice-25-plan.md` and `tasks/slice-25-todo.md`.
+- Slice 26 SQL Server provider is implemented and tracked in `tasks/slice-26-plan.md` and `tasks/slice-26-todo.md`.
 
 ## Implemented Product Surface
 
@@ -53,6 +54,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
   - `src/AuthNet.AspNetCore`
   - `src/AuthNet.Persistence.EntityFrameworkCore`
   - `src/AuthNet.Persistence.Postgres`
+  - `src/AuthNet.Persistence.SqlServer`
   - `src/AuthNet.UI.Razor`
   - `src/AuthNet.ExternalProviders`
   - `src/AuthNet.Api`
@@ -83,7 +85,9 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - ASP.NET Core Identity user/context in `AuthNet.Persistence.EntityFrameworkCore`.
 - Persisted account invitation and admin audit EF model in `AuthNet.Persistence.EntityFrameworkCore`.
 - PostgreSQL provider dependencies and migrations in `AuthNet.Persistence.Postgres`.
+- SQL Server provider dependencies and migrations in `AuthNet.Persistence.SqlServer`.
 - Initial PostgreSQL Identity migration exists in `src/AuthNet.Persistence.Postgres/Migrations`.
+- Initial SQL Server migration exists in `src/AuthNet.Persistence.SqlServer/Migrations`.
 - Generic OpenID Connect extension exists in `AuthNet.ExternalProviders`.
 - External login signs in already linked accounts, lets authenticated users link from profile, and no longer links existing local accounts by email alone.
 - Sample host wires `AddAuthNet`, `UseAuthentication`, `UseAuthorization`, and `MapAuthNet`.
@@ -96,14 +100,14 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - `AuthNet.Tests` has an in-memory integration test host covering routes, registration, confirm/resend email, forgot/reset password, profile update, change password, verified email change, external-login safety, endpoint mapping compatibility, and admin user management.
 - `AuthNet.Tests` covers Razor and SPA authenticator-app MFA setup, MFA login challenge, recovery-code login, recovery-code count/regeneration, and disable flows.
 - `AuthNet.Tests` covers Razor and SPA invitation creation, email delivery, acceptance, expired invitations, reused invitations, invalid tokens, duplicate pending invitations, existing-user rejection, and route protection.
-- MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.EntityFrameworkCore`, `AuthNet.Persistence.Postgres`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
+- MVP packable packages are `AuthNet.Core`, `AuthNet.AspNetCore`, `AuthNet.UI.Razor`, `AuthNet.Persistence.EntityFrameworkCore`, `AuthNet.Persistence.Postgres`, `AuthNet.Persistence.SqlServer`, `AuthNet.ExternalProviders`, and `AuthNet.Api`.
 - Package metadata is centralized in `Directory.Build.props`; local packages output to ignored `artifacts/packages`.
 - Committed package-consumer sample at `samples/AuthNet.PackageConsumer` references `AuthNet.AspNetCore` `0.1.0` from local package artifacts and is intentionally outside `AuthNet.slnx`.
 - Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
 - Package metadata verification is available through `scripts/verify-package-metadata.ps1`; strict public-publication metadata mode validates repository URL and packaged MIT `LICENSE`.
-- Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
-- AuthNet service registration supports a unified database builder: `db.UsePostgres(connectionString)` for PostgreSQL and `db.UseInMemory(databaseName)` for development/test InMemory.
-- `AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path, but primary docs use the database builder.
+- Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL and SQL Server are production/package persistence paths.
+- AuthNet service registration supports a unified database builder: `db.UsePostgres(connectionString)` for PostgreSQL, `db.UseSqlServer(connectionString)` for SQL Server, and `db.UseInMemory(databaseName)` for development/test InMemory.
+- `AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path through Slice 26 and should be removed in Slice 27.
 - Sample host creates a demo admin user through the package fluent startup API and supports config-driven initial administrator setup through `AuthNet:InitialAdministrator:{Enabled,UserName,Email,Password}`.
 - `UseAuthNet(Action<AuthNetStartupBuilder>)` validates AuthNet configuration, optionally applies migrations, optionally creates/promotes an initial administrator, and maps AuthNet endpoints.
 - Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
@@ -130,7 +134,7 @@ Known passing commands:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetDatabaseBuilderTests
 ```
 
-Latest full test count: 176 passing tests.
+Latest full test count: 182 passing tests.
 
 Slice 14 focused SPA API tests:
 
@@ -242,6 +246,7 @@ Known passing package commands:
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
@@ -284,9 +289,9 @@ Application started.
 - Keep MVP slice 1 server-rendered and cookie-based.
 - Do not add JWT or refresh-token flows unless explicitly re-scoped.
 - Do not replace ASP.NET Core Identity primitives.
-- PostgreSQL/EF Core is the only persistence path for now.
-- PostgreSQL/EF Core is the production/default persistence path.
+- PostgreSQL and SQL Server EF Core providers are production/package persistence paths.
 - Configure PostgreSQL through `db.UsePostgres(connectionString)` for new integrations.
+- Configure SQL Server through `db.UseSqlServer(connectionString)` for new integrations.
 - Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
 - Configure development/test InMemory through `db.UseInMemory(databaseName)`.
 - Admin UI uses `Administrator` as a superuser role and a bounded AuthNet built-in UI permission catalog backed by Identity role claims.
@@ -373,7 +378,7 @@ Public package publication and admin JSON APIs are intentionally paused for now.
 Other candidates:
 
 - Confirm XML documentation, signing, and trusted-publishing decisions before changing the current NuGet publication policy.
-- Promote the future SQL Server provider plan when SQL Server becomes the next priority.
+- Remove `AuthNetOptions.PostgresConnectionString` compatibility in Slice 27 so all database selection goes through the database builder API.
 - Pick up the future admin JSON API plan only if admin automation becomes the priority.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

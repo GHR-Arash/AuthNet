@@ -2,7 +2,7 @@
 
 This guide is for application developers who want to use AuthNet in an ASP.NET application.
 
-AuthNet MVP slice 1 supports server-rendered ASP.NET applications and same-origin SPA shells using Razor Pages, JSON account endpoints, cookie authentication, ASP.NET Core Identity, EF Core, PostgreSQL, email-based account flows, role authorization, and generic OpenID Connect login.
+AuthNet MVP slice 1 supports server-rendered ASP.NET applications and same-origin SPA shells using Razor Pages, JSON account endpoints, cookie authentication, ASP.NET Core Identity, EF Core, PostgreSQL or SQL Server, email-based account flows, role authorization, and generic OpenID Connect login.
 
 ## What You Get
 
@@ -24,7 +24,7 @@ After AuthNet is registered in your app, it provides:
 - OpenAPI JSON document for the same-origin SPA endpoints.
 - Cookie authentication.
 - ASP.NET Core Identity roles.
-- PostgreSQL-backed Identity persistence.
+- PostgreSQL-backed or SQL Server-backed Identity persistence.
 - Generic OpenID Connect external login.
 
 Not included in this MVP:
@@ -50,6 +50,7 @@ dotnet add package AuthNet.AspNetCore
 AuthNet.UI.Razor
 AuthNet.Persistence.EntityFrameworkCore
 AuthNet.Persistence.Postgres
+AuthNet.Persistence.SqlServer
 AuthNet.ExternalProviders
 AuthNet.Api
 ```
@@ -94,6 +95,14 @@ await app.UseAuthNet(authNet => authNet
     .InitialAdministrator(app.Configuration.GetSection("AuthNet:InitialAdministrator")));
 
 app.Run();
+```
+
+For SQL Server, use the same database builder surface:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
 ```
 
 Order matters:
@@ -147,14 +156,20 @@ The repository sample host includes a sample SMTP sender for production-like man
 
 ## Database Setup
 
-AuthNet keeps the shared EF Core Identity model in `AuthNet.Persistence.EntityFrameworkCore` and PostgreSQL migrations/provider dependencies in `AuthNet.Persistence.Postgres`.
+AuthNet keeps the shared EF Core Identity model in `AuthNet.Persistence.EntityFrameworkCore`; provider dependencies and migrations live in `AuthNet.Persistence.Postgres` and `AuthNet.Persistence.SqlServer`.
 
-PostgreSQL is the production/default persistence path and is configured with `db.UsePostgres(connectionString)` during `AddAuthNet`. The repository sample host has a Development-only EF Core InMemory mode through `db.UseInMemory(databaseName)` for local smoke testing, but that mode is not a production persistence provider and does not replace PostgreSQL migration or relational behavior testing.
+PostgreSQL is configured with `db.UsePostgres(connectionString)`. SQL Server is configured with `db.UseSqlServer(connectionString)`. The repository sample host has a Development-only EF Core InMemory mode through `db.UseInMemory(databaseName)` for local smoke testing, but that mode is not a production persistence provider and does not replace relational migration or behavior testing.
 
-Apply the schema with EF tooling:
+Apply the PostgreSQL schema with EF tooling:
 
 ```powershell
 .\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
+```
+
+Apply the SQL Server schema with the SQL Server provider project:
+
+```powershell
+.\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
 ```
 
 In your own application, use your app as the startup project.
@@ -422,7 +437,7 @@ For security, automatic external account provisioning requires the provider to r
 ## Production Notes
 
 - Use HTTPS.
-- Use a real PostgreSQL connection string.
+- Use a real PostgreSQL or SQL Server connection string.
 - Register a production `IAuthNetEmailSender`.
 - For the repository sample host, configure `AuthNet:Email:Smtp` when `UseDevelopmentEmailSender=false`.
 - Keep `UseDevelopmentEmailSender` set to `false`.

@@ -1,6 +1,6 @@
 # AuthNet
 
-AuthNet is a drop-in identity module for ASP.NET Core apps. Install one package and get a polished, server-rendered account experience backed by ASP.NET Core Identity, PostgreSQL, cookie authentication, MFA, invitations, roles, admin screens, audit events, and same-origin JSON endpoints for SPA shells.
+AuthNet is a drop-in identity module for ASP.NET Core apps. Install one package and get a polished, server-rendered account experience backed by ASP.NET Core Identity, PostgreSQL or SQL Server, cookie authentication, MFA, invitations, roles, admin screens, audit events, and same-origin JSON endpoints for SPA shells.
 
 It is built for teams who want real authentication and access management without spending the first month rebuilding login, password reset, MFA setup, admin user management, and audit screens from scratch.
 
@@ -9,7 +9,7 @@ It is built for teams who want real authentication and access management without
 - Built-in Razor Pages UI for sign in, sign out, registration, email confirmation, password reset, profile, password change, MFA, and invitation acceptance.
 - Polished default AuthNet home page and navigation under `/auth`.
 - ASP.NET Core Identity users, roles, claims, password policy, lockout, security stamps, token providers, and cookies.
-- PostgreSQL persistence through EF Core and Npgsql.
+- PostgreSQL and SQL Server persistence through EF Core provider packages.
 - Authenticator-app MFA with recovery codes.
 - Admin UI for users, roles, built-in AuthNet permissions, invitations, and audit events.
 - Admin audit events for successful administrative mutations.
@@ -31,13 +31,14 @@ dotnet add package AuthNet.AspNetCore
 - `AuthNet.Core`
 - `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
+- `AuthNet.Persistence.SqlServer`
 - `AuthNet.UI.Razor`
 - `AuthNet.ExternalProviders`
 - `AuthNet.Api`
 
 ## Development Quick Start
 
-Use this setup for local development with a local PostgreSQL database and the development email sender. This is the best default because it exercises the same relational provider you will use in production.
+Use this setup for local development with a local PostgreSQL or SQL Server database and the development email sender. This is the best default because it exercises the same relational provider you will use in production.
 
 ### 1. Configure `appsettings.Development.json`
 
@@ -93,11 +94,19 @@ await app.UseAuthNet(authNet => authNet
 app.Run();
 ```
 
+For SQL Server, use the same database builder surface:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
 Order matters: `UseRouting()`, then `UseAuthentication()`, then `UseAuthorization()`, then `UseAuthNet(...)`.
 
 ### Development InMemory Option
 
-For quick throwaway smoke tests, you can use EF Core InMemory instead of PostgreSQL through the same AuthNet database builder. This is useful when you want to click through the UI without running a database server.
+For quick throwaway smoke tests, you can use EF Core InMemory instead of a relational database through the same AuthNet database builder. This is useful when you want to click through the UI without running a database server.
 
 ```csharp
 using AuthNet.AspNetCore;
@@ -117,7 +126,7 @@ await app.UseAuthNet(authNet => authNet
     .InitialAdministrator("admin", "Password1!", "admin@example.test"));
 ```
 
-Do not use InMemory for production or for final persistence testing. It does not behave like PostgreSQL for relational constraints, migrations, transactions, or SQL translation.
+Do not use InMemory for production or for final persistence testing. It does not behave like relational providers for constraints, migrations, transactions, or SQL translation.
 
 ### 3. Open the UI
 
@@ -176,7 +185,7 @@ For production, keep `AuthNet:InitialAdministrator:Password` in a secret manager
 
 ## Production Quick Start
 
-Production should be explicit: real PostgreSQL, real email, HTTPS, migrations under your release process, and no development email sender.
+Production should be explicit: real PostgreSQL or SQL Server, real email, HTTPS, migrations under your release process, and no development email sender.
 
 ### 1. Configure Production
 
@@ -246,6 +255,15 @@ For stricter production deployments, apply migrations before serving traffic:
 dotnet tool install dotnet-ef --version 10.0.9 --tool-path .tools
 .\.tools\dotnet-ef.exe database update `
   --project src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj `
+  --startup-project path\to\your-app.csproj `
+  --context AuthNetDbContext
+```
+
+For SQL Server migrations, use the SQL Server provider project:
+
+```powershell
+.\.tools\dotnet-ef.exe database update `
+  --project src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj `
   --startup-project path\to\your-app.csproj `
   --context AuthNetDbContext
 ```

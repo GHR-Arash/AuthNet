@@ -20,9 +20,17 @@ builder.Services.AddAuthNet(
 
 `AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path for now. New integrations should use `db.UsePostgres(...)`.
 
+Slice 26 adds SQL Server through the same database builder surface:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
 ## Provider-Neutral EF Split
 
-SQL Server support should not be added to `AuthNet.Persistence.Postgres`. Slice 25 moved shared EF Core model types into a provider-neutral package before adding `db.UseSqlServer(...)`.
+SQL Server support is not part of `AuthNet.Persistence.Postgres`. Slice 25 moved shared EF Core model types into a provider-neutral package, and Slice 26 added `db.UseSqlServer(...)`.
 
 Proposed package shape:
 
@@ -40,7 +48,7 @@ Proposed package shape:
 - `AuthNet.Persistence.SqlServer`
   - SQL Server EF provider dependency
   - SQL Server migrations
-  - `UseSqlServer(...)` provider extension
+  - SQL Server migration assembly marker
 
 ## Coupling Untangled in Slice 25
 
@@ -60,7 +68,8 @@ The split preserves PostgreSQL migrations in the PostgreSQL package.
 - Package dependency changes can affect `AuthNet.AspNetCore` transitive restore behavior.
 - EF migration commands must stay provider-specific.
 - SQL Server and PostgreSQL migrations must not share a migrations assembly.
+- Slice 27 should remove `AuthNetOptions.PostgresConnectionString` so database configuration has only one public API.
 
 ## Recommended Follow-Up
 
-Implement SQL Server as a separate slice on top of the provider-neutral EF package boundary. Keep JWT, custom Identity stores, multi-tenancy, and cross-origin APIs out of that provider slice.
+Remove the legacy PostgreSQL connection-string option in Slice 27. Keep JWT, custom Identity stores, multi-tenancy, and cross-origin APIs out of that cleanup slice.

@@ -2,6 +2,11 @@
 
 ## Current Iteration
 
+Slice 26 SQL Server provider is implemented and tracked in:
+
+- `tasks/slice-26-plan.md`
+- `tasks/slice-26-todo.md`
+
 Slice 25 provider-neutral EF persistence split is implemented and tracked in:
 
 - `tasks/slice-25-plan.md`
@@ -105,6 +110,7 @@ Packable:
 - `AuthNet.UI.Razor`
 - `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
+- `AuthNet.Persistence.SqlServer`
 - `AuthNet.ExternalProviders`
 - `AuthNet.Api`
 
@@ -114,11 +120,11 @@ Not packable:
 - `AuthNet.PackageConsumer`
 - `AuthNet.Tests`
 
-PostgreSQL is configured through `db.UsePostgres(connectionString)` on the AuthNet database builder. EF Core InMemory remains available for development/test smoke paths through `db.UseInMemory(databaseName)`.
+PostgreSQL is configured through `db.UsePostgres(connectionString)` and SQL Server is configured through `db.UseSqlServer(connectionString)` on the AuthNet database builder. EF Core InMemory remains available for development/test smoke paths through `db.UseInMemory(databaseName)`.
 
-Shared EF Core Identity model types live in `AuthNet.Persistence.EntityFrameworkCore`; PostgreSQL provider dependencies and migrations live in `AuthNet.Persistence.Postgres`.
+Shared EF Core Identity model types live in `AuthNet.Persistence.EntityFrameworkCore`; PostgreSQL provider dependencies and migrations live in `AuthNet.Persistence.Postgres`; SQL Server provider dependencies and migrations live in `AuthNet.Persistence.SqlServer`.
 
-`AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path. JWT, refresh-token authentication, and SQL Server provider runtime support remain deferred.
+`AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path through Slice 26 and should be removed in Slice 27. JWT and refresh-token authentication remain deferred.
 
 ## Current Verification
 
@@ -207,7 +213,7 @@ Focused sample email sender verification:
 
 ## Current Persistence Modes
 
-PostgreSQL remains the default production/package persistence path.
+PostgreSQL and SQL Server are the production/package persistence paths.
 
 Development-only InMemory is implemented for the sample host through `AuthNet:UseInMemoryDatabase=true` in `appsettings.Development.json`.
 
@@ -225,7 +231,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 176 passing tests.
+Latest full verification: 182 passing tests.
 
 Package-consumer verification is integrated into `.\scripts\verify.ps1` after package packing.
 
@@ -283,6 +289,7 @@ The sample host registers persistence through the package database builder:
 
 - Development-only InMemory: `db.UseInMemory("AuthNetSampleHost")`.
 - PostgreSQL/default: `db.UsePostgres(configuration.GetConnectionString("AuthNet"))`.
+- SQL Server: `db.UseSqlServer(configuration.GetConnectionString("AuthNet"))`.
 
 The sample host exposes admin workflow links from the home page, shared navigation, and protected `/Admin` page:
 

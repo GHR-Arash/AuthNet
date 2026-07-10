@@ -15,7 +15,7 @@ Build first:
 - .NET 10 target.
 - ASP.NET Core Identity foundation.
 - EF Core persistence.
-- PostgreSQL via Npgsql as the default database path.
+- PostgreSQL via Npgsql and SQL Server via EF Core SQL Server provider packages.
 - Razor Pages account UI.
 - Cookie authentication.
 - Registration disabled by default.
@@ -36,10 +36,10 @@ Build first:
 - Basic UI configuration: route prefix, app display name, layout/branding hooks.
 - Built-in fallback UI home page, navigation shell, and package-owned CSS for hosts that do not provide a custom layout.
 - External login does not link to existing local accounts by email alone; account linking is initiated by an authenticated user.
-- Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
+- Integration tests use EF Core InMemory through an explicit test DbContext registration; production providers are PostgreSQL and SQL Server.
 - The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
 - AuthNet.AspNetCore owns fluent startup tasks through `await app.UseAuthNet(authNet => ...)`, including opt-in migration application and initial administrator bootstrap.
-- AuthNet.AspNetCore owns the unified database provider API through `AddAuthNet(..., db => db.UsePostgres(connectionString))` and `db.UseInMemory(databaseName)`.
+- AuthNet.AspNetCore owns the unified database provider API through `AddAuthNet(..., db => db.UsePostgres(connectionString))`, `db.UseSqlServer(connectionString)`, and `db.UseInMemory(databaseName)`.
 - Initial administrator bootstrap creates/promotes a configured user into the `Administrator` role without exposing `UserManager`/`RoleManager` boilerplate to package consumers.
 - The sample host creates its demo admin user through the package fluent startup API and can override it through `AuthNet:InitialAdministrator`.
 - The sample host can register a sample SMTP email sender via `AuthNet:Email:Smtp` when `UseDevelopmentEmailSender=false`; this is local sample behavior, not package behavior.
@@ -49,7 +49,7 @@ Build first:
 Deferred:
 
 - API/JWT and refresh tokens.
-- SQL Server provider runtime support until the provider-neutral EF model split is complete.
+- Removing the legacy `AuthNetOptions.PostgresConnectionString` compatibility path after Slice 26.
 - SPA token authentication flows beyond the same-origin cookie-based SPA workflow.
 - Fine-grained permissions outside the bounded AuthNet built-in UI permission catalog.
 - Role deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
@@ -63,7 +63,7 @@ Deferred:
 - Prefer ASP.NET Core Identity behavior over custom security logic.
 - Keep AuthNet as packaging, configuration, UI, middleware, and extension points around Identity.
 - Use secure defaults; require explicit opt-in for public registration.
-- Do not make PostgreSQL abstractions broader than needed for MVP.
+- Keep database provider selection explicit through the AuthNet database builder.
 - Defer flexibility until a real requirement exists.
 - Expose identity through standard ASP.NET authentication and authorization mechanisms.
 
@@ -76,6 +76,7 @@ Current MVP package/project names:
 - `AuthNet.UI.Razor`: Razor Pages account and admin user-management UI.
 - `AuthNet.Persistence.EntityFrameworkCore`: provider-neutral EF Core Identity model, DbContext, invitations, and audit events.
 - `AuthNet.Persistence.Postgres`: EF Core/Npgsql provider package and PostgreSQL migrations.
+- `AuthNet.Persistence.SqlServer`: EF Core SQL Server provider package and SQL Server migrations.
 - `AuthNet.ExternalProviders`: generic OpenID Connect integration.
 - `AuthNet.Api`: same-origin SPA JSON account endpoints.
 - `AuthNet.SampleHost`: sample Razor Pages host app.
@@ -89,6 +90,7 @@ Packable packages:
 - `AuthNet.UI.Razor`
 - `AuthNet.Persistence.EntityFrameworkCore`
 - `AuthNet.Persistence.Postgres`
+- `AuthNet.Persistence.SqlServer`
 - `AuthNet.ExternalProviders`
 - `AuthNet.Api`
 
@@ -142,6 +144,7 @@ Pack local package artifacts:
 .\.dotnet\dotnet.exe pack src\AuthNet.ExternalProviders\AuthNet.ExternalProviders.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.EntityFrameworkCore\AuthNet.Persistence.EntityFrameworkCore.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --configuration Release --no-build --output .\artifacts\packages
+.\.dotnet\dotnet.exe pack src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.UI.Razor\AuthNet.UI.Razor.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.Api\AuthNet.Api.csproj --configuration Release --no-build --output .\artifacts\packages
 .\.dotnet\dotnet.exe pack src\AuthNet.AspNetCore\AuthNet.AspNetCore.csproj --configuration Release --no-build --output .\artifacts\packages
@@ -161,6 +164,12 @@ Apply PostgreSQL schema:
 .\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.Postgres\AuthNet.Persistence.Postgres.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
 ```
 
+Apply SQL Server schema:
+
+```powershell
+.\.tools\dotnet-ef.exe database update --project src\AuthNet.Persistence.SqlServer\AuthNet.Persistence.SqlServer.csproj --startup-project samples\AuthNet.SampleHost\AuthNet.SampleHost.csproj --context AuthNetDbContext
+```
+
 ## Key Integration Points
 
 Host app should be able to configure:
@@ -169,6 +178,7 @@ Host app should be able to configure:
 - Cookie settings.
 - Password, lockout, and email verification policy.
 - PostgreSQL connection through `db.UsePostgres(connectionString)`.
+- SQL Server connection through `db.UseSqlServer(connectionString)`.
 - Development/test InMemory through `db.UseInMemory(databaseName)`.
 - Email sender implementation.
 - Generic OIDC provider settings.
@@ -225,6 +235,8 @@ await app.UseAuthNet(authNet => authNet
     .ApplyMigrations(builder.Configuration.GetValue<bool>("AuthNet:ApplyMigrations"))
     .InitialAdministrator(builder.Configuration.GetSection("AuthNet:InitialAdministrator")));
 ```
+
+Use `db.UseSqlServer(builder.Configuration.GetConnectionString("AuthNet"))` for SQL Server in the same registration shape.
 
 `MapAuthNet()` remains available for endpoint-only mapping. New integrations that want startup tasks should use `UseAuthNet(...)`.
 

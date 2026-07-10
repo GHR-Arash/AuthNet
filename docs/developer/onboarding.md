@@ -10,7 +10,7 @@ MVP slice 1 is server-rendered and cookie-based:
 
 - ASP.NET Core Identity foundation.
 - EF Core persistence.
-- PostgreSQL through Npgsql.
+- PostgreSQL through Npgsql and SQL Server through EF Core SQL Server.
 - Razor Pages account UI.
 - Cookie authentication.
 - Email verification and password reset.
@@ -35,6 +35,7 @@ Deferred work:
 - `src/AuthNet.AspNetCore`: service registration, middleware integration, validation, development email sender.
 - `src/AuthNet.Persistence.EntityFrameworkCore`: provider-neutral Identity user, EF Core DbContext, invitations, and audit model.
 - `src/AuthNet.Persistence.Postgres`: PostgreSQL provider dependencies and migrations.
+- `src/AuthNet.Persistence.SqlServer`: SQL Server provider dependencies and migrations.
 - `src/AuthNet.UI.Razor`: reusable Razor Pages account and admin UI.
 - `src/AuthNet.ExternalProviders`: generic OpenID Connect registration.
 - `samples/AuthNet.SampleHost`: runnable host app for manual verification.
@@ -48,7 +49,7 @@ Deferred work:
 - Keep public registration disabled by default.
 - Production must use a real `IAuthNetEmailSender`; the development sender is not allowed in production.
 - Use standard ASP.NET Core authentication/authorization integration points.
-- Keep PostgreSQL/EF Core as the only persistence path for MVP slice 1.
+- Keep production persistence provider changes explicit through the AuthNet database builder.
 - Update `docs/architecture-context.md` when package boundaries, auth flow, persistence, UI strategy, commands, or MVP scope change.
 
 ## Development Workflow

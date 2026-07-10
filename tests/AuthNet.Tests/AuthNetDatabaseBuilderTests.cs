@@ -2,6 +2,7 @@ using AuthNet.AspNetCore;
 using AuthNet.Core;
 using AuthNet.Persistence.EntityFrameworkCore;
 using AuthNet.Persistence.Postgres;
+using AuthNet.Persistence.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +57,38 @@ public sealed class AuthNetDatabaseBuilderTests
 
         Assert.Contains(options.Extensions, extension =>
             extension.GetType().Name.Contains("InMemory", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void UseSqlServer_registers_sql_server_provider()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAuthNet(
+            options => options.UseDevelopmentEmailSender = true,
+            db => db.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=AuthNet;Trusted_Connection=True;"));
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<DbContextOptions<AuthNetDbContext>>();
+
+        Assert.Contains(options.Extensions, extension =>
+            extension.GetType().Name.Contains("SqlServer", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void UseSqlServer_sets_sql_server_migrations_assembly()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAuthNet(
+            options => options.UseDevelopmentEmailSender = true,
+            db => db.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=AuthNet;Trusted_Connection=True;"));
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<DbContextOptions<AuthNetDbContext>>();
+        var relationalExtension = options.Extensions.OfType<RelationalOptionsExtension>().Single();
+
+        Assert.Equal(typeof(AuthNetSqlServerMigrationsAssembly).Assembly.GetName().Name, relationalExtension.MigrationsAssembly);
     }
 
     [Fact]
@@ -184,5 +217,29 @@ public sealed class AuthNetDatabaseBuilderTests
             builder.UsePostgres(""));
 
         Assert.Contains("db.UsePostgres", exception.Message);
+    }
+
+    [Fact]
+    public void Empty_sql_server_connection_string_fails_fast()
+    {
+        var builder = new AuthNetDatabaseBuilder();
+
+        var exception = Assert.Throws<AuthNetConfigurationException>(() =>
+            builder.UseSqlServer(""));
+
+        Assert.Contains("db.UseSqlServer", exception.Message);
+    }
+
+    [Fact]
+    public void UseSqlServer_participates_in_duplicate_provider_rejection()
+    {
+        var builder = new AuthNetDatabaseBuilder();
+
+        builder.UsePostgres("Host=localhost;Database=authnet;Username=postgres;Password=postgres");
+
+        var exception = Assert.Throws<AuthNetConfigurationException>(() =>
+            builder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=AuthNet;Trusted_Connection=True;"));
+
+        Assert.Contains("Configure only one database provider", exception.Message);
     }
 }

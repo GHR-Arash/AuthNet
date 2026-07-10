@@ -36,7 +36,7 @@ Run the full local gate:
 .\scripts\verify.ps1
 ```
 
-This restores, builds, tests, packs all six packages, verifies package metadata, and checks the committed package-consumer sample.
+This restores, builds, tests, packs all expected packages, verifies package metadata, and checks the committed package-consumer sample.
 
 Then run strict publication metadata verification:
 
@@ -71,7 +71,9 @@ The workflow publishes packages in the order defined by `scripts/package-manifes
 ```powershell
 .\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.Core.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 .\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.ExternalProviders.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+.\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.Persistence.EntityFrameworkCore.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 .\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.Persistence.Postgres.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+.\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.Persistence.SqlServer.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 .\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.UI.Razor.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 .\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.Api.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 .\.dotnet\dotnet.exe nuget push artifacts\packages\AuthNet.AspNetCore.0.1.0.nupkg --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
