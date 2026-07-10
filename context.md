@@ -2,6 +2,12 @@
 
 ## Current Iteration
 
+Slice 24 unified database provider API is implemented and tracked in:
+
+- `tasks/slice-24-plan.md`
+- `tasks/slice-24-todo.md`
+- `docs/slice-24/unified-database-provider-api.md`
+
 Slice 22 built-in UI polish is implemented and tracked in:
 
 - `tasks/slice-22-plan.md`
@@ -102,7 +108,9 @@ Not packable:
 - `AuthNet.PackageConsumer`
 - `AuthNet.Tests`
 
-JWT and refresh-token authentication remain deferred.
+PostgreSQL is configured through `db.UsePostgres(connectionString)` on the AuthNet database builder. EF Core InMemory remains available for development/test smoke paths through `db.UseInMemory(databaseName)`.
+
+`AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path. JWT, refresh-token authentication, and SQL Server provider runtime support remain deferred.
 
 ## Current Verification
 
@@ -116,6 +124,14 @@ Latest focused UI polish verification:
 ```
 
 Manual sample-host HTTP check in Development verified `/auth` returns 200 and `_content/AuthNet.UI.Razor/authnet.css` returns 200.
+
+Latest focused unified database provider verification:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetDatabaseBuilderTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter SampleHostAuthNetPersistenceTests
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetStartupTests
+```
 
 Latest known package verification uses Release build plus per-project pack commands into ignored `artifacts/packages`.
 
@@ -201,7 +217,7 @@ Canonical local verification:
 .\scripts\verify.ps1
 ```
 
-Latest full verification: 167 passing tests.
+Latest full verification: 176 passing tests.
 
 Package-consumer verification is integrated into `.\scripts\verify.ps1` after package packing.
 
@@ -254,6 +270,11 @@ The sample host also has explicit initial administrator configuration through:
 - `AuthNet:InitialAdministrator:UserName`
 - `AuthNet:InitialAdministrator:Email`
 - `AuthNet:InitialAdministrator:Password`
+
+The sample host registers persistence through the package database builder:
+
+- Development-only InMemory: `db.UseInMemory("AuthNetSampleHost")`.
+- PostgreSQL/default: `db.UsePostgres(configuration.GetConnectionString("AuthNet"))`.
 
 The sample host exposes admin workflow links from the home page, shared navigation, and protected `/Admin` page:
 

@@ -4,13 +4,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 builder.Services.AddAuthorization();
-builder.Services.AddAuthNet(options =>
-{
-    options.EnablePublicRegistration = false;
-    options.PostgresConnectionString = builder.Configuration.GetConnectionString("AuthNet")
-        ?? "Host=localhost;Port=5432;Database=authnet_package_consumer;Username=postgres;Password=postgres";
-    options.UseDevelopmentEmailSender = true;
-});
+builder.Services.AddAuthNet(
+    options =>
+    {
+        options.EnablePublicRegistration = false;
+        options.UseDevelopmentEmailSender = true;
+    },
+    db => db.UsePostgres(builder.Configuration.GetConnectionString("AuthNet")
+        ?? "Host=localhost;Port=5432;Database=authnet_package_consumer;Username=postgres;Password=postgres"));
 
 var app = builder.Build();
 

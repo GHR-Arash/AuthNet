@@ -41,6 +41,7 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Slice 21 package publication finalization is implemented and tracked in `tasks/slice-21-plan.md`, `tasks/slice-21-todo.md`, and `docs/slice-21/package-publication-finalization.md`.
 - Slice 22 built-in UI polish is implemented and tracked in `tasks/slice-22-plan.md` and `tasks/slice-22-todo.md`.
 - Slice 23 fluent startup bootstrap API is implemented and tracked in `tasks/slice-23-plan.md` and `tasks/slice-23-todo.md`.
+- Slice 24 unified database provider API is implemented and tracked in `tasks/slice-24-plan.md`, `tasks/slice-24-todo.md`, and `docs/slice-24/unified-database-provider-api.md`.
 
 ## Implemented Product Surface
 
@@ -99,6 +100,8 @@ Compact memory for future development sessions. Read this first, then `docs/arch
 - Package verification shares `scripts/package-manifest.ps1` across output, metadata, and package-consumer checks.
 - Package metadata verification is available through `scripts/verify-package-metadata.ps1`; strict public-publication metadata mode validates repository URL and packaged MIT `LICENSE`.
 - Sample host supports Development-only EF Core InMemory via `AuthNet:UseInMemoryDatabase=true`; PostgreSQL remains the default production/package persistence path.
+- AuthNet service registration supports a unified database builder: `db.UsePostgres(connectionString)` for PostgreSQL and `db.UseInMemory(databaseName)` for development/test InMemory.
+- `AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path, but primary docs use the database builder.
 - Sample host creates a demo admin user through the package fluent startup API and supports config-driven initial administrator setup through `AuthNet:InitialAdministrator:{Enabled,UserName,Email,Password}`.
 - `UseAuthNet(Action<AuthNetStartupBuilder>)` validates AuthNet configuration, optionally applies migrations, optionally creates/promotes an initial administrator, and maps AuthNet endpoints.
 - Sample host supports a sample SMTP email sender through `AuthNet:Email:Smtp` when `AuthNet:UseDevelopmentEmailSender=false`; development email remains the default local sender.
@@ -122,9 +125,10 @@ Known passing commands:
 .\.dotnet\dotnet.exe restore AuthNet.slnx
 .\.dotnet\dotnet.exe build AuthNet.slnx --no-restore
 .\.dotnet\dotnet.exe test AuthNet.slnx --no-build
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetDatabaseBuilderTests
 ```
 
-Latest full test count: 167 passing tests.
+Latest full test count: 176 passing tests.
 
 Slice 14 focused SPA API tests:
 
@@ -279,7 +283,9 @@ Application started.
 - Do not replace ASP.NET Core Identity primitives.
 - PostgreSQL/EF Core is the only persistence path for now.
 - PostgreSQL/EF Core is the production/default persistence path.
+- Configure PostgreSQL through `db.UsePostgres(connectionString)` for new integrations.
 - Integration tests and sample-host Development mode can use EF Core InMemory; this is not a production persistence provider.
+- Configure development/test InMemory through `db.UseInMemory(databaseName)`.
 - Admin UI uses `Administrator` as a superuser role and a bounded AuthNet built-in UI permission catalog backed by Identity role claims.
 - Do not add host-defined custom permission catalogs, tenant-scoped permissions, role deletion, or API/JWT permission flows unless explicitly re-scoped.
 - AuthNet packages must not ship hardcoded default admin credentials; sample-host demo admin creation is local sample behavior only.
@@ -364,6 +370,7 @@ Public package publication and admin JSON APIs are intentionally paused for now.
 Other candidates:
 
 - Confirm XML documentation, signing, and trusted-publishing decisions before changing the current NuGet publication policy.
+- Promote the future SQL Server provider plan only after agreeing the provider-neutral EF package split.
 - Pick up the future admin JSON API plan only if admin automation becomes the priority.
 
 Before starting any next feature, check whether it belongs to MVP slice 1 or deferred scope.

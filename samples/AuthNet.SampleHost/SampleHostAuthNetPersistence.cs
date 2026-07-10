@@ -1,6 +1,5 @@
 using AuthNet.AspNetCore;
 using AuthNet.Core.Email;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AuthNet.SampleHost;
@@ -32,15 +31,13 @@ public static class SampleHostAuthNetPersistence
         {
             services.AddAuthNet(
                 options => configuration.GetSection("AuthNet").Bind(options),
-                db => db.UseInMemoryDatabase(InMemoryDatabaseName));
+                db => db.UseInMemory(InMemoryDatabaseName));
             return;
         }
 
-        services.AddAuthNet(options =>
-        {
-            configuration.GetSection("AuthNet").Bind(options);
-            options.PostgresConnectionString = configuration.GetConnectionString("AuthNet");
-        });
+        services.AddAuthNet(
+            options => configuration.GetSection("AuthNet").Bind(options),
+            db => db.UsePostgres(configuration.GetConnectionString("AuthNet")));
     }
 
     public static void ConfigureEmailSender(IServiceCollection services, IConfiguration configuration)

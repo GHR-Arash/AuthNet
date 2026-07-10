@@ -14,6 +14,7 @@ if (-not (Test-Path -LiteralPath $dotnet)) {
 $sampleProject = Join-Path $repoRoot 'samples\AuthNet.PackageConsumer\AuthNet.PackageConsumer.csproj'
 $sampleNuGetConfig = Join-Path $repoRoot 'samples\AuthNet.PackageConsumer\NuGet.config'
 $packageOutput = Join-Path $repoRoot 'artifacts\packages'
+$samplePackagesPath = Join-Path $repoRoot 'artifacts\package-consumer-packages'
 
 function Invoke-DotNet {
     & $dotnet @args
@@ -42,7 +43,28 @@ if ($missing.Count -gt 0) {
 }
 
 Write-Host '==> Restore package consumer sample'
-Invoke-DotNet restore $sampleProject --configfile $sampleNuGetConfig
+$globalPackagesLine = & $dotnet nuget locals global-packages --list
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet command failed with exit code $LASTEXITCODE`: nuget locals global-packages --list"
+}
+
+$globalPackages = ($globalPackagesLine -replace '^global-packages:\s*', '').Trim()
+$resolvedSamplePackages = [System.IO.Path]::GetFullPath($samplePackagesPath)
+$resolvedRepoRoot = [System.IO.Path]::GetFullPath($repoRoot)
+if (-not $resolvedSamplePackages.StartsWith($resolvedRepoRoot, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "Refusing to clean package-consumer cache outside repository: $resolvedSamplePackages"
+}
+
+New-Item -ItemType Directory -Force -Path $resolvedSamplePackages | Out-Null
+Get-ChildItem -LiteralPath $resolvedSamplePackages -Directory -Filter 'authnet.*' -ErrorAction SilentlyContinue |
+    Remove-Item -Recurse -Force
+
+$restoreArgs = @('restore', $sampleProject, '--configfile', $sampleNuGetConfig, '--packages', $resolvedSamplePackages)
+if (-not [string]::IsNullOrWhiteSpace($globalPackages) -and (Test-Path -LiteralPath $globalPackages)) {
+    $restoreArgs += "/p:RestoreFallbackFolders=$globalPackages"
+}
+
+Invoke-DotNet @restoreArgs
 
 Write-Host '==> Build package consumer sample'
 Invoke-DotNet build $sampleProject --no-restore

@@ -16,6 +16,7 @@ public sealed class AuthNetOptions
 
     public string? BrandLogoUrl { get; set; }
 
+    [Obsolete("Use AddAuthNet(..., db => db.UsePostgres(connectionString)) instead.")]
     public string? PostgresConnectionString { get; set; }
 
     public AuthNetPasswordOptions Password { get; } = new();

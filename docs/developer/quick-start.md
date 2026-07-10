@@ -131,6 +131,12 @@ Focused fluent startup tests:
 .\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetStartupTests
 ```
 
+Focused database builder tests:
+
+```powershell
+.\.dotnet\dotnet.exe test tests\AuthNet.Tests\AuthNet.Tests.csproj --no-restore --filter AuthNetDatabaseBuilderTests
+```
+
 ## Pack Local NuGet Artifacts
 
 Build Release first, then pack the intended package projects into ignored local artifacts:
@@ -218,6 +224,13 @@ $env:ASPNETCORE_ENVIRONMENT='Development'
 ```
 
 Use PostgreSQL for production-like local testing by setting `AuthNet:UseInMemoryDatabase` to `false` or running outside Development with a real connection string.
+
+The sample host maps its persistence choice through AuthNet's unified database builder:
+
+```csharp
+db.UseInMemory("AuthNetSampleHost")
+db.UsePostgres(connectionString)
+```
 
 ## Sample SMTP Email Sender
 

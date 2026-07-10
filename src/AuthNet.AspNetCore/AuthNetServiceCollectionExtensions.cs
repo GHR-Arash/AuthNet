@@ -23,6 +23,40 @@ public static class AuthNetServiceCollectionExtensions
         Action<AuthNetOptions>? configure = null,
         Action<DbContextOptionsBuilder>? configureDbContext = null)
     {
+        var databaseBuilder = new AuthNetDatabaseBuilder();
+        if (configureDbContext is not null)
+        {
+            databaseBuilder.ConfigureDbContext(configureDbContext);
+        }
+
+        return services.AddAuthNetCore(configure, databaseBuilder);
+    }
+
+    public static IServiceCollection AddAuthNet(
+        this IServiceCollection services,
+        Action<AuthNetOptions> configure,
+        Action<AuthNetDatabaseBuilder> configureDatabase)
+    {
+        ArgumentNullException.ThrowIfNull(configureDatabase);
+
+        var databaseBuilder = new AuthNetDatabaseBuilder();
+        configureDatabase(databaseBuilder);
+
+        return services.AddAuthNetCore(configure, databaseBuilder);
+    }
+
+    public static IServiceCollection AddAuthNet(
+        this IServiceCollection services,
+        Action<AuthNetDatabaseBuilder> configureDatabase)
+    {
+        return services.AddAuthNet(_ => { }, configureDatabase);
+    }
+
+    private static IServiceCollection AddAuthNetCore(
+        this IServiceCollection services,
+        Action<AuthNetOptions>? configure,
+        AuthNetDatabaseBuilder databaseBuilder)
+    {
         var options = new AuthNetOptions();
         configure?.Invoke(options);
 
@@ -30,20 +64,22 @@ public static class AuthNetServiceCollectionExtensions
         services.AddOptions<AuthNetOptions>().Configure(configure ?? (_ => { }));
         services.AddSingleton<IValidateOptions<AuthNetOptions>, AuthNetOptionsValidator>();
 
-        if (configureDbContext is null && string.IsNullOrWhiteSpace(options.PostgresConnectionString))
+        var configureDbContext = databaseBuilder.ConfigureDbContextAction;
+        if (configureDbContext is null)
         {
-            throw new AuthNetConfigurationException("AuthNet requires PostgresConnectionString for MVP slice 1.");
+#pragma warning disable CS0618
+            if (string.IsNullOrWhiteSpace(options.PostgresConnectionString))
+            {
+                throw new AuthNetConfigurationException("AuthNet requires database configuration. Use AddAuthNet(..., db => db.UsePostgres(connectionString)) or another supported database provider.");
+            }
+
+            configureDbContext = db => db.UseNpgsql(options.PostgresConnectionString);
+#pragma warning restore CS0618
         }
 
         services.AddDbContext<AuthNetDbContext>(db =>
         {
-            if (configureDbContext is not null)
-            {
-                configureDbContext(db);
-                return;
-            }
-
-            db.UseNpgsql(options.PostgresConnectionString);
+            configureDbContext(db);
         });
 
         services

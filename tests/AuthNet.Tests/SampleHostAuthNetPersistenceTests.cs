@@ -66,7 +66,7 @@ public sealed class SampleHostAuthNetPersistenceTests
         var exception = Assert.Throws<AuthNetConfigurationException>(() =>
             SampleHostAuthNetPersistence.AddAuthNet(services, configuration, environment));
 
-        Assert.Contains("PostgresConnectionString", exception.Message);
+        Assert.Contains("db.UsePostgres", exception.Message);
     }
 
     private static IConfiguration Configuration(params (string Key, string Value)[] values)

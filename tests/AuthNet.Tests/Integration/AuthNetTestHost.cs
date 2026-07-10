@@ -65,7 +65,7 @@ internal sealed class AuthNetTestHost : IAsyncDisposable
                 options.ApplicationName = "AuthNet Test";
                 configure?.Invoke(options);
             },
-            db => db.UseInMemoryDatabase(databaseName));
+            db => db.UseInMemory(databaseName));
 
         var app = builder.Build();
 

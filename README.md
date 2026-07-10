@@ -73,11 +73,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 
-builder.Services.AddAuthNet(options =>
-{
-    builder.Configuration.GetSection("AuthNet").Bind(options);
-    options.PostgresConnectionString = builder.Configuration.GetConnectionString("AuthNet");
-});
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UsePostgres(builder.Configuration.GetConnectionString("AuthNet")));
 
 var app = builder.Build();
 
@@ -98,11 +96,10 @@ Order matters: `UseRouting()`, then `UseAuthentication()`, then `UseAuthorizatio
 
 ### Development InMemory Option
 
-For quick throwaway smoke tests, you can use EF Core InMemory instead of PostgreSQL by passing AuthNet a custom DbContext registration. This is useful when you want to click through the UI without running a database server.
+For quick throwaway smoke tests, you can use EF Core InMemory instead of PostgreSQL through the same AuthNet database builder. This is useful when you want to click through the UI without running a database server.
 
 ```csharp
 using AuthNet.AspNetCore;
-using Microsoft.EntityFrameworkCore;
 
 builder.Services.AddRazorPages();
 
@@ -112,17 +109,11 @@ builder.Services.AddAuthNet(
         builder.Configuration.GetSection("AuthNet").Bind(options);
         options.UseDevelopmentEmailSender = true;
     },
-    db => db.UseInMemoryDatabase("AuthNet.Dev"));
+    db => db.UseInMemory("AuthNet.Dev"));
 
 await app.UseAuthNet(authNet => authNet
     .ApplyMigrations()
     .InitialAdministrator("admin", "Password1!", "admin@example.test"));
-```
-
-Install the EF InMemory provider in your app if you use this path:
-
-```powershell
-dotnet add package Microsoft.EntityFrameworkCore.InMemory
 ```
 
 Do not use InMemory for production or for final persistence testing. It does not behave like PostgreSQL for relational constraints, migrations, transactions, or SQL translation.

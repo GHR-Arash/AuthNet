@@ -39,6 +39,7 @@ Build first:
 - Integration tests use EF Core InMemory through an explicit test DbContext registration; production/default registration remains PostgreSQL.
 - The sample host can use EF Core InMemory only in Development via `AuthNet:UseInMemoryDatabase`; this is a local convenience, not a production persistence provider.
 - AuthNet.AspNetCore owns fluent startup tasks through `await app.UseAuthNet(authNet => ...)`, including opt-in migration application and initial administrator bootstrap.
+- AuthNet.AspNetCore owns the unified database provider API through `AddAuthNet(..., db => db.UsePostgres(connectionString))` and `db.UseInMemory(databaseName)`.
 - Initial administrator bootstrap creates/promotes a configured user into the `Administrator` role without exposing `UserManager`/`RoleManager` boilerplate to package consumers.
 - The sample host creates its demo admin user through the package fluent startup API and can override it through `AuthNet:InitialAdministrator`.
 - The sample host can register a sample SMTP email sender via `AuthNet:Email:Smtp` when `UseDevelopmentEmailSender=false`; this is local sample behavior, not package behavior.
@@ -48,6 +49,7 @@ Build first:
 Deferred:
 
 - API/JWT and refresh tokens.
+- SQL Server provider runtime support until the provider-neutral EF model split is complete.
 - SPA token authentication flows beyond the same-origin cookie-based SPA workflow.
 - Fine-grained permissions outside the bounded AuthNet built-in UI permission catalog.
 - Role deletion, impersonation, audit export, audit retention policy, and tamper-proof audit signing.
@@ -163,7 +165,8 @@ Host app should be able to configure:
 - Public registration enabled/disabled.
 - Cookie settings.
 - Password, lockout, and email verification policy.
-- PostgreSQL connection/DbContext integration.
+- PostgreSQL connection through `db.UsePostgres(connectionString)`.
+- Development/test InMemory through `db.UseInMemory(databaseName)`.
 - Email sender implementation.
 - Generic OIDC provider settings.
 - Account route prefix and basic UI branding/layout.
@@ -182,7 +185,7 @@ Host app should be able to configure:
 
 Sample-host-only development persistence:
 
-- `AuthNet:UseInMemoryDatabase=true` in Development uses EF Core InMemory through the existing `AddAuthNet` DbContext configuration seam.
+- `AuthNet:UseInMemoryDatabase=true` in Development uses EF Core InMemory through `db.UseInMemory(...)`.
 - The setting is rejected outside Development.
 - Startup migrations are skipped while InMemory mode is active.
 
@@ -211,7 +214,7 @@ Conceptual setup:
 builder.Services.AddAuthNet(options =>
 {
     options.EnablePublicRegistration = false;
-});
+}, db => db.UsePostgres(builder.Configuration.GetConnectionString("AuthNet")));
 
 app.UseAuthentication();
 app.UseAuthorization();

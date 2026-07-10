@@ -76,11 +76,9 @@ using AuthNet.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
-builder.Services.AddAuthNet(options =>
-{
-    builder.Configuration.GetSection("AuthNet").Bind(options);
-    options.PostgresConnectionString = builder.Configuration.GetConnectionString("AuthNet");
-});
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UsePostgres(builder.Configuration.GetConnectionString("AuthNet")));
 
 var app = builder.Build();
 
@@ -150,7 +148,7 @@ The repository sample host includes a sample SMTP sender for production-like man
 
 AuthNet uses EF Core migrations in `AuthNet.Persistence.Postgres`.
 
-PostgreSQL is the production/default persistence path. The repository sample host has a Development-only EF Core InMemory mode for local smoke testing, but that mode is not a production persistence provider and does not replace PostgreSQL migration or relational behavior testing.
+PostgreSQL is the production/default persistence path and is configured with `db.UsePostgres(connectionString)` during `AddAuthNet`. The repository sample host has a Development-only EF Core InMemory mode through `db.UseInMemory(databaseName)` for local smoke testing, but that mode is not a production persistence provider and does not replace PostgreSQL migration or relational behavior testing.
 
 Apply the schema with EF tooling:
 

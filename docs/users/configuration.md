@@ -4,7 +4,15 @@ This page describes the current AuthNet MVP configuration surface.
 
 Package consumers should reference `AuthNet.AspNetCore`; the Razor UI, PostgreSQL persistence, external provider, and core packages are resolved through package dependencies in the current MVP package set.
 
-PostgreSQL is the default and production persistence path. The sample host also has a Development-only `AuthNet:UseInMemoryDatabase` convenience setting, but that setting is sample-host behavior rather than a supported production persistence provider.
+PostgreSQL is the default and production persistence path. Configure it through the AuthNet database builder:
+
+```csharp
+builder.Services.AddAuthNet(
+    options => builder.Configuration.GetSection("AuthNet").Bind(options),
+    db => db.UsePostgres(builder.Configuration.GetConnectionString("AuthNet")));
+```
+
+The sample host also has a Development-only `AuthNet:UseInMemoryDatabase` convenience setting, which maps to `db.UseInMemory(...)`. That setting is sample-host behavior rather than a supported production persistence provider.
 
 ## Connection String
 
@@ -14,7 +22,7 @@ PostgreSQL is the default and production persistence path. The sample host also 
 }
 ```
 
-`PostgresConnectionString` is required for MVP slice 1.
+`AuthNetOptions.PostgresConnectionString` remains as a legacy compatibility path, but new integrations should use `db.UsePostgres(connectionString)`.
 
 ## AuthNet Options
 
